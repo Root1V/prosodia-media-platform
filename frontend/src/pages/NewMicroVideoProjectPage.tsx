@@ -87,6 +87,11 @@ export function NewMicroVideoProjectPage() {
   const [emojiImageUrls, setEmojiImageUrls] = useState<Record<string, string>>({})
   const [mediaUrl, setMediaUrl] = useState<string | null>(null)
   const [activeTool, setActiveTool] = useState<EditorTool>('media')
+  // Panel de ajustes como hoja inferior en mobile/tablet (ver RM-20,
+  // EditorRightPanel) -- irrelevante en desktop, ahi el panel siempre esta
+  // visible sin importar esto. Arranca cerrado: recien se abre al tocar
+  // una herramienta.
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false)
   const [narrationVolume, setNarrationVolume] = useState(1.0)
   const [musicVolume, setMusicVolume] = useState(0.12)
   const [captionX, setCaptionX] = useState(0.5)
@@ -251,8 +256,21 @@ export function NewMicroVideoProjectPage() {
       }
     : undefined
 
+  // Compartido por EditorLeftToolbar (riel de desktop y barra de mobile,
+  // ver RM-20): tocar la herramienta YA activa cierra su hoja de ajustes
+  // en mobile (no hace nada en desktop, ahi el panel siempre esta
+  // visible); tocar cualquier otra la abre mostrando esa herramienta.
+  function handleSelectTool(tool: EditorTool) {
+    if (tool === activeTool && mobilePanelOpen) {
+      setMobilePanelOpen(false)
+    } else {
+      setActiveTool(tool)
+      setMobilePanelOpen(true)
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="flex h-full flex-col">
+    <form onSubmit={handleSubmit} className="flex h-full flex-col pb-14 lg:pb-0">
       <EditorTopBar
         name={name}
         onNameChange={setName}
@@ -270,7 +288,7 @@ export function NewMicroVideoProjectPage() {
       )}
 
       <div className="flex flex-1 overflow-hidden">
-        <EditorLeftToolbar activeTool={activeTool} onSelect={setActiveTool} />
+        <EditorLeftToolbar activeTool={activeTool} onSelect={handleSelectTool} />
 
         <div className="flex flex-1 items-center justify-center overflow-y-auto p-6">
           {mediaUrl ? (
@@ -326,6 +344,8 @@ export function NewMicroVideoProjectPage() {
         <EditorRightPanel
           activeTool={activeTool}
           isSubmitting={isSubmitting}
+          open={mobilePanelOpen}
+          onClose={() => setMobilePanelOpen(false)}
           mediaFiles={mediaFiles}
           onMediaFilesAdded={(files) => {
             setMediaFiles((prev) => [...prev, ...files])

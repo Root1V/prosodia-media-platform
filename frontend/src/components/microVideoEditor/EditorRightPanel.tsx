@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react'
 import { MediaPanel } from './panels/MediaPanel'
 import { TextPanel } from './panels/TextPanel'
 import { EmojiPanel } from './panels/EmojiPanel'
@@ -5,6 +6,7 @@ import { NarrationPanel } from './panels/NarrationPanel'
 import { VoicePanel } from './panels/VoicePanel'
 import { MusicPanel } from './panels/MusicPanel'
 import { SubtitlesPanel } from './panels/SubtitlesPanel'
+import { cn } from '../../lib/cn'
 import type { EditorTool } from './types'
 import type {
   CaptionHighlightStyle,
@@ -18,6 +20,10 @@ import type { MusicTrack } from '../../types/musicTracks'
 interface EditorRightPanelProps {
   activeTool: EditorTool
   isSubmitting: boolean
+  /** Solo importa por debajo de `lg` -- ver comentario de `open`/`onClose`
+   * mas abajo en el componente. */
+  open: boolean
+  onClose: () => void
 
   mediaFiles: File[]
   onMediaFilesAdded: (files: File[]) => void
@@ -79,15 +85,12 @@ const TOOL_TITLES: Record<EditorTool, string> = {
   subtitles: 'Subtítulos',
 }
 
-/** Panel derecho del editor: muestra las opciones de la herramienta activa
- * (ver EditorLeftToolbar). Cada seccion es el mismo JSX/logica que antes
- * vivia apilado en un unico formulario largo -- aca solo cambia donde se
- * renderiza cada uno. */
-export function EditorRightPanel(props: EditorRightPanelProps) {
+/** El switch de paneles en si -- compartido entre el `<aside>` de desktop y
+ * la hoja de abajo en mobile/tablet (ver EditorRightPanel) para no
+ * duplicar la logica de "que panel va con que herramienta". */
+function ToolPanelContent(props: EditorRightPanelProps) {
   return (
-    <aside className="flex w-[340px] shrink-0 flex-col gap-4 overflow-y-auto border-l border-border bg-card p-4">
-      <h2 className="text-sm font-semibold text-muted-foreground">{TOOL_TITLES[props.activeTool]}</h2>
-
+    <>
       {props.activeTool === 'media' && (
         <MediaPanel
           mediaFiles={props.mediaFiles}
@@ -167,6 +170,56 @@ export function EditorRightPanel(props: EditorRightPanelProps) {
           onCaptionTextColorChange={props.onCaptionTextColorChange}
         />
       )}
-    </aside>
+    </>
+  )
+}
+
+/** Panel de ajustes de la herramienta activa (ver EditorLeftToolbar).
+ *
+ * Dos layouts segun ancho (ver RM-20): en desktop (`lg` y mas ancho) es el
+ * panel lateral fijo de siempre. Por debajo de eso no entra junto al
+ * lienzo Y a la barra de herramientas (que ahi pasa a ser horizontal
+ * abajo de todo, ver EditorLeftToolbar) -- se convierte en una hoja que
+ * sube desde el fondo, apoyada justo arriba de esa barra (`bottom-14`),
+ * con un fondo oscuro detras para poder cerrarla tocando afuera. Arranca
+ * cerrada (`open=false`) y se abre al tocar una herramienta -- ver el
+ * manejo de `open`/`activeTool` en NewMicroVideoProjectPage. */
+export function EditorRightPanel(props: EditorRightPanelProps) {
+  return (
+    <>
+      <aside className="hidden w-[340px] shrink-0 flex-col gap-4 overflow-y-auto border-l border-border bg-card p-4 lg:flex">
+        <h2 className="text-sm font-semibold text-muted-foreground">{TOOL_TITLES[props.activeTool]}</h2>
+        <ToolPanelContent {...props} />
+      </aside>
+
+      {props.open && (
+        <div
+          className="fixed inset-x-0 top-0 z-40 bottom-14 bg-black/50 lg:hidden"
+          onClick={props.onClose}
+          aria-hidden="true"
+        />
+      )}
+      <div
+        className={cn(
+          'fixed inset-x-0 bottom-14 z-50 flex max-h-[70vh] flex-col gap-4 rounded-t-2xl border-t border-border bg-card p-4 shadow-lg transition-transform duration-200 lg:hidden',
+          props.open ? 'translate-y-0' : 'translate-y-[calc(100%+3.5rem)]',
+        )}
+      >
+        <div className="flex shrink-0 items-center justify-between">
+          <h2 className="text-sm font-semibold text-muted-foreground">{TOOL_TITLES[props.activeTool]}</h2>
+          <button
+            type="button"
+            onClick={props.onClose}
+            className="rounded-lg p-1 text-muted-foreground hover:bg-secondary/50"
+            aria-label="Cerrar panel"
+          >
+            <ChevronDown className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          <ToolPanelContent {...props} />
+        </div>
+      </div>
+    </>
   )
 }
