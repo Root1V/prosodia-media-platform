@@ -1036,6 +1036,14 @@ uv run python scripts/create_admin.py --email admin@example.com --password "chan
 # 4. API (in one terminal)
 uv run uvicorn video_translator.web.main:app --reload --port 8000
 
+# To also emit telemetry to Argus (RM-41), prefix with --env-file and set the
+# OTEL_* vars in .env (see .env.example). pydantic-settings reads .env for its
+# own settings but does NOT export it to os.environ, which is where the
+# OpenTelemetry SDK looks -- so --env-file is what actually makes them arrive:
+#   uv run --env-file .env uvicorn video_translator.web.main:app --port 8000
+# Natively the endpoint is http://localhost:4318; the host.docker.internal in
+# docker-compose.yml only resolves inside a container.
+
 # 5. Celery worker (in another terminal — required, or projects stay "queued" forever)
 # --pool=solo: Celery's default "prefork" pool forks a child process, and
 # GPU-backed libraries (MLX/Metal on macOS, CUDA has the same documented

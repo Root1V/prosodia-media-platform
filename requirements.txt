@@ -49,3 +49,9 @@ bcrypt<4.1
 python-multipart>=0.0.9
 yt-dlp>=2024.7.1
 email-validator>=2.0.0
+# Telemetria OpenTelemetry hacia Argus (ver RM-41). Version exacta a
+# proposito: es un prelanzamiento (alfa). Sin los extras [grpc]/[http] usa su
+# exportador OTLP/HTTP con JSON, que no arrastra opentelemetry-proto y por
+# tanto no choca con el protobuf<3.20 de IndexTTS. Keep in sync with
+# pyproject.toml's "web" extra.
+argus-obs-sdk[asgi,celery]==1.0.0a4

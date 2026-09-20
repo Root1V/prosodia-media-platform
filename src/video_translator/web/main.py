@@ -2,6 +2,14 @@
 
 from __future__ import annotations
 
+# Antes de importar los routers (ver RM-41): `init()` instala el puente de
+# logging, y lo que se importe antes se queda con el handler viejo. La
+# identidad y el destino salen del entorno (OTEL_*), asi que este fichero no
+# cambia entre maquinas; sin OTEL_EXPORTER_OTLP_ENDPOINT no exporta nada.
+import argus
+
+argus.init()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -19,6 +27,11 @@ from video_translator.web.routers import (
 settings = load_web_settings()
 
 app = FastAPI(title="Prosodia Web API")
+
+# Abre el span de servidor y adopta el contexto entrante segun ARGUS_PROPAGATE.
+# Por defecto `never`: un llamante externo no puede inyectar el identificador
+# con el que se registran sus peticiones.
+app.add_middleware(argus.ASGIMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

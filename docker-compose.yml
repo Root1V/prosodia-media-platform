@@ -73,6 +73,17 @@ services:
       # un default inseguro marcado como tal para desarrollo. Fija uno real
       # en tu .env de la raiz (docker compose lo carga automaticamente) antes
       # de exponer esto mas alla de localhost.
+      # Telemetria hacia Argus (ver RM-41). Siempre al agente de la propia
+      # maquina, nunca al plano central de Argus: si mueven el plano, esto no
+      # cambia. Sin OTEL_EXPORTER_OTLP_ENDPOINT no se exporta nada.
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318
+      - OTEL_SERVICE_NAME=prosodia-api
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=prosodia,argus.component.role=api,service.version=${PROSODIA_VERSION:-dev}
+    # Necesario para que host.docker.internal resuelva en Linux (en Docker
+    # Desktop ya viene dado). "worker" lo tenia desde antes por
+    # LLAMA_SERVER_HOST; "api" lo necesita ahora por el endpoint OTLP.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./data:/data
 
@@ -101,6 +112,12 @@ services:
       - LLAMA_SERVER_HOST=${LLAMA_SERVER_HOST:-http://host.docker.internal:8080}
       - WHISPER_DEVICE=cuda
       - WHISPER_COMPUTE_TYPE=float16
+      # Telemetria hacia Argus (ver RM-41). Misma idea que en "api", cambiando
+      # nombre y rol: son dos procesos distintos y la gracia es justamente ver
+      # la traza cruzar de uno al otro por la cola.
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318
+      - OTEL_SERVICE_NAME=prosodia-worker
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=prosodia,argus.component.role=worker,service.version=${PROSODIA_VERSION:-dev}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:

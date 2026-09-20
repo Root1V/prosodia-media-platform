@@ -3,7 +3,7 @@ name = "video-translator"
 version = "1.4.0"
 description = "Traduccion de videos MP4 largos (EN -> ES) usando IA open source (Whisper, LLM local via Ollama, Coqui TTS)"
 readme = "README.md"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.11,<3.13"
 license = { text = "MIT" }
 authors = [{ name = "Video Translator Team" }]
 
@@ -70,6 +70,14 @@ web = [
     "python-multipart>=0.0.9",
     "yt-dlp>=2024.7.1",
     "email-validator>=2.0.0",
+    # Telemetria OpenTelemetry hacia Argus (ver RM-41). Va en este extra y no
+    # en las dependencias core porque solo la usan los dos drivers web
+    # (web/main.py y web/tasks/celery_app.py); la CLI no la necesita.
+    # Version exacta a proposito: es un prelanzamiento (alfa) y "pip install
+    # argus-obs-sdk" a secas no se lo lleva. Sin los extras [grpc]/[http] usa
+    # su exportador OTLP/HTTP con JSON, que no arrastra opentelemetry-proto y
+    # por tanto no choca con el protobuf<3.20 que exige IndexTTS (ver S-03).
+    "argus-obs-sdk[asgi,celery]==1.0.0a4",
 ]
 
 [project.scripts]
