@@ -1,4 +1,4 @@
-import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react'
+import type { CSSProperties } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { Pause, Play } from 'lucide-react'
 import type {
@@ -9,6 +9,7 @@ import type {
   TextOverlay,
 } from '../../types/project'
 import { cn } from '../../lib/cn'
+import { dragPoint, trackDrag, type DragStartEvent } from '../../lib/dragEvents'
 
 // Aproximacion visual (no un match exacto de pixeles) de los presets de
 // color de RM-31 -- el filtro real se aplica en ffmpeg al generar el video.
@@ -310,37 +311,26 @@ export function TextOverlayCanvas({
     })
   }
 
-  // Mouse events (no Pointer Events / setPointerCapture) a proposito: Safari
-  // tiene un bug conocido y de larga data donde, tras `setPointerCapture`,
-  // `pointermove`/`pointerup` dejan de dispararse en cuanto el cursor sale
-  // del elemento capturado -- incluso con los listeners puestos en `window`
-  // (ver https://github.com/w3c/pointerevents/issues/407) -- lo que rompia
-  // por completo arrastrar overlays/imagen en Safari. Mouse events puros no
-  // tienen ese problema y son mas que suficientes: esta interaccion es de
-  // escritorio (mouse), no necesita soporte multi-touch.
-  function handlePointerDown(
-    event: ReactMouseEvent<HTMLElement>,
-    onDrag: (x: number, y: number) => void,
-  ) {
-    event.preventDefault()
+  // Mouse Y touch events nativos (no Pointer Events / setPointerCapture) a
+  // proposito: Safari tiene un bug conocido y de larga data donde, tras
+  // `setPointerCapture`, `pointermove`/`pointerup` dejan de dispararse en
+  // cuanto el cursor sale del elemento capturado -- incluso con los
+  // listeners puestos en `window` (ver
+  // https://github.com/w3c/pointerevents/issues/407) -- lo que rompia por
+  // completo arrastrar overlays/imagen en Safari. Mouse y touch events
+  // puros no tienen ese problema (ver trackDrag en lib/dragEvents.ts), asi
+  // que cubren tanto desktop como tablet/celular sin reintroducirlo.
+  function handlePointerDown(event: DragStartEvent, onDrag: (x: number, y: number) => void) {
+    if (!('touches' in event)) event.preventDefault()
     const container = containerRef.current
     if (!container) return
 
-    function handleMouseMove(moveEvent: MouseEvent) {
-      if (!container) return
+    trackDrag((clientX, clientY) => {
       const rect = container.getBoundingClientRect()
-      const x = Math.min(1, Math.max(0, (moveEvent.clientX - rect.left) / rect.width))
-      const y = Math.min(1, Math.max(0, (moveEvent.clientY - rect.top) / rect.height))
+      const x = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+      const y = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height))
       onDrag(x, y)
-    }
-
-    function handleMouseUp() {
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
+    })
   }
 
   // A diferencia de handlePointerDown (mapea la posicion ABSOLUTA del
@@ -349,16 +339,17 @@ export function TextOverlayCanvas({
   // cursor. Se acumula el DELTA de movimiento y se resta del offset actual
   // -- arrastrar hacia la derecha revela mas del lado izquierdo de la
   // imagen, igual que un editor de recorte de foto estandar.
-  // Mouse events, mismo motivo que handlePointerDown de arriba (bug de
+  // Mouse y touch, mismo motivo que handlePointerDown de arriba (bug de
   // Safari con setPointerCapture).
-  function handleMediaPointerDown(event: ReactMouseEvent<HTMLElement>) {
+  function handleMediaPointerDown(event: DragStartEvent) {
     const pan = onMediaPan
     if (!pan || !mediaAdjustment) return
-    event.preventDefault()
+    if (!('touches' in event)) event.preventDefault()
     const container = containerRef.current
-    if (!container) return
-    let lastX = event.clientX
-    let lastY = event.clientY
+    const start = dragPoint(event)
+    if (!container || !start) return
+    let lastX = start.clientX
+    let lastY = start.clientY
     let offsetX = mediaAdjustment.offset_x
     let offsetY = mediaAdjustment.offset_y
     // El sobrante (cuanto mas grande es la imagen/clip ya escalado que el
@@ -370,25 +361,16 @@ export function TextOverlayCanvas({
     // cero), antes se quedaba trabado sin poder moverse en ese eje.
     const { excessX, excessY } = computeExcess(naturalSize, mediaAdjustment.zoom)
 
-    function handleMouseMove(moveEvent: MouseEvent) {
-      if (!container) return
+    trackDrag((clientX, clientY) => {
       const rect = container.getBoundingClientRect()
-      const dx = moveEvent.clientX - lastX
-      const dy = moveEvent.clientY - lastY
+      const dx = clientX - lastX
+      const dy = clientY - lastY
       if (excessX > 0.001) offsetX = Math.min(1, Math.max(0, offsetX - dx / (excessX * rect.width)))
       if (excessY > 0.001) offsetY = Math.min(1, Math.max(0, offsetY - dy / (excessY * rect.height)))
-      lastX = moveEvent.clientX
-      lastY = moveEvent.clientY
+      lastX = clientX
+      lastY = clientY
       pan?.(offsetX, offsetY)
-    }
-
-    function handleMouseUp() {
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
+    })
   }
 
   // Reproduce a mano el mismo orden de operaciones que
@@ -440,14 +422,17 @@ export function TextOverlayCanvas({
             src={mediaUrl}
             playsInline
             // Mismo criterio que el `<img>` de abajo: `cursor-grab`, no
-            // `cursor-move` (sin glyph nativo en macOS); mousedown en mouse
-            // events puros (bug de Safari con setPointerCapture, ver arriba).
+            // `cursor-move` (sin glyph nativo en macOS); mousedown/touchstart
+            // en eventos nativos puros (bug de Safari con setPointerCapture,
+            // ver arriba). `touch-none` evita que el navegador interprete el
+            // arrastre como scroll/zoom de la pagina en vez de pan.
             className={cn(
               'h-full w-full object-cover',
-              onMediaPan && 'cursor-grab active:cursor-grabbing',
+              onMediaPan && 'cursor-grab touch-none active:cursor-grabbing',
             )}
             draggable={false}
             onMouseDown={onMediaPan ? handleMediaPointerDown : undefined}
+            onTouchStart={onMediaPan ? handleMediaPointerDown : undefined}
             onPlay={() => setIsVideoPlaying(true)}
             onPause={() => setIsVideoPlaying(false)}
             onLoadedMetadata={(event) => {
@@ -527,11 +512,12 @@ export function TextOverlayCanvas({
           />
           <button
             type="button"
-            // stopPropagation en mousedown (no solo en el click): sin esto,
-            // el mousedown se propaga al <video> de abajo y arranca el
-            // gesto de pan (handleMediaPointerDown), moviendo el encuadre
+            // stopPropagation en mousedown/touchstart (no solo en el
+            // click): sin esto, el gesto se propaga al <video> de abajo y
+            // arranca el pan (handleMediaPointerDown), moviendo el encuadre
             // en vez de solo pausar/reanudar.
             onMouseDown={(event) => event.stopPropagation()}
+            onTouchStart={(event) => event.stopPropagation()}
             onClick={() => {
               const video = videoRef.current
               if (!video) return
@@ -559,10 +545,11 @@ export function TextOverlayCanvas({
           // propio en macOS y se ve bien en los tres navegadores.
           className={cn(
             'h-full w-full object-cover [-webkit-user-drag:none]',
-            onMediaPan && 'cursor-grab active:cursor-grabbing',
+            onMediaPan && 'cursor-grab touch-none active:cursor-grabbing',
           )}
           draggable={false}
           onMouseDown={onMediaPan ? handleMediaPointerDown : undefined}
+          onTouchStart={onMediaPan ? handleMediaPointerDown : undefined}
           onLoad={(event) =>
             setNaturalSize({
               width: event.currentTarget.naturalWidth,
@@ -585,8 +572,12 @@ export function TextOverlayCanvas({
             onSelect(overlay.id)
             handlePointerDown(event, (x, y) => onMove(overlay.id, x, y))
           }}
+          onTouchStart={(event) => {
+            onSelect(overlay.id)
+            handlePointerDown(event, (x, y) => onMove(overlay.id, x, y))
+          }}
           className={cn(
-            'absolute max-w-[90%] -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing whitespace-pre-wrap px-1 text-center',
+            'absolute max-w-[90%] -translate-x-1/2 -translate-y-1/2 cursor-grab touch-none active:cursor-grabbing whitespace-pre-wrap px-1 text-center',
             overlay.id === selectedId && 'outline outline-2 outline-dashed outline-primary',
           )}
           style={{
@@ -616,8 +607,12 @@ export function TextOverlayCanvas({
               onSelectEmoji?.(overlay.id)
               handlePointerDown(event, (x, y) => onMoveEmoji?.(overlay.id, x, y))
             }}
+            onTouchStart={(event) => {
+              onSelectEmoji?.(overlay.id)
+              handlePointerDown(event, (x, y) => onMoveEmoji?.(overlay.id, x, y))
+            }}
             className={cn(
-              'absolute -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing',
+              'absolute -translate-x-1/2 -translate-y-1/2 cursor-grab touch-none active:cursor-grabbing',
               overlay.id === selectedEmojiId && 'outline outline-2 outline-dashed outline-primary',
             )}
             style={{
@@ -631,7 +626,8 @@ export function TextOverlayCanvas({
       {captionPreview && (
         <div
           onMouseDown={(event) => handlePointerDown(event, (x, y) => onCaptionMove?.(x, y))}
-          className="absolute max-w-[85%] -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing whitespace-pre-wrap rounded px-2 py-1 text-center text-sm font-semibold"
+          onTouchStart={(event) => handlePointerDown(event, (x, y) => onCaptionMove?.(x, y))}
+          className="absolute max-w-[85%] -translate-x-1/2 -translate-y-1/2 cursor-grab touch-none active:cursor-grabbing whitespace-pre-wrap rounded px-2 py-1 text-center text-sm font-semibold"
           style={{
             left: `${captionPreview.x * 100}%`,
             top: `${captionPreview.y * 100}%`,

@@ -191,6 +191,10 @@ Commit: `7356015`
 **Why:** se esperan usuarios conectándose desde iPad y celulares; el diseño no se ha validado fuera de desktop.
 **Scope:** auditar dashboard, formularios de creación y detalle de proyecto en anchos de tablet/mobile; corregir donde el layout se rompa. No incluye una app nativa ni un rediseño mobile-first desde cero.
 
+## RM-41 — Soporte táctil en el editor de Micro-Video
+**Why:** la auditoría de RM-20 detectó que los gestos de arrastre de `TextOverlayCanvas` y `VideoSegmentTimeline` usaban solo eventos de mouse (decisión deliberada para evitar un bug de Safari con Pointer Events, ver comentarios en ambos archivos) y por eso no funcionaban en tablet/celular. Es un problema de INPUT, no de layout, así que quedó fuera del alcance de RM-20.
+**Scope:** mouse y touch events en paralelo (sin Pointer Events, para no reintroducir el bug de Safari) vía un helper compartido (`lib/dragEvents.ts`). Cubre mover overlays de texto/emoji y el preview de captions, panear la imagen/video de fondo, y en la franja de recorte: arrastrar el cuerpo de un tramo (unir/separar), sus bordes (acortar) y la selección en modo corte. `touch-action: none` en los elementos arrastrables evita que el navegador interprete el gesto como scroll de la página. Fuera de alcance: doble clic para saltar a un punto (sigue siendo solo mouse, no es un gesto de arrastre).
+
 ## RM-21 — Mensajes de error legibles del pipeline
 **Why:** hoy `project.error_message` muestra el mensaje técnico crudo de la excepción tal cual (a veces legible, a veces un stack trace de Python) — un usuario no técnico no puede entender por qué falló ni qué hacer al respecto.
 **Scope:** mapear los tipos de error conocidos del pipeline (conexión al LLM, formato de descarga, disco lleno, modelo no encontrado, etc.) a un mensaje corto con causa probable + acción sugerida, mostrado en el detalle del proyecto en vez del texto crudo; conservar el mensaje técnico original visible en un detalle expandible para debugging.
