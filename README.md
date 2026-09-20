@@ -1,11 +1,20 @@
-# Prosodia — AI Video Dubbing Pipeline (EN → ES, 100% Open Source)
+# Prosodia — Self-Hosted AI Media Platform (Voice & Video, 100% Open Source)
 
-[![CI](https://github.com/Root1V/ai-video-dubbing-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/Root1V/ai-video-dubbing-pipeline/actions/workflows/ci.yml)
+[![CI](https://github.com/Root1V/prosodia-media-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/Root1V/prosodia-media-platform/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](pyproject.toml)
-[![Release](https://img.shields.io/github/v/release/Root1V/ai-video-dubbing-pipeline)](https://github.com/Root1V/ai-video-dubbing-pipeline/releases)
+[![Release](https://img.shields.io/github/v/release/Root1V/prosodia-media-platform)](https://github.com/Root1V/prosodia-media-platform/releases)
 
 *The CLI and Python package keep the technical name `video-translator`; **Prosodia** is the project's name.*
+
+**Five services, one dashboard, everything local:** dubbing (EN → ES with
+per-speaker voice cloning), subtitles, transcription, voice cloning / TTS, and
+AI micro-videos for social media.
+
+Dubbing is the core of the project and what most of this README documents. The
+web platform that wraps all five — React dashboard, Celery/Redis job queue,
+Postgres, users and roles — lives in
+[Web Dashboard](#web-dashboard-prosodia-web--optional-admin-ui).
 
 A production-grade pipeline that turns an **hour-plus** English video with
 **multiple speakers** into a dubbed Spanish video — with each person's voice
@@ -127,8 +136,8 @@ section for why). `transcription-mlx` can be combined with either.
 ### Steps with `uv` (recommended)
 
 ```bash
-git clone https://github.com/Root1V/ai-video-dubbing-pipeline.git
-cd ai-video-dubbing-pipeline
+git clone https://github.com/Root1V/prosodia-media-platform.git
+cd prosodia-media-platform
 
 uv python install 3.11     # if you don't already have it (uv downloads it for you)
 uv sync                    # uses .python-version -> installs with Python 3.11, subtitles only
@@ -253,8 +262,8 @@ brew install ffmpeg ollama
 # need that, install `ffmpeg-full` (keg-only) instead and point FFMPEG_BINARY/
 # FFPROBE_BINARY at its path -- see .env.example.
 
-git clone https://github.com/Root1V/ai-video-dubbing-pipeline.git
-cd ai-video-dubbing-pipeline
+git clone https://github.com/Root1V/prosodia-media-platform.git
+cd prosodia-media-platform
 
 uv sync
 uv sync --extra transcription-mlx      # GPU-accelerated transcription (see below) -- recommended
