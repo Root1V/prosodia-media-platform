@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Root1V/prosodia-media-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/Root1V/prosodia-media-platform/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](pyproject.toml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
 [![Release](https://img.shields.io/github/v/release/Root1V/prosodia-media-platform)](https://github.com/Root1V/prosodia-media-platform/releases)
 
 *The CLI and Python package keep the technical name `video-translator`; **Prosodia** is the project's name.*
