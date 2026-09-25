@@ -23,7 +23,7 @@
 | RM-17 | Selector de fuente de media: orden y validación de URL | done | YouTube primero; validar URL antes de habilitar el envío si falla el preview. |
 | RM-18 | Resumen con highlights en Transcripción | done | Toggle opcional: además de la transcripción completa, un resumen de puntos clave. |
 | RM-19 | Modo oscuro | done | Detecta claro/oscuro por la hora del sistema; botón para alternar a demanda. |
-| RM-20 | Auditoría de diseño responsive | todo | Revisar y corregir el diseño para tablet/celular. |
+| RM-20 | Auditoría de diseño responsive | done | Revisar y corregir el diseño para tablet/celular. |
 | RM-21 | Mensajes de error legibles del pipeline | todo | Traducir el error técnico de una etapa fallida a una causa probable entendible. |
 | RM-22 | Micro-video con video generado por IA | todo | Alternativa a RM-14 con un modelo de video generativo en vez de composición ffmpeg. |
 | RM-23 | Estilo de resaltado de captions: caja o color de texto | done | Elegir entre caja de fondo (actual) o cambiar el color de la palabra. |

@@ -190,6 +190,7 @@ Commit: `7356015`
 ## RM-20 — Auditoría de diseño responsive
 **Why:** se esperan usuarios conectándose desde iPad y celulares; el diseño no se ha validado fuera de desktop.
 **Scope:** auditar dashboard, formularios de creación y detalle de proyecto en anchos de tablet/mobile; corregir donde el layout se rompa. No incluye una app nativa ni un rediseño mobile-first desde cero.
+Hecho en `2034ba4`: el sidebar (256px fijos en todas las páginas) se colapsa en un drawer por debajo de 1024px, y el editor de Micro-Video — que sumaba 668px fijos antes del lienzo — pasa a barra de herramientas horizontal abajo con el panel de ajustes como hoja inferior. Más dos grillas sin versión de una columna y la barra superior del editor. Comprobado en dispositivo. **Fuera de alcance, quedó pendiente:** los gestos de arrastre del lienzo y de la línea de tiempo son solo de mouse (`onMouseDown` + listeners de `window`, decisión documentada para esquivar un bug de Safari con Pointer Events), así que en táctil no funcionan — es un problema de input, no de layout.
 
 ## RM-21 — Mensajes de error legibles del pipeline
 **Why:** hoy `project.error_message` muestra el mensaje técnico crudo de la excepción tal cual (a veces legible, a veces un stack trace de Python) — un usuario no técnico no puede entender por qué falló ni qué hacer al respecto.
