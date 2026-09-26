@@ -43,14 +43,18 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      # Puerto del HOST configurable: en una maquina con varios proyectos, el
+      # 5432 y el 6379 se los lleva el primero que arranca y el resto queda
+      # sin base sin avisar. Fija POSTGRES_PORT/REDIS_PORT en tu .env (y
+      # DATABASE_URL/REDIS_URL acordes) si ya estan ocupados.
+      - "${POSTGRES_PORT:-5432}:5432"
 
   redis:
     image: redis:7-alpine
     volumes:
       - redis_data:/data
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
 
   # API REST (FastAPI/uvicorn). No necesita GPU: solo sirve HTTP y lee
   # pipeline_timings.json del disco compartido con "worker" para el progreso
