@@ -54,4 +54,4 @@ email-validator>=2.0.0
 # exportador OTLP/HTTP con JSON, que no arrastra opentelemetry-proto y por
 # tanto no choca con el protobuf<3.20 de IndexTTS. Keep in sync with
 # pyproject.toml's "web" extra.
-argus-obs-sdk[asgi,celery]==1.0.0a4
+argus-obs-sdk[asgi,celery]==1.0.0a7

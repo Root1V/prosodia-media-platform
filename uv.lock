@@ -62,14 +62,14 @@ name = "aiohttp"
 version = "3.14.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "aiohappyeyeballs" },
-    { name = "aiosignal" },
-    { name = "attrs" },
-    { name = "frozenlist" },
-    { name = "multidict" },
-    { name = "propcache" },
-    { name = "typing-extensions" },
-    { name = "yarl" },
+    { name = "aiohappyeyeballs", marker = "python_full_version < '3.12'" },
+    { name = "aiosignal", marker = "python_full_version < '3.12'" },
+    { name = "attrs", marker = "python_full_version < '3.12'" },
+    { name = "frozenlist", marker = "python_full_version < '3.12'" },
+    { name = "multidict", marker = "python_full_version < '3.12'" },
+    { name = "propcache", marker = "python_full_version < '3.12'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+    { name = "yarl", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/58/d9/22ce5786ac0c1653ae8b6c23bded02c1686d11f0dbb45b31ce128e0df985/aiohttp-3.14.3.tar.gz", hash = "sha256:9491196535a88924a60afd5b5f434b5b203b6cc616250878dbdb223a8f7844bc", size = 7971213, upload-time = "2026-07-23T01:57:27.037Z" }
 wheels = [
@@ -116,8 +116,8 @@ name = "aiosignal"
 version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "frozenlist" },
-    { name = "typing-extensions" },
+    { name = "frozenlist", marker = "python_full_version < '3.12'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/61/62/06741b579156360248d1ec624842ad0edf697050bbaf7c3e46394e106ad1/aiosignal-1.4.0.tar.gz", hash = "sha256:f47eecd9468083c2029cc99945502cb7708b082c232f9aca65da147157b251c7", size = 25007, upload-time = "2025-07-03T22:54:43.528Z" }
 wheels = [
@@ -208,15 +208,15 @@ sdist = { url = "https://files.pythonhosted.org/packages/8e/25/4422cf7777c0cedd2
 
 [[package]]
 name = "argus-obs-sdk"
-version = "1.0.0a4"
+version = "1.0.0a7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "argus-obs-semconv" },
     { name = "opentelemetry-sdk" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2c/f1/6f4792a935bb4f7e0179f15b8cdcd54cc49f822b6d52a5ac693c5a29e3fe/argus_obs_sdk-1.0.0a4.tar.gz", hash = "sha256:78396b07a6985d580315a89f8310d3e1953b512cb1d5ebf94b82a36fe9e08610", size = 36384, upload-time = "2026-09-20T02:15:03.655Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ef/bd/49c7513ffb0eee78788d1c0fb0f54c1b87cf901370764fadd2c882e0348c/argus_obs_sdk-1.0.0a7.tar.gz", hash = "sha256:15f3000c2932684e7f157364a7fabfc63fa6dbe9c9b1d168b0511a5e3bb75610", size = 38874, upload-time = "2026-09-27T17:30:48.264Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a3/dc/979ef62b9fbe9eb75ea497639a355280c83756714c1be4aff3f1c1d3df12/argus_obs_sdk-1.0.0a4-py3-none-any.whl", hash = "sha256:524a03115ddb30efd540c0bebc4a40ba913b99d7930144cdb9bac43c525a3612", size = 31772, upload-time = "2026-09-20T02:15:02.31Z" },
+    { url = "https://files.pythonhosted.org/packages/08/6b/e282dfac741b4563cb31298941338c725a8500aa33d4b438c0309b4267ea/argus_obs_sdk-1.0.0a7-py3-none-any.whl", hash = "sha256:5d7d4db987f56bd109b7403913e982235266589b22a5a6464850756cb39e1e8c", size = 32862, upload-time = "2026-09-27T17:30:46.963Z" },
 ]
 
 [package.optional-dependencies]
@@ -230,14 +230,14 @@ celery = [
 
 [[package]]
 name = "argus-obs-semconv"
-version = "1.0.0a4"
+version = "1.0.0a8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "opentelemetry-api" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d9/ec/9fd8cd3e3063face22ed5564f2d56e5f63b77f04d64052f2300edfadf473/argus_obs_semconv-1.0.0a4.tar.gz", hash = "sha256:1458e23b0eae9cca9adbd7c668a751e6d283f0ea1c1db36089c3828d9d767911", size = 34112, upload-time = "2026-09-20T02:14:55.377Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f2/a1/035b675d00604b21994654affb7689dd2329d406b05cccb2c0cfc62415a8/argus_obs_semconv-1.0.0a8.tar.gz", hash = "sha256:9b9495f2174e8f7940560a2ea3374b723d8e0e31d1a201c6825caf7e21d0167b", size = 41655, upload-time = "2026-09-28T02:23:36.424Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/16/f0f24252687d187ccf72baca3b6d604dbec0c101396b26249ebed186b36a/argus_obs_semconv-1.0.0a4-py3-none-any.whl", hash = "sha256:42a66c565b946421bcc7304238fb7ba9b560a759b069eb0f361dfb2cb60574c1", size = 19801, upload-time = "2026-09-20T02:14:53.998Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/ca/8cd4aa1813fcdf98deada3b3ef99cbf994b75a8cee72137442046e0b0700/argus_obs_semconv-1.0.0a8-py3-none-any.whl", hash = "sha256:df9a38526c51e0a4af8c0085b97635ef2eb4c8b584a36fb67c1b35199aa5ee4f", size = 22618, upload-time = "2026-09-28T02:23:35.175Z" },
 ]
 
 [[package]]
@@ -406,7 +406,7 @@ name = "blis"
 version = "1.3.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" } },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d0/d0/d8cc8c9a4488a787e7fa430f6055e5bd1ddb22c340a751d9e901b82e2efe/blis-1.3.3.tar.gz", hash = "sha256:034d4560ff3cc43e8aa37e188451b0440e3261d989bb8a42ceee865607715ecd", size = 2644873, upload-time = "2025-11-17T12:28:30.511Z" }
 wheels = [
@@ -671,7 +671,7 @@ name = "contourpy"
 version = "1.3.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/58/01/1253e6698a07380cd31a736d248a3f2a50a7c88779a1813da27503cadc2a/contourpy-1.3.3.tar.gz", hash = "sha256:083e12155b210502d0bca491432bb04d56dc3432f95a979b429f2848c3dbe880", size = 13466174, upload-time = "2025-07-26T12:03:12.549Z" }
@@ -710,7 +710,7 @@ name = "contractions"
 version = "0.1.73"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "textsearch" },
+    { name = "textsearch", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bb/e4/725241b788963b460ce0118bfd5c505dd3d1bdd020ee740f9f39044ed4a7/contractions-0.1.73-py2.py3-none-any.whl", hash = "sha256:398cee3b69c37307a50dce4930d961a0f42b48fdae9562df73bed5683008d3bc", size = 8651, upload-time = "2022-11-15T14:05:54.573Z" },
@@ -817,8 +817,8 @@ name = "ctranslate2"
 version = "4.8.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts' or extra != 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or extra != 'extra-16-video-translator-dubbing-coqui' or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "pyyaml" },
     { name = "setuptools" },
 ]
@@ -896,10 +896,10 @@ name = "dateparser"
 version = "1.1.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "python-dateutil" },
-    { name = "pytz" },
-    { name = "regex" },
-    { name = "tzlocal" },
+    { name = "python-dateutil", marker = "python_full_version < '3.12'" },
+    { name = "pytz", marker = "python_full_version < '3.12'" },
+    { name = "regex", marker = "python_full_version < '3.12'" },
+    { name = "tzlocal", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7e/16/e95f1d2f8014bac38e00d037e192222e52de7db7c71268ed3b2e12d4893c/dateparser-1.1.8.tar.gz", hash = "sha256:86b8b7517efcc558f085a142cdb7620f0921543fcabdb538c8a4c4001d8178e3", size = 296595, upload-time = "2023-03-23T14:02:06.413Z" }
 wheels = [
@@ -1029,10 +1029,10 @@ name = "encodec"
 version = "0.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "einops" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" } },
-    { name = "torch", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
-    { name = "torchaudio", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
+    { name = "einops", marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "torch", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "python_full_version < '3.12'" },
+    { name = "torchaudio", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/62/59/e47bbd0542d0e6f4ce9983d5eb458a01d4b42c81e5c410cb9e159b1061ae/encodec-0.1.1.tar.gz", hash = "sha256:36dde98ccfe6c51a15576476cadfcb3b35a63507b8b8555abd69889a6fba6772", size = 3736037, upload-time = "2022-10-25T16:13:21.471Z" }
 
@@ -1124,12 +1124,12 @@ name = "flask"
 version = "3.1.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "blinker" },
-    { name = "click" },
-    { name = "itsdangerous" },
-    { name = "jinja2" },
-    { name = "markupsafe" },
-    { name = "werkzeug" },
+    { name = "blinker", marker = "python_full_version < '3.12'" },
+    { name = "click", marker = "python_full_version < '3.12'" },
+    { name = "itsdangerous", marker = "python_full_version < '3.12'" },
+    { name = "jinja2", marker = "python_full_version < '3.12'" },
+    { name = "markupsafe", marker = "python_full_version < '3.12'" },
+    { name = "werkzeug", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/26/00/35d85dcce6c57fdc871f3867d465d780f302a175ea360f62533f12b27e2b/flask-3.1.3.tar.gz", hash = "sha256:0ef0e52b8a9cd932855379197dd8f94047b359ca0a78695144304cb45f87c9eb", size = 759004, upload-time = "2026-02-19T05:00:57.678Z" }
 wheels = [
@@ -1282,8 +1282,8 @@ name = "g2pkk"
 version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "jamo" },
-    { name = "nltk" },
+    { name = "jamo", marker = "python_full_version < '3.12'" },
+    { name = "nltk", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2c/ec/01d2a85b19b6c5627ed6b0bc60d867440beb4c43c5dbc2bad619e7bdbe12/g2pkk-0.1.2.tar.gz", hash = "sha256:61aad5d41b67d71dd29b8570fc90d2c89cb76493170101d92492649521b447e4", size = 24308, upload-time = "2022-09-05T07:32:39.137Z" }
 wheels = [
@@ -1323,7 +1323,7 @@ name = "grpcio"
 version = "1.83.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "typing-extensions", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0c/98/304898ac4e04e2d5e4e4c2eadc178b1f2a16d5f4bc2f91306c87d64680b9/grpcio-1.83.0.tar.gz", hash = "sha256:7674587248fbbb2ac6e4eecf83a8a0f3d91a928f941de571acfd3a2f007fbc24", size = 13428824, upload-time = "2026-07-23T15:20:37.759Z" }
 wheels = [
@@ -1354,27 +1354,27 @@ name = "gruut"
 version = "2.2.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "babel" },
-    { name = "dateparser" },
-    { name = "gruut-ipa" },
-    { name = "gruut-lang-en" },
-    { name = "jsonlines" },
-    { name = "networkx", version = "2.8.8", source = { registry = "https://pypi.org/simple" } },
-    { name = "num2words" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" } },
-    { name = "python-crfsuite" },
+    { name = "babel", marker = "python_full_version < '3.12'" },
+    { name = "dateparser", marker = "python_full_version < '3.12'" },
+    { name = "gruut-ipa", marker = "python_full_version < '3.12'" },
+    { name = "gruut-lang-en", marker = "python_full_version < '3.12'" },
+    { name = "jsonlines", marker = "python_full_version < '3.12'" },
+    { name = "networkx", version = "2.8.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "num2words", marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "python-crfsuite", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f8/8e/8b21ff551baf7b9c4e9c38e8d0be9c853a84bfd30881b1d3afa815379c3c/gruut-2.2.3.tar.gz", hash = "sha256:8d393d5e152c1aeae62798e3c8c4cbb8a528c32fd012640db5db31194cdac6f5", size = 73533, upload-time = "2022-03-17T18:35:03.068Z" }
 
 [package.optional-dependencies]
 de = [
-    { name = "gruut-lang-de" },
+    { name = "gruut-lang-de", marker = "python_full_version < '3.12'" },
 ]
 es = [
-    { name = "gruut-lang-es" },
+    { name = "gruut-lang-es", marker = "python_full_version < '3.12'" },
 ]
 fr = [
-    { name = "gruut-lang-fr" },
+    { name = "gruut-lang-fr", marker = "python_full_version < '3.12'" },
 ]
 
 [[package]]
@@ -1631,8 +1631,8 @@ name = "inflect"
 version = "7.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "more-itertools", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "typeguard", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "more-itertools", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "typeguard", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/78/c6/943357d44a21fd995723d07ccaddd78023eace03c1846049a2645d4324a3/inflect-7.5.0.tar.gz", hash = "sha256:faf19801c3742ed5a05a8ce388e0d8fe1a07f8d095c82201eb904f5d27ad571f", size = 73751, upload-time = "2024-12-28T17:11:18.897Z" }
 wheels = [
@@ -1766,7 +1766,7 @@ name = "jsonlines"
 version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "six" },
+    { name = "six", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/90/cd/0beacbcfdf9b3af9e7c615cb3dba7ec4be1030d4b283e3c9717e3fd9af3c/jsonlines-1.2.0.tar.gz", hash = "sha256:43b8d5588a9d4862c8a4a49580e38e20ec595aee7ad6fe469b10fb83fbefde88", size = 6075, upload-time = "2017-08-17T10:11:03.319Z" }
 wheels = [
@@ -1888,7 +1888,7 @@ name = "lazy-loader"
 version = "0.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "packaging", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "packaging", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/49/ac/21a1f8aa3777f5658576777ea76bfb124b702c520bbe90edf4ae9915eafa/lazy_loader-0.5.tar.gz", hash = "sha256:717f9179a0dbed357012ddad50a5ad3d5e4d9a0b8712680d4e687f5e6e6ed9b3", size = 15294, upload-time = "2026-03-06T15:45:09.054Z" }
 wheels = [
@@ -1900,21 +1900,21 @@ name = "librosa"
 version = "0.10.2.post1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "audioread", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "decorator", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "joblib", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "lazy-loader", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "msgpack", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "numba", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "audioread", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "decorator", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "joblib", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "lazy-loader", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "msgpack", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numba", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "pooch", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "scikit-learn", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "pooch", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "scikit-learn", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "scipy", version = "1.18.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
-    { name = "soundfile", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "soxr", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "typing-extensions", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "soundfile", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "soxr", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "typing-extensions", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0e/2d/77783a52641a21ff7e2230aa588e4fb4a61422a64673096a36776b7e5bd9/librosa-0.10.2.post1.tar.gz", hash = "sha256:cd99f16717cbcd1e0983e37308d1db46a6f7dfc2e396e5a9e61e6821e44bd2e7", size = 325533, upload-time = "2024-05-14T15:49:40.53Z" }
 wheels = [
@@ -2052,16 +2052,16 @@ name = "matplotlib"
 version = "3.10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "contourpy", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "cycler", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "fonttools", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "kiwisolver", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "contourpy", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "cycler", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "fonttools", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "kiwisolver", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "packaging", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "pillow", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "pyparsing", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "python-dateutil", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "packaging", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "pillow", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "pyparsing", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "python-dateutil", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/68/dd/fa2e1a45fce2d09f4aea3cee169760e672c8262325aa5796c49d543dc7e6/matplotlib-3.10.0.tar.gz", hash = "sha256:b886d02a581b96704c9d1ffe55709e49b4d2d52709ccebc4be42db856e511278", size = 36686418, upload-time = "2024-12-14T06:32:51.547Z" }
 wheels = [
@@ -2139,18 +2139,18 @@ name = "mlx-whisper"
 version = "0.4.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "huggingface-hub" },
-    { name = "mlx" },
-    { name = "more-itertools" },
-    { name = "numba" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts' or extra != 'extra-16-video-translator-dubbing-coqui'" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or extra == 'extra-16-video-translator-dubbing-coqui'" },
-    { name = "scipy", version = "1.18.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra != 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
-    { name = "tiktoken" },
-    { name = "torch", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-video-translator-dubbing-indextts') or (sys_platform == 'linux' and extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts') or (sys_platform == 'win32' and extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
-    { name = "torch", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "sys_platform == 'linux' or sys_platform == 'win32' or extra == 'extra-16-video-translator-dubbing-coqui' or extra != 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "tqdm" },
+    { name = "huggingface-hub", marker = "sys_platform == 'darwin' or extra == 'extra-16-video-translator-dubbing-coqui' or extra != 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "mlx", marker = "sys_platform == 'darwin' or extra == 'extra-16-video-translator-dubbing-coqui' or extra != 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "more-itertools", marker = "sys_platform == 'darwin' or extra == 'extra-16-video-translator-dubbing-coqui' or extra != 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "numba", marker = "sys_platform == 'darwin' or extra == 'extra-16-video-translator-dubbing-coqui' or extra != 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and sys_platform == 'darwin') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (sys_platform == 'darwin' and extra != 'extra-16-video-translator-dubbing-coqui') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and sys_platform == 'darwin') or (python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version < '3.12' and extra != 'extra-16-video-translator-dubbing-indextts') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "scipy", version = "1.18.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and sys_platform == 'darwin') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra != 'extra-16-video-translator-dubbing-indextts') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "tiktoken", marker = "sys_platform == 'darwin' or extra == 'extra-16-video-translator-dubbing-coqui' or extra != 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "torch", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'darwin' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "torch", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra != 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "tqdm", marker = "sys_platform == 'darwin' or extra == 'extra-16-video-translator-dubbing-coqui' or extra != 'extra-16-video-translator-dubbing-indextts'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/22/b7/a35232812a2ccfffcb7614ba96a91338551a660a0e9815cee668bf5743f0/mlx_whisper-0.4.3-py3-none-any.whl", hash = "sha256:6b82b6597a994643a3e5496c7bc229a672e5ca308458455bfe276e76ae024489", size = 890544, upload-time = "2025-08-29T14:56:13.815Z" },
@@ -2350,7 +2350,6 @@ name = "networkx"
 version = "2.8.8"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12'",
     "python_full_version < '3.12'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cd/16/c44e8550012735b8f21b3df7f39e8ba5a987fb764ac017ad5f3589735889/networkx-2.8.8.tar.gz", hash = "sha256:230d388117af870fce5647a3c52401fcf753e94720e6ea6b4197a5355648885e", size = 1960828, upload-time = "2022-11-01T20:31:52.02Z" }
@@ -2371,6 +2370,7 @@ resolution-markers = [
     "python_full_version >= '3.12' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version < '3.12' and sys_platform == 'darwin' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version < '3.12' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts'",
+    "python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version >= '3.12' and extra != 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version < '3.12' and extra != 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
 ]
@@ -2384,11 +2384,11 @@ name = "nltk"
 version = "3.10.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "click", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "defusedxml", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "joblib", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "regex", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "tqdm", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "click", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "defusedxml", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "joblib", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "regex", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "tqdm", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e0/e6/fe51d2bb1a3b446f59c5c8165999a9fee208bc346af90a7cbf7657bc0d75/nltk-3.10.3.tar.gz", hash = "sha256:bb9327a461c3811c2fa4900e03840401f2126adfb30c0072827c433bd2444ea4", size = 5137152, upload-time = "2026-08-12T23:46:37.258Z" }
 wheels = [
@@ -2400,7 +2400,7 @@ name = "num2words"
 version = "0.5.14"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "docopt" },
+    { name = "docopt", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f6/58/ad645bd38b4b648eb2fc2ba1b909398e54eb0cbb6a7dbd2b4953e38c9621/num2words-0.5.14.tar.gz", hash = "sha256:b066ec18e56b6616a3b38086b5747daafbaa8868b226a36127e0451c0cf379c6", size = 218213, upload-time = "2024-12-17T20:17:10.191Z" }
 wheels = [
@@ -2413,8 +2413,8 @@ version = "0.63.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "llvmlite" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts' or extra != 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or extra != 'extra-16-video-translator-dubbing-coqui' or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c5/00/c45e314a72382c5e32e642de45a4fd33f7d519b3d9b49bc33171ded3f55b/numba-0.63.0.tar.gz", hash = "sha256:27e525ce6f9f727c4f61e89b9d453d4a7d0aabbbf110278988334f43cbd70fdc", size = 2761458, upload-time = "2025-12-09T04:16:23.626Z" }
 wheels = [
@@ -2433,7 +2433,6 @@ name = "numpy"
 version = "1.26.4"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12'",
     "python_full_version < '3.12'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/65/6e/09db70a523a96d25e115e71cc56a6f9031e7b8cd166c1ac8438307c14058/numpy-1.26.4.tar.gz", hash = "sha256:2a02aba9ed12e4ac4eb3ea9421c420301a0c6460d9830d74a9df87efa4912010", size = 15786129, upload-time = "2024-02-06T00:26:44.495Z" }
@@ -2469,6 +2468,7 @@ resolution-markers = [
     "python_full_version >= '3.12' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version < '3.12' and sys_platform == 'darwin' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version < '3.12' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts'",
+    "python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version >= '3.12' and extra != 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version < '3.12' and extra != 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
 ]
@@ -2667,8 +2667,8 @@ version = "1.26.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "flatbuffers" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts' or extra != 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or extra != 'extra-16-video-translator-dubbing-coqui' or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "packaging" },
     { name = "protobuf" },
 ]
@@ -2844,9 +2844,9 @@ resolution-markers = [
     "python_full_version < '3.12'",
 ]
 dependencies = [
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" } },
-    { name = "python-dateutil" },
-    { name = "pytz" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "python-dateutil", marker = "python_full_version < '3.12'" },
+    { name = "pytz", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/74/ee/146cab1ff6d575b54ace8a6a5994048380dc94879b0125b25e62edcb9e52/pandas-1.5.3.tar.gz", hash = "sha256:74a3fd7e5a7ec052f183273dc7b0acd3a863edf7520f5d3a1765c04ffdb3b0b1", size = 5203060, upload-time = "2023-01-19T08:31:39.615Z" }
 wheels = [
@@ -3003,9 +3003,9 @@ name = "pooch"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "packaging", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "platformdirs", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "requests", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "packaging", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "platformdirs", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "requests", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/83/43/85ef45e8b36c6a48546af7b266592dc32d7f67837a6514d111bced6d7d75/pooch-1.9.0.tar.gz", hash = "sha256:de46729579b9857ffd3e741987a2f6d5e0e03219892c167c6578c0091fb511ed", size = 61788, upload-time = "2026-01-30T19:15:09.649Z" }
 wheels = [
@@ -3017,8 +3017,8 @@ name = "preshed"
 version = "3.0.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cymem" },
-    { name = "murmurhash" },
+    { name = "cymem", marker = "python_full_version < '3.12'" },
+    { name = "murmurhash", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/43/75/fe6b7bbd0dea530a001b0e24c331b21a0be2786e402abf3c57f5dce43d4b/preshed-3.0.13.tar.gz", hash = "sha256:d75f718bbfd97e992f7827e0fa7faf6a91bdd9c922d5baa4b50d62731396cb89", size = 18338, upload-time = "2026-03-23T08:57:31.378Z" }
 wheels = [
@@ -3368,11 +3368,11 @@ name = "pynndescent"
 version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "joblib" },
-    { name = "llvmlite" },
-    { name = "numba" },
-    { name = "scikit-learn" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "joblib", marker = "python_full_version < '3.12'" },
+    { name = "llvmlite", marker = "python_full_version < '3.12'" },
+    { name = "numba", marker = "python_full_version < '3.12'" },
+    { name = "scikit-learn", marker = "python_full_version < '3.12'" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/4a/fb/7f58c397fb31666756457ee2ac4c0289ef2daad57f4ae4be8dec12f80b03/pynndescent-0.6.0.tar.gz", hash = "sha256:7ffde0fb5b400741e055a9f7d377e3702e02250616834231f6c209e39aac24f5", size = 2992987, upload-time = "2026-01-08T21:29:58.943Z" }
 wheels = [
@@ -3730,13 +3730,13 @@ name = "scikit-learn"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "joblib", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "narwhals", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "joblib", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "narwhals", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "scipy", version = "1.18.0", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
-    { name = "threadpoolctl", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "threadpoolctl", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/fa/6f/37092bdb25f712817231799fc5674d8e704066a8a70c1d2d40517e18b4ab/scikit_learn-1.9.0.tar.gz", hash = "sha256:8833266989d3a5110178a9fae30783675460724d0e1efb13b14901d2c660c557", size = 7750767, upload-time = "2026-06-02T11:54:32.706Z" }
 wheels = [
@@ -3763,12 +3763,11 @@ resolution-markers = [
     "(python_full_version < '3.12' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts') or (python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')",
     "python_full_version < '3.12' and sys_platform == 'darwin' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version < '3.12' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts'",
-    "python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version < '3.12' and extra != 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
 ]
 dependencies = [
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra != 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7a/97/5a3609c4f8d58b039179648e62dd220f89864f56f7357f5d4f45c29eb2cc/scipy-1.17.1.tar.gz", hash = "sha256:95d8e012d8cb8816c226aef832200b1d45109ed4464303e997c5b13122b297c0", size = 30573822, upload-time = "2026-02-23T00:26:24.851Z" }
@@ -3804,10 +3803,11 @@ resolution-markers = [
     "(python_full_version >= '3.12' and platform_machine != 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts') or (python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')",
     "python_full_version >= '3.12' and sys_platform == 'darwin' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version >= '3.12' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32' and extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts'",
+    "python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
     "python_full_version >= '3.12' and extra != 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra != 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a7/25/c2700dfaf6442b4effaa91af24ebce5dc9d31bb4a69706313aae70d72cd0/scipy-1.18.0.tar.gz", hash = "sha256:67b2ad2ad54c72ca6d04975a9b2df8c3638c34ddd5b28738e94fc2b57929d378", size = 30774447, upload-time = "2026-06-19T15:01:43.456Z" }
 wheels = [
@@ -3877,7 +3877,7 @@ name = "smart-open"
 version = "8.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "wrapt" },
+    { name = "wrapt", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/76/53/9c513747547fd595d5c143259129ea8b9c3ea2f6b7bb9dcea2b1966ded3c/smart_open-8.0.1.tar.gz", hash = "sha256:18b1c4496003c6902be17c15f032b5c319f307c89c6ae9e6b028b508bed8b2cf", size = 61882, upload-time = "2026-07-15T13:56:10.492Z" }
 wheels = [
@@ -3889,10 +3889,10 @@ name = "soundfile"
 version = "0.14.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "cffi", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "typing-extensions", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "typing-extensions", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d2/db/949331952a6fb1c5b12e9de80fd08747966c2039d1a61db4764fbd3981c2/soundfile-0.14.0.tar.gz", hash = "sha256:ba1c1a2d618bca5c406647c83b89f07cc8810fa506a50622a6993ba130c1de11", size = 47842, upload-time = "2026-06-06T08:58:47.869Z" }
 wheels = [
@@ -3911,7 +3911,7 @@ name = "soxr"
 version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ed/11/27cebce4a108f77afea7c80545115536b45e3f11ebfb914f638fdd9ba847/soxr-1.1.0.tar.gz", hash = "sha256:9f228ae21c78fa9359ca98d8a5e8e91f30639e438e574133dace62c5b5309e44", size = 173067, upload-time = "2026-05-03T00:15:18.214Z" }
@@ -3933,26 +3933,26 @@ name = "spacy"
 version = "3.8.15"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "catalogue" },
-    { name = "click" },
-    { name = "confection" },
-    { name = "cymem" },
-    { name = "jinja2" },
-    { name = "murmurhash" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" } },
-    { name = "packaging" },
-    { name = "preshed" },
-    { name = "pydantic" },
-    { name = "requests" },
-    { name = "setuptools" },
-    { name = "spacy-legacy" },
-    { name = "spacy-loggers" },
-    { name = "srsly" },
-    { name = "thinc" },
-    { name = "tqdm" },
-    { name = "typer" },
-    { name = "wasabi" },
-    { name = "weasel" },
+    { name = "catalogue", marker = "python_full_version < '3.12'" },
+    { name = "click", marker = "python_full_version < '3.12'" },
+    { name = "confection", marker = "python_full_version < '3.12'" },
+    { name = "cymem", marker = "python_full_version < '3.12'" },
+    { name = "jinja2", marker = "python_full_version < '3.12'" },
+    { name = "murmurhash", marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "packaging", marker = "python_full_version < '3.12'" },
+    { name = "preshed", marker = "python_full_version < '3.12'" },
+    { name = "pydantic", marker = "python_full_version < '3.12'" },
+    { name = "requests", marker = "python_full_version < '3.12'" },
+    { name = "setuptools", marker = "python_full_version < '3.12'" },
+    { name = "spacy-legacy", marker = "python_full_version < '3.12'" },
+    { name = "spacy-loggers", marker = "python_full_version < '3.12'" },
+    { name = "srsly", marker = "python_full_version < '3.12'" },
+    { name = "thinc", marker = "python_full_version < '3.12'" },
+    { name = "tqdm", marker = "python_full_version < '3.12'" },
+    { name = "typer", marker = "python_full_version < '3.12'" },
+    { name = "wasabi", marker = "python_full_version < '3.12'" },
+    { name = "weasel", marker = "python_full_version < '3.12'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6e/13/8582a125db39c5d80d35ec63b3a2ac3bc69e9122412aa4ddc53812297c28/spacy-3.8.15-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:2cbd33b0801ed0fed71454cdfaefbabb18b1b854471f7683c5df2f78be00e8cc", size = 6658158, upload-time = "2026-08-07T17:20:27.292Z" },
@@ -3975,8 +3975,8 @@ wheels = [
 
 [package.optional-dependencies]
 ja = [
-    { name = "sudachidict-core" },
-    { name = "sudachipy" },
+    { name = "sudachidict-core", marker = "python_full_version < '3.12'" },
+    { name = "sudachipy", marker = "python_full_version < '3.12'" },
 ]
 
 [[package]]
@@ -4029,7 +4029,7 @@ name = "srsly"
 version = "2.5.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "catalogue" },
+    { name = "catalogue", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2b/db/f794f219a6c788b881252d2536a8c4a97d2bdaadc690391e1cb53d123d71/srsly-2.5.3.tar.gz", hash = "sha256:08f98dbecbff3a31466c4ae7c833131f59d3655a0ad8ac749e6e2c149e2b0680", size = 490881, upload-time = "2026-03-23T11:56:59.865Z" }
 wheels = [
@@ -4092,7 +4092,7 @@ name = "sudachidict-core"
 version = "20260723"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "sudachipy" },
+    { name = "sudachipy", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/2f/69/e8df4402744319080f9db9f20dc40a0cc3f2042db82ab7c040b785becf14/sudachidict_core-20260723.tar.gz", hash = "sha256:d50c302f907c0bb9b048b9d224abc3b24cdbeb8416a73942de00b74235798fe7", size = 9119, upload-time = "2026-07-24T05:40:57.315Z" }
 wheels = [
@@ -4145,17 +4145,17 @@ name = "tensorboard"
 version = "2.20.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "absl-py", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "grpcio", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "markdown", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "absl-py", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "grpcio", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "markdown", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "packaging", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "pillow", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "protobuf", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "setuptools", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "tensorboard-data-server", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "werkzeug", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "packaging", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "pillow", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "protobuf", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "setuptools", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "tensorboard-data-server", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "werkzeug", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9c/d9/a5db55f88f258ac669a92858b70a714bbbd5acd993820b41ec4a96a4d77f/tensorboard-2.20.0-py3-none-any.whl", hash = "sha256:9dc9f978cb84c0723acf9a345d96c184f0293d18f166bb8d59ee098e6cfaaba6", size = 5525680, upload-time = "2025-07-17T19:20:49.638Z" },
@@ -4185,8 +4185,8 @@ name = "textsearch"
 version = "0.0.24"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "anyascii" },
-    { name = "pyahocorasick" },
+    { name = "anyascii", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "pyahocorasick", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/5e/7c/18ab4807196aac89a114a98732462436cbd48db16873dc4669087f354bc7/textsearch-0.0.24.tar.gz", hash = "sha256:2d23b5c3116715b65bccc18bc870ecc236ec8480d48cd5f257cc60bf66bb241a", size = 49755, upload-time = "2022-09-02T14:04:42.124Z" }
 wheels = [
@@ -4212,18 +4212,18 @@ name = "thinc"
 version = "8.3.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "blis" },
-    { name = "catalogue" },
-    { name = "confection" },
-    { name = "cymem" },
-    { name = "murmurhash" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" } },
-    { name = "packaging" },
-    { name = "preshed" },
-    { name = "pydantic" },
-    { name = "setuptools" },
-    { name = "srsly" },
-    { name = "wasabi" },
+    { name = "blis", marker = "python_full_version < '3.12'" },
+    { name = "catalogue", marker = "python_full_version < '3.12'" },
+    { name = "confection", marker = "python_full_version < '3.12'" },
+    { name = "cymem", marker = "python_full_version < '3.12'" },
+    { name = "murmurhash", marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "packaging", marker = "python_full_version < '3.12'" },
+    { name = "preshed", marker = "python_full_version < '3.12'" },
+    { name = "pydantic", marker = "python_full_version < '3.12'" },
+    { name = "setuptools", marker = "python_full_version < '3.12'" },
+    { name = "srsly", marker = "python_full_version < '3.12'" },
+    { name = "wasabi", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/13/46/76df95f2c327f9a9cef30c1523bf285627897097163584dcf5f77b2ebce2/thinc-8.3.13.tar.gz", hash = "sha256:68e658549fc1eb3ff92aed5147fcbb9c15d6e9cc0e623b4d0998d16522ffb4f9", size = 194640, upload-time = "2026-03-23T07:22:36.41Z" }
 wheels = [
@@ -4380,8 +4380,8 @@ dependencies = [
     { name = "filelock", marker = "sys_platform == 'linux' or sys_platform == 'win32' or extra == 'extra-16-video-translator-dubbing-coqui' or extra != 'extra-16-video-translator-dubbing-indextts'" },
     { name = "fsspec", marker = "sys_platform == 'linux' or sys_platform == 'win32' or extra == 'extra-16-video-translator-dubbing-coqui' or extra != 'extra-16-video-translator-dubbing-indextts'" },
     { name = "jinja2", marker = "sys_platform == 'linux' or sys_platform == 'win32' or extra == 'extra-16-video-translator-dubbing-coqui' or extra != 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "networkx", version = "2.8.8", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
-    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform == 'linux' and extra != 'extra-16-video-translator-dubbing-coqui') or (sys_platform == 'win32' and extra != 'extra-16-video-translator-dubbing-coqui') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "networkx", version = "2.8.8", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform == 'win32') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (sys_platform == 'linux' and extra != 'extra-16-video-translator-dubbing-coqui') or (sys_platform == 'win32' and extra != 'extra-16-video-translator-dubbing-coqui') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "nvidia-cublas-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts') or (sys_platform != 'linux' and extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "nvidia-cuda-cupti-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts') or (sys_platform != 'linux' and extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "nvidia-cuda-nvrtc-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts') or (sys_platform != 'linux' and extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
@@ -4461,7 +4461,7 @@ resolution-markers = [
     "python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui' and extra != 'extra-16-video-translator-dubbing-indextts'",
 ]
 dependencies = [
-    { name = "torch", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "(sys_platform == 'linux' and extra == 'extra-16-video-translator-dubbing-indextts') or (sys_platform == 'win32' and extra == 'extra-16-video-translator-dubbing-indextts') or extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "torch", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (sys_platform == 'linux' and extra == 'extra-16-video-translator-dubbing-indextts') or (sys_platform == 'win32' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 wheels = [
     { url = "https://download-r2.pytorch.org/whl/cu128/torchaudio-2.8.0%2Bcu128-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:f4409df567d0723a7a3a89d32c7552a17e0ff6f137ea26a0d268c665259b2995", upload-time = "2025-08-05T20:12:07Z" },
@@ -4487,12 +4487,12 @@ name = "trainer"
 version = "0.0.36"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "coqpit" },
-    { name = "fsspec" },
-    { name = "psutil" },
-    { name = "soundfile" },
-    { name = "tensorboard" },
-    { name = "torch", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
+    { name = "coqpit", marker = "python_full_version < '3.12'" },
+    { name = "fsspec", marker = "python_full_version < '3.12'" },
+    { name = "psutil", marker = "python_full_version < '3.12'" },
+    { name = "soundfile", marker = "python_full_version < '3.12'" },
+    { name = "tensorboard", marker = "python_full_version < '3.12'" },
+    { name = "torch", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d6/ea/2c5857820050d9d74dfe2d0c7d28c4d598581aeb382f996a91665d08c07c/trainer-0.0.36.tar.gz", hash = "sha256:3afff4d1ce70f828d32ba698331768bca5be1cc21a60c2b8acd8fa117eb95c5a", size = 50656, upload-time = "2023-12-13T08:05:57.754Z" }
 wheels = [
@@ -4513,17 +4513,17 @@ name = "transformers"
 version = "4.52.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "filelock", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "huggingface-hub", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
+    { name = "filelock", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "huggingface-hub", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "packaging", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "pyyaml", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "regex", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "requests", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "safetensors", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "tokenizers", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
-    { name = "tqdm", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "packaging", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "pyyaml", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "regex", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "requests", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "safetensors", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "tokenizers", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "tqdm", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/4a/de/f3f3a0649dc522aeff55a5739e06e132c875c53701307a2ddd7ce7528ec5/transformers-4.52.1.tar.gz", hash = "sha256:c380d583ed9c7ebe3e30ca5e55ec1249db39eb9ee277f8e74dab1abc6a03c938", size = 8944009, upload-time = "2025-05-20T20:49:01.497Z" }
 wheels = [
@@ -4547,45 +4547,45 @@ name = "tts"
 version = "0.22.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "aiohttp" },
-    { name = "anyascii" },
-    { name = "bangla" },
-    { name = "bnnumerizer" },
-    { name = "bnunicodenormalizer" },
-    { name = "coqpit" },
-    { name = "cython" },
-    { name = "einops" },
-    { name = "encodec" },
-    { name = "flask" },
-    { name = "fsspec" },
-    { name = "g2pkk" },
-    { name = "gruut", extra = ["de", "es", "fr"], marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
-    { name = "hangul-romanize" },
-    { name = "inflect" },
-    { name = "jamo" },
-    { name = "jieba" },
-    { name = "librosa" },
-    { name = "matplotlib" },
-    { name = "nltk" },
-    { name = "num2words" },
-    { name = "numba" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" } },
-    { name = "packaging" },
-    { name = "pandas", version = "1.5.3", source = { registry = "https://pypi.org/simple" } },
-    { name = "pypinyin" },
-    { name = "pysbd" },
-    { name = "pyyaml" },
-    { name = "scikit-learn" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" } },
-    { name = "soundfile" },
-    { name = "spacy", extra = ["ja"], marker = "extra == 'extra-16-video-translator-dubbing-coqui'" },
-    { name = "torch", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
-    { name = "torchaudio", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" } },
-    { name = "tqdm" },
-    { name = "trainer" },
-    { name = "transformers" },
-    { name = "umap-learn" },
-    { name = "unidecode" },
+    { name = "aiohttp", marker = "python_full_version < '3.12'" },
+    { name = "anyascii", marker = "python_full_version < '3.12'" },
+    { name = "bangla", marker = "python_full_version < '3.12'" },
+    { name = "bnnumerizer", marker = "python_full_version < '3.12'" },
+    { name = "bnunicodenormalizer", marker = "python_full_version < '3.12'" },
+    { name = "coqpit", marker = "python_full_version < '3.12'" },
+    { name = "cython", marker = "python_full_version < '3.12'" },
+    { name = "einops", marker = "python_full_version < '3.12'" },
+    { name = "encodec", marker = "python_full_version < '3.12'" },
+    { name = "flask", marker = "python_full_version < '3.12'" },
+    { name = "fsspec", marker = "python_full_version < '3.12'" },
+    { name = "g2pkk", marker = "python_full_version < '3.12'" },
+    { name = "gruut", extra = ["de", "es", "fr"], marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "hangul-romanize", marker = "python_full_version < '3.12'" },
+    { name = "inflect", marker = "python_full_version < '3.12'" },
+    { name = "jamo", marker = "python_full_version < '3.12'" },
+    { name = "jieba", marker = "python_full_version < '3.12'" },
+    { name = "librosa", marker = "python_full_version < '3.12'" },
+    { name = "matplotlib", marker = "python_full_version < '3.12'" },
+    { name = "nltk", marker = "python_full_version < '3.12'" },
+    { name = "num2words", marker = "python_full_version < '3.12'" },
+    { name = "numba", marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "packaging", marker = "python_full_version < '3.12'" },
+    { name = "pandas", version = "1.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "pypinyin", marker = "python_full_version < '3.12'" },
+    { name = "pysbd", marker = "python_full_version < '3.12'" },
+    { name = "pyyaml", marker = "python_full_version < '3.12'" },
+    { name = "scikit-learn", marker = "python_full_version < '3.12'" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "soundfile", marker = "python_full_version < '3.12'" },
+    { name = "spacy", extra = ["ja"], marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (extra == 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
+    { name = "torch", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "python_full_version < '3.12'" },
+    { name = "torchaudio", version = "2.8.0+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "python_full_version < '3.12'" },
+    { name = "tqdm", marker = "python_full_version < '3.12'" },
+    { name = "trainer", marker = "python_full_version < '3.12'" },
+    { name = "transformers", marker = "python_full_version < '3.12'" },
+    { name = "umap-learn", marker = "python_full_version < '3.12'" },
+    { name = "unidecode", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/4e/23/50bbe8cb32488680913a63fb1a273d64f4a765af4779b219814ffb8624fe/TTS-0.22.0.tar.gz", hash = "sha256:b91119da7ff2ae7b3dae7328edf9af4db3b48c40eb4ce15d11ed8f5ee9bd7086", size = 1653775, upload-time = "2023-12-12T15:27:13.782Z" }
 wheels = [
@@ -4597,7 +4597,7 @@ name = "typeguard"
 version = "4.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "typing-extensions", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b4/de/4420db493fa8fc0856d5e5c1b159c63a323d2de2317babe36b01568928e8/typeguard-4.6.0.tar.gz", hash = "sha256:e7414f09111317de3e335de92cd397c5c0ca00b1cc1676de12e1d444a79b3f21", size = 82330, upload-time = "2026-07-26T08:40:23.207Z" }
 wheels = [
@@ -4666,12 +4666,12 @@ name = "umap-learn"
 version = "0.5.12"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numba" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" } },
-    { name = "pynndescent" },
-    { name = "scikit-learn" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" } },
-    { name = "tqdm" },
+    { name = "numba", marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "pynndescent", marker = "python_full_version < '3.12'" },
+    { name = "scikit-learn", marker = "python_full_version < '3.12'" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "tqdm", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/02/ee/af4171241117f85c74b5ca6448ea1033cc28d599c13651d67289bacd4083/umap_learn-0.5.12.tar.gz", hash = "sha256:6aff02ecac5f2aad9f3c65ee518d7ae93e1a985ae38721fdcffceee4232c33c7", size = 96672, upload-time = "2026-04-08T20:03:54.012Z" }
 wheels = [
@@ -4800,7 +4800,7 @@ web = [
 [package.metadata]
 requires-dist = [
     { name = "alembic", marker = "extra == 'web'", specifier = ">=1.13.0" },
-    { name = "argus-obs-sdk", extras = ["asgi", "celery"], marker = "extra == 'web'", specifier = "==1.0.0a4" },
+    { name = "argus-obs-sdk", extras = ["asgi", "celery"], marker = "extra == 'web'", specifier = "==1.0.0a7" },
     { name = "bcrypt", marker = "extra == 'web'", specifier = "<4.1" },
     { name = "celery", extras = ["redis"], marker = "extra == 'web'", specifier = ">=5.4.0" },
     { name = "email-validator", marker = "extra == 'web'", specifier = ">=2.0.0" },
@@ -4849,7 +4849,7 @@ name = "wasabi"
 version = "1.1.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "python_full_version < '3.12' and sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ac/f9/054e6e2f1071e963b5e746b48d1e3727470b2a490834d18ad92364929db3/wasabi-1.1.3.tar.gz", hash = "sha256:4bb3008f003809db0c3e28b4daf20906ea871a2bb43f9914197d540f4f2e0878", size = 30391, upload-time = "2024-05-31T16:56:18.99Z" }
 wheels = [
@@ -4913,15 +4913,15 @@ name = "weasel"
 version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cloudpathlib" },
-    { name = "confection" },
-    { name = "httpx" },
-    { name = "packaging" },
-    { name = "pydantic" },
-    { name = "smart-open" },
-    { name = "srsly" },
-    { name = "typer" },
-    { name = "wasabi" },
+    { name = "cloudpathlib", marker = "python_full_version < '3.12'" },
+    { name = "confection", marker = "python_full_version < '3.12'" },
+    { name = "httpx", marker = "python_full_version < '3.12'" },
+    { name = "packaging", marker = "python_full_version < '3.12'" },
+    { name = "pydantic", marker = "python_full_version < '3.12'" },
+    { name = "smart-open", marker = "python_full_version < '3.12'" },
+    { name = "srsly", marker = "python_full_version < '3.12'" },
+    { name = "typer", marker = "python_full_version < '3.12'" },
+    { name = "wasabi", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ce/e5/e272bb9a045105a1fdf4b798d8086f5932a178f4d738f17a74f5c9e0ae9a/weasel-1.0.0.tar.gz", hash = "sha256:7b129b44c90cc543b760532974ca1e4eb30dad2aa2026f57bdce66354ae610fc", size = 38682, upload-time = "2026-03-20T08:10:25.266Z" }
 wheels = [
@@ -4988,7 +4988,7 @@ name = "werkzeug"
 version = "3.1.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "markupsafe", marker = "extra == 'extra-16-video-translator-dubbing-coqui' or extra == 'extra-16-video-translator-dubbing-indextts'" },
+    { name = "markupsafe", marker = "(python_full_version < '3.12' and extra == 'extra-16-video-translator-dubbing-coqui') or (python_full_version >= '3.12' and extra == 'extra-16-video-translator-dubbing-indextts') or (extra != 'extra-16-video-translator-dubbing-coqui' and extra == 'extra-16-video-translator-dubbing-indextts')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/dd/b2/381be8cfdee792dd117872481b6e378f85c957dd7c5bca38897b08f765fd/werkzeug-3.1.8.tar.gz", hash = "sha256:9bad61a4268dac112f1c5cd4630a56ede601b6ed420300677a869083d70a4c44", size = 875852, upload-time = "2026-04-02T18:49:14.268Z" }
 wheels = [
@@ -5000,8 +5000,8 @@ name = "wetext"
 version = "0.1.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "contractions" },
-    { name = "kaldifst" },
+    { name = "contractions", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "kaldifst", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ff/f4/78aa8506e34d4aa7d183639497a0373337e7b49a3bbf8b053bc0f2e642c0/wetext-0.1.6.tar.gz", hash = "sha256:a5ddc7a49adaaf1075e917fe56792397a0087dd4e32f8ddfdacac4d2a0a46696", size = 2807326, upload-time = "2026-07-29T07:53:09.264Z" }
 wheels = [
@@ -5057,9 +5057,9 @@ name = "yarl"
 version = "1.24.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "idna" },
-    { name = "multidict" },
-    { name = "propcache" },
+    { name = "idna", marker = "python_full_version < '3.12'" },
+    { name = "multidict", marker = "python_full_version < '3.12'" },
+    { name = "propcache", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/31/33/ebe9e3d1f86c7a0b51094c0a146392045ca1631d2664889539dec8088a33/yarl-1.24.5.tar.gz", hash = "sha256:e81b83143bee16329c23db3c1b2d82b29892fcbcb849186d2f6e98a5abe9a57f", size = 228679, upload-time = "2026-07-20T02:07:45.435Z" }
 wheels = [
