@@ -77,7 +77,7 @@ web = [
     # argus-obs-sdk" a secas no se lo lleva. Sin los extras [grpc]/[http] usa
     # su exportador OTLP/HTTP con JSON, que no arrastra opentelemetry-proto y
     # por tanto no choca con el protobuf<3.20 que exige IndexTTS (ver S-03).
-    "argus-obs-sdk[asgi,celery]==1.0.0a7",
+    "argus-obs-sdk[asgi,celery]==1.0.0a12",
 ]
 
 [project.scripts]

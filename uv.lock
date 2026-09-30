@@ -208,15 +208,15 @@ sdist = { url = "https://files.pythonhosted.org/packages/8e/25/4422cf7777c0cedd2
 
 [[package]]
 name = "argus-obs-sdk"
-version = "1.0.0a7"
+version = "1.0.0a12"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "argus-obs-semconv" },
     { name = "opentelemetry-sdk" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ef/bd/49c7513ffb0eee78788d1c0fb0f54c1b87cf901370764fadd2c882e0348c/argus_obs_sdk-1.0.0a7.tar.gz", hash = "sha256:15f3000c2932684e7f157364a7fabfc63fa6dbe9c9b1d168b0511a5e3bb75610", size = 38874, upload-time = "2026-09-27T17:30:48.264Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/73/dc/bd8e3f1c1dba44b788940ef002f8fc97956961ca6c76fb90565f7ac85b1c/argus_obs_sdk-1.0.0a12.tar.gz", hash = "sha256:d43884b537ef8b1a38c21d041471c4f60806058a409c5455e796b6ea69c3129a", size = 44677, upload-time = "2026-09-29T09:59:30.436Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/08/6b/e282dfac741b4563cb31298941338c725a8500aa33d4b438c0309b4267ea/argus_obs_sdk-1.0.0a7-py3-none-any.whl", hash = "sha256:5d7d4db987f56bd109b7403913e982235266589b22a5a6464850756cb39e1e8c", size = 32862, upload-time = "2026-09-27T17:30:46.963Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/f7/68e85ff92feef10d643deea5a87c6a4f06a6c4251950bb4e0b8dc34d7aa3/argus_obs_sdk-1.0.0a12-py3-none-any.whl", hash = "sha256:b5568aabb48741f1c92f93d361883e750a26c9fb037ac20bfb45b5d795138cdf", size = 35554, upload-time = "2026-09-29T09:59:28.945Z" },
 ]
 
 [package.optional-dependencies]
@@ -230,14 +230,14 @@ celery = [
 
 [[package]]
 name = "argus-obs-semconv"
-version = "1.0.0a8"
+version = "1.0.0a13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "opentelemetry-api" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f2/a1/035b675d00604b21994654affb7689dd2329d406b05cccb2c0cfc62415a8/argus_obs_semconv-1.0.0a8.tar.gz", hash = "sha256:9b9495f2174e8f7940560a2ea3374b723d8e0e31d1a201c6825caf7e21d0167b", size = 41655, upload-time = "2026-09-28T02:23:36.424Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/69/76/3a5557aa367b00e0ac4e584b7256ca7b82b228b492e648e373f6959c3b79/argus_obs_semconv-1.0.0a13.tar.gz", hash = "sha256:d3bf72bf54c5173a19072473cae728079da5b2b96ab5d28ffe1707a0bfe549b2", size = 48601, upload-time = "2026-09-30T03:10:11.021Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8b/ca/8cd4aa1813fcdf98deada3b3ef99cbf994b75a8cee72137442046e0b0700/argus_obs_semconv-1.0.0a8-py3-none-any.whl", hash = "sha256:df9a38526c51e0a4af8c0085b97635ef2eb4c8b584a36fb67c1b35199aa5ee4f", size = 22618, upload-time = "2026-09-28T02:23:35.175Z" },
+    { url = "https://files.pythonhosted.org/packages/6c/38/1f77a226ae1e8f4b9113bd34ecef3c6d7ec58da60400a2249d2c2737186b/argus_obs_semconv-1.0.0a13-py3-none-any.whl", hash = "sha256:b4ac4d51222f8b613d7a4374f7cc7a96fb4f02d5fea0747833990430e156362f", size = 28087, upload-time = "2026-09-30T03:10:09.869Z" },
 ]
 
 [[package]]
@@ -4800,7 +4800,7 @@ web = [
 [package.metadata]
 requires-dist = [
     { name = "alembic", marker = "extra == 'web'", specifier = ">=1.13.0" },
-    { name = "argus-obs-sdk", extras = ["asgi", "celery"], marker = "extra == 'web'", specifier = "==1.0.0a7" },
+    { name = "argus-obs-sdk", extras = ["asgi", "celery"], marker = "extra == 'web'", specifier = "==1.0.0a12" },
     { name = "bcrypt", marker = "extra == 'web'", specifier = "<4.1" },
     { name = "celery", extras = ["redis"], marker = "extra == 'web'", specifier = ">=5.4.0" },
     { name = "email-validator", marker = "extra == 'web'", specifier = ">=2.0.0" },
