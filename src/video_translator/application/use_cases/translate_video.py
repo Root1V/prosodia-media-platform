@@ -40,6 +40,20 @@ from pathlib import Path
 
 from structlog.stdlib import BoundLogger
 
+try:
+    # Subclase del ThreadPoolExecutor de arriba que copia el contexto de
+    # telemetria al hilo trabajador. Sin esto los logs que emiten transcripcion
+    # y diarizacion salen sin TraceId: el contexto vive en un
+    # contextvars.ContextVar y el pool no lo arrastra al hilo (ver RM-41).
+    # Se pisa el nombre a proposito para que el sitio de uso no tenga
+    # que saber cual de los dos le toco. El import de arriba queda como el
+    # caso base: argus-obs-sdk esta en el extra "web" y la CLI corre este mismo
+    # caso de uso sin el instalado, donde no hay contexto que propagar porque
+    # nadie exporta nada.
+    from argus.propagate import Executor as ThreadPoolExecutor
+except ImportError:  # pragma: no cover
+    pass
+
 from video_translator.application.interfaces import (
     GenderClassifier,
     MediaProcessor,
