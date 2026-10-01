@@ -28,7 +28,9 @@ settings = load_web_settings()
 
 app = FastAPI(title="Prosodia Web API")
 
-# Abre el span de servidor y adopta el contexto entrante segun ARGUS_PROPAGATE.
+# Abre el span de servidor y adopta el contexto entrante segun
+# ARGUS_TRUST_INBOUND (antes ARGUS_PROPAGATE, renombrada en el SDK porque
+# chocaba de nombre con el modulo argus.propagate, que es otra cosa).
 # Por defecto `never`: un llamante externo no puede inyectar el identificador
 # con el que se registran sus peticiones.
 app.add_middleware(argus.ASGIMiddleware)
