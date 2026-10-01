@@ -1048,7 +1048,11 @@ uv run uvicorn video_translator.web.main:app --reload --port 8000
 # To also emit telemetry to Argus (RM-41), prefix with --env-file and set the
 # OTEL_* vars in .env (see .env.example). pydantic-settings reads .env for its
 # own settings but does NOT export it to os.environ, which is where the
-# OpenTelemetry SDK looks -- so --env-file is what actually makes them arrive:
+# OpenTelemetry SDK looks -- so --env-file is what actually makes them arrive.
+# OTEL_SERVICE_NAME differs per process, so pass it on the command line
+# (see "Telemetry variables" below for why):
+#   OTEL_SERVICE_NAME=prosodia-api \
+#   OTEL_RESOURCE_ATTRIBUTES=service.namespace=prosodia,argus.component.role=api,service.version=dev \
 #   uv run --env-file .env uvicorn video_translator.web.main:app --port 8000
 # Natively the endpoint is http://localhost:4318; the host.docker.internal in
 # docker-compose.yml only resolves inside a container.
@@ -1060,6 +1064,10 @@ uv run uvicorn video_translator.web.main:app --reload --port 8000
 # "Unable to reach MTLCompilerService" the moment a real job tries to use
 # the GPU, even though the exact same .env works fine through the CLI
 # (which never forks). "solo" runs everything in the one process, no fork.
+# With telemetry, same idea as the API but with the worker's own identity:
+#   OTEL_SERVICE_NAME=prosodia-worker \
+#   OTEL_RESOURCE_ATTRIBUTES=service.namespace=prosodia,argus.component.role=worker,service.version=dev \
+#   uv run --env-file .env celery -A video_translator.web.tasks.celery_app worker --loglevel=info --pool=solo
 uv run celery -A video_translator.web.tasks.celery_app worker --loglevel=info --pool=solo
 
 # 6. Frontend (in another terminal)
@@ -1102,6 +1110,35 @@ development works with no `.env.web` at all:
 | `JWT_EXPIRE_MINUTES` | `720` (12h) | |
 | `STORAGE_ROOT` | `./data/prosodia_web` | Uploaded videos and per-project output directories |
 | `CORS_ORIGINS` | `["http://localhost:5173", "http://localhost:3000"]` | Add your deployed frontend origin here |
+
+### Telemetry variables (Argus / OpenTelemetry)
+
+Only needed to emit traces and logs to Argus (`RM-41`). With no
+`OTEL_EXPORTER_OTLP_ENDPOINT` set, nothing is exported and the cost is zero.
+In `docker-compose.yml` all four are already set per service; this table is
+for the **native** API + worker of Option B above.
+
+| Variable | Scope | Value |
+|---|---|---|
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | shared — put it in `.env` | `http://localhost:4318` natively; `http://host.docker.internal:4318` inside a container |
+| `ARGUS_ENVIRONMENT` | shared — put it in `.env` | `development` (see below) |
+| `OTEL_SERVICE_NAME` | **per process** | `prosodia-api` / `prosodia-worker` |
+| `OTEL_RESOURCE_ATTRIBUTES` | **per process** | `service.namespace=prosodia,argus.component.role=api` or `=worker`, `service.version=dev` |
+
+**Why two of them can't live in `.env`:** the API and the worker are two
+distinct identities in the telemetry, and a single `.env` can only hold one
+value per variable. Pass them on each process's command line instead. If you
+forget, the service exports as `unknown-service` — it still works, there is no
+error, and the only hint is the `argus.init` line printed at startup. Check it
+after any restart.
+
+**Why `ARGUS_ENVIRONMENT=development` and not `local` or `mac-dev`:** the
+vocabulary is OpenTelemetry's closed set — `production`, `staging`, `test`,
+`development` — not an Argus invention. Anything running on a development
+machine is `development`, however that machine is described. "Which machine
+does this run on?" is a different question, and it has its own field,
+`host.name`, filled in by the local Argus agent. Without this variable the SDK
+falls back to `local`, which does not group with the rest of the portfolio.
 
 ### Testing the web module
 

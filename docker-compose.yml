@@ -83,6 +83,13 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318
       - OTEL_SERVICE_NAME=prosodia-api
       - OTEL_RESOURCE_ATTRIBUTES=service.namespace=prosodia,argus.component.role=api,service.version=${PROSODIA_VERSION:-dev}
+      # Entorno de despliegue, del vocabulario cerrado del estandar de
+      # OpenTelemetry (production/staging/test/development), no uno de Argus.
+      # Todo lo que corre en una maquina de desarrollo es "development":
+      # "en que maquina corre" es otra pregunta y va en host.name, que lo
+      # pone el agente. Sin esto el SDK rellena "local", que no agrupa con
+      # el resto del portafolio.
+      - ARGUS_ENVIRONMENT=${ARGUS_ENVIRONMENT:-development}
     # Necesario para que host.docker.internal resuelva en Linux (en Docker
     # Desktop ya viene dado). "worker" lo tenia desde antes por
     # LLAMA_SERVER_HOST; "api" lo necesita ahora por el endpoint OTLP.
@@ -122,6 +129,7 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318
       - OTEL_SERVICE_NAME=prosodia-worker
       - OTEL_RESOURCE_ATTRIBUTES=service.namespace=prosodia,argus.component.role=worker,service.version=${PROSODIA_VERSION:-dev}
+      - ARGUS_ENVIRONMENT=${ARGUS_ENVIRONMENT:-development}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
