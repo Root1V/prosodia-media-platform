@@ -1136,7 +1136,10 @@ only by how they are launched — there is just one CLI.
 | `OTEL_RESOURCE_ATTRIBUTES` | **per process** | `service.namespace=prosodia,argus.component.role=api` or `=worker`, `service.version=dev` |
 
 Every driver reports under the same `service.namespace=prosodia`, so a query
-by namespace returns all three.
+by namespace returns all three. All three send both traces and logs: the API's
+request and server-error lines come from uvicorn's own loggers, so they are
+attached to the exporter from the app's `lifespan` — **not** at import time,
+where uvicorn's `dictConfig` would silently replace them.
 
 **Why two of them can't live in `.env`:** the API and the worker are two
 distinct identities in the telemetry, and a single `.env` can only hold one

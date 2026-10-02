@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 from typing import IO
 
@@ -42,6 +43,61 @@ _LEVEL_BY_METHOD = {
 }
 
 
+def _otel_logging_handler() -> logging.Handler | None:
+    """Handler que SOLO exporta a OpenTelemetry, o None si no se puede.
+
+    Devuelve None si OpenTelemetry no esta instalado (la CLI puede correr sin
+    el extra "web") o si nadie configuro un proveedor todavia -- la API de
+    OpenTelemetry devuelve en ese caso un proveedor que no hace nada, y
+    engancharse a el solo agregaria trabajo inutil por cada linea de log.
+
+    Nivel NOTSET a proposito: quien decide es el logger al que se enganche.
+    """
+    try:
+        from opentelemetry._logs import get_logger_provider
+        from opentelemetry.sdk._logs import LoggingHandler
+    except ImportError:
+        return None
+
+    provider = get_logger_provider()
+    if not hasattr(provider, "get_logger") or type(provider).__name__.startswith("NoOp"):
+        return None
+
+    return LoggingHandler(level=logging.NOTSET, logger_provider=provider)
+
+
+def export_stdlib_loggers(names: Iterable[str]) -> list[str]:
+    """Engancha el exportador de telemetria a loggers de stdlib AJENOS.
+
+    Para componentes que no escriben por structlog y por tanto no pasan por
+    _DualRenderer: hoy la API, cuyos registros de peticion y de error los
+    emite uvicorn por sus propios loggers. Sin esto la API exporta trazas pero
+    ni un solo registro.
+
+    No toca `propagate` ni los handlers que ya hubiera: agrega uno que solo
+    exporta, asi que la salida por consola de ese logger no cambia.
+
+    CUIDADO CON EL MOMENTO: uvicorn configura su logging con `dictConfig`
+    DESPUES de importar la app, y eso REEMPLAZA los handlers de
+    `uvicorn.access` y `uvicorn.error`. Enganchar al importar no falla, se
+    pierde en silencio -- comprobado. Hay que llamar a esto desde el arranque
+    de la app (ver el lifespan de web/main.py).
+
+    Devuelve los nombres a los que si se engancho, para poder registrarlo.
+    """
+    handler = _otel_logging_handler()
+    if handler is None:
+        return []
+
+    enganchados = []
+    for name in names:
+        logger = logging.getLogger(name)
+        if not any(isinstance(h, type(handler)) for h in logger.handlers):
+            logger.addHandler(handler)
+            enganchados.append(name)
+    return enganchados
+
+
 def _build_otel_bridge(level: int) -> logging.Logger | None:
     """Logger de stdlib enchufado SOLO al exportador de OpenTelemetry.
 
@@ -60,16 +116,8 @@ def _build_otel_bridge(level: int) -> logging.Logger | None:
     "web") o si nadie configuro un proveedor todavia, en cuyo caso el
     comportamiento es identico al de antes.
     """
-    try:
-        from opentelemetry._logs import get_logger_provider
-        from opentelemetry.sdk._logs import LoggingHandler
-    except ImportError:
-        return None
-
-    provider = get_logger_provider()
-    # Sin SDK configurado, la API devuelve un proveedor que no hace nada;
-    # engancharse a el solo agregaria trabajo inutil por cada linea de log.
-    if not hasattr(provider, "get_logger") or type(provider).__name__.startswith("NoOp"):
+    handler = _otel_logging_handler()
+    if handler is None:
         return None
 
     bridge = logging.getLogger("prosodia.pipeline")
@@ -81,7 +129,7 @@ def _build_otel_bridge(level: int) -> logging.Logger | None:
     # nuestro, asi que sigue el nivel que la app ya eligio para structlog.
     bridge.setLevel(level)
     if not bridge.handlers:
-        bridge.addHandler(LoggingHandler(level=logging.NOTSET, logger_provider=provider))
+        bridge.addHandler(handler)
     return bridge
 
 
