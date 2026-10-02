@@ -1113,8 +1113,13 @@ development works with no `.env.web` at all:
 
 ### Telemetry variables (Argus / OpenTelemetry)
 
-Only needed to emit traces and logs to Argus (`RM-41`). With no
-`OTEL_EXPORTER_OTLP_ENDPOINT` set, nothing is exported and the cost is zero.
+Only needed to emit traces and logs to Argus (`RM-41`) **to a specific
+endpoint**. Note that leaving `OTEL_EXPORTER_OTLP_ENDPOINT` unset does *not*
+disable export: the SDK falls back to `http://localhost:4318`, the local agent.
+To emit nothing at all, say so explicitly with `ARGUS_DISABLED=1` — that is
+what `tests/conftest.py` does, because importing the FastAPI app runs
+`argus.init()` and the test suite was otherwise shipping its fixtures to the
+shared store.
 In `docker-compose.yml` all four are already set per service; this table is
 for the **native** API + worker of Option B above.
 
