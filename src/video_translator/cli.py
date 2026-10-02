@@ -3,12 +3,24 @@
 from __future__ import annotations
 
 import json
+from contextlib import nullcontext
 from datetime import datetime
 from pathlib import Path
 
 import typer
 from rich.console import Console
 from rich.table import Table
+
+try:
+    # Telemetria hacia Argus (ver RM-41). Protegido porque argus-obs-sdk vive
+    # en el extra "web": una instalacion solo-CLI no lo trae y aqui no debe
+    # hacer falta. Sin OTEL_EXPORTER_OTLP_ENDPOINT en el entorno tampoco se
+    # exporta nada, asi que el coste de tenerlo instalado es cero.
+    import argus
+    from argus.propagate import run as argus_run
+except ImportError:  # pragma: no cover
+    argus = None  # type: ignore[assignment]
+    argus_run = None  # type: ignore[assignment]
 
 from video_translator.config import load_settings
 from video_translator.container import build_translate_video_use_case
@@ -121,6 +133,19 @@ def translate(
     """Traduce un video completo: transcribe, traduce con contexto y genera subtitulos/doblaje."""
     settings = load_settings()
 
+    # Antes de configure_logging, por dos motivos de orden: el puente de logs
+    # busca un proveedor de OpenTelemetry YA configurado y devuelve None si no
+    # lo encuentra, y argus.init() tambien toca el logging -- configurando
+    # despues, gana lo que la app eligio. El nombre y el rol van aqui y no en
+    # el entorno porque son fijos para este driver: la API y el worker los
+    # pasan por proceso solo porque comparten codigo y se distinguen al
+    # arrancar. El entorno si viene del entorno (ARGUS_ENVIRONMENT).
+    if argus is not None:
+        # namespace EXPLICITO: sin el, el SDK lo rellena con el nombre del
+        # servicio ("prosodia-cli") y esta corrida no agrupa con la API ni el
+        # worker en una consulta por namespace. Medido.
+        argus.init(service="prosodia-cli", namespace="prosodia", role="cli")
+
     output_dir.mkdir(parents=True, exist_ok=True)
     log_file = output_dir / "logs" / f"run_{datetime.now().astimezone():%Y%m%d_%H%M%S}.log"
     configure_logging(
@@ -177,14 +202,20 @@ def translate(
         console.print(f"[bold]Contexto:[/bold] {context_prompt[:120]}{'...' if len(context_prompt) > 120 else ''}")
 
     _install_signal_handlers()
-    try:
-        with console.status("[bold green]Procesando video (esto puede tardar segun la duracion)..."):
-            result = use_case.execute(request)
-    except VideoTranslatorError as exc:
-        logger.error("pipeline.failed", error=str(exc))
-        console.print(f"[bold red]Error:[/bold red] {exc}")
-        console.print(f"[dim]Detalle en el log: {log_file}[/dim]")
-        raise typer.Exit(code=1) from exc
+    # Traza raiz de la corrida. Sin esto hay logs exportados pero sin TraceId:
+    # un proceso por lotes no tiene peticion entrante que abra el span, al
+    # contrario que la API. argus.init() registra el vaciado final en atexit,
+    # que un proceso corto necesita o la telemetria muere con el.
+    span = argus_run("cli.translate") if argus_run is not None else nullcontext()
+    with span:
+        try:
+            with console.status("[bold green]Procesando video (esto puede tardar segun la duracion)..."):
+                result = use_case.execute(request)
+        except VideoTranslatorError as exc:
+            logger.error("pipeline.failed", error=str(exc))
+            console.print(f"[bold red]Error:[/bold red] {exc}")
+            console.print(f"[dim]Detalle en el log: {log_file}[/dim]")
+            raise typer.Exit(code=1) from exc
     _print_summary(result, log_file)
 
 

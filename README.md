@@ -1118,12 +1118,20 @@ Only needed to emit traces and logs to Argus (`RM-41`). With no
 In `docker-compose.yml` all four are already set per service; this table is
 for the **native** API + worker of Option B above.
 
+The **CLI** (`video-translator translate`) also emits, and needs only the two
+shared variables: it sets its own identity in code (`prosodia-cli` / `cli`),
+because unlike the API and the worker — which share one codebase and differ
+only by how they are launched — there is just one CLI.
+
 | Variable | Scope | Value |
 |---|---|---|
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | shared — put it in `.env` | `http://localhost:4318` natively; `http://host.docker.internal:4318` inside a container |
 | `ARGUS_ENVIRONMENT` | shared — put it in `.env` | `development` (see below) |
 | `OTEL_SERVICE_NAME` | **per process** | `prosodia-api` / `prosodia-worker` |
 | `OTEL_RESOURCE_ATTRIBUTES` | **per process** | `service.namespace=prosodia,argus.component.role=api` or `=worker`, `service.version=dev` |
+
+Every driver reports under the same `service.namespace=prosodia`, so a query
+by namespace returns all three.
 
 **Why two of them can't live in `.env`:** the API and the worker are two
 distinct identities in the telemetry, and a single `.env` can only hold one
