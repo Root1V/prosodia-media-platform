@@ -144,7 +144,12 @@ def translate(
         # namespace EXPLICITO: sin el, el SDK lo rellena con el nombre del
         # servicio ("prosodia-cli") y esta corrida no agrupa con la API ni el
         # worker en una consulta por namespace. Medido.
-        argus.init(service="prosodia-cli", namespace="prosodia", role="cli")
+        argus.init(
+            service="prosodia-cli",
+            namespace="prosodia",
+            role="cli",
+            environment=settings.argus_environment,
+        )
 
     output_dir.mkdir(parents=True, exist_ok=True)
     log_file = output_dir / "logs" / f"run_{datetime.now().astimezone():%Y%m%d_%H%M%S}.log"

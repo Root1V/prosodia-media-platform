@@ -136,6 +136,18 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO")
     log_json: bool = Field(default=False)
 
+    # Entorno de despliegue que se reporta en la telemetria (ver RM-41). Se
+    # lee aqui, y no del entorno del proceso, porque la CLI recibe TODA su
+    # configuracion de .env via pydantic-settings -- que no vuelca a
+    # os.environ, donde mira el SDK. Sin esto, un "video-translator translate"
+    # pelado reportaba "local", que es el valor que acordamos no mandar: el
+    # vocabulario es el cerrado del estandar de OpenTelemetry
+    # (production/staging/test/development). El nombre del campo coincide a
+    # proposito con ARGUS_ENVIRONMENT, asi que la variable de entorno tambien
+    # lo pisa. La API y el worker no lo necesitan: se la pasan por proceso al
+    # arrancar, como el nombre del servicio.
+    argus_environment: str = Field(default="development")
+
 
 def load_settings() -> Settings:
     return Settings()
