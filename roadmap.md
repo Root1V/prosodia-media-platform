@@ -40,8 +40,9 @@
 | RM-34 | Podcast de audio | todo | Nuevo servicio: guion largo → episodio de audio, con voz pública o clonada. |
 | RM-35 | Logo e icono de marca definitivos | done | Reemplaza el ícono genérico (sparkle) por el logo real de Prosodia en el sidebar, login y favicon. |
 | RM-36 | Videos como input para Micro-Video | done | Además de imágenes, poder usar clips de video existentes como material de entrada del short video. |
-| RM-37 | Publicar el short video en redes sociales | todo | Publicar el video generado en TikTok, YouTube, Instagram y Facebook, una por una o todas a la vez. |
+| RM-37 | Publicar el short video en redes sociales | todo | Publicar el video generado en TikTok, YouTube, Instagram, Facebook, LinkedIn y X, una por una o todas a la vez. |
 | RM-38 | Generación: banco de imágenes/audios/videos a demanda | todo | Nueva sección para generar material con IA de antemano y reusarlo luego en Micro-Video. |
 | RM-39 | Generación agéntica de short videos | todo | Un agente arma el short video de punta a punta a partir de un objetivo, usando las herramientas ya existentes. |
 | RM-40 | Cortar y eliminar segmentos del video | done | Quitar varios tramos sueltos de la duración de un clip (inicio, medio, fin) y no solo un único rango, con deshacer tipo Cmd+Z. |
 | RM-41 | Telemetría OpenTelemetry (integración Argus) | done | Instrumentar API y worker: la traza cruza la cola Redis→Celery y los logs del pipeline llegan correlacionados. |
+| RM-42 | Perfiles de objetivo: producto vs posicionamiento profesional | todo | El objetivo del video pasa a ser una elección explícita que condiciona guion, tono, formato y redes, con las mismas herramientas. |
