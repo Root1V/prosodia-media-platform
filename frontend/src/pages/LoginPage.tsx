@@ -2,25 +2,25 @@ import { useState } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { AudioLines, Captions, Clapperboard, Eye, EyeOff } from 'lucide-react'
+import { ArrowRight, Check, Clapperboard, Eye, EyeOff, Lock, Mail, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Alert } from '../components/ui/Alert'
 import { ThemeToggle } from '../components/ui/ThemeToggle'
 
-/** El login es la unica pantalla que ve alguien que todavia no entro, asi
- * que es el unico sitio donde cabe decir que hay adentro. Tres, no cinco:
- * la lista es para orientar, no para enumerar el menu. */
-const CAPACIDADES = [
-  { icon: AudioLines, text: 'Dobla tus videos del inglés al español, con voz natural' },
-  { icon: Captions, text: 'Genera subtítulos traducidos, listos para publicar' },
-  { icon: Clapperboard, text: 'Crea micro-videos para LinkedIn y X en menos de un minuto' },
+/** Lo que se ve dentro del proyecto de ejemplo del panel. No es una lista de
+ * funciones: es una corrida como las que el cliente va a mirar todos los
+ * dias, para que el login muestre el producto en vez de describirlo. */
+const PASOS_DE_EJEMPLO = [
+  'Transcripción con marcas de tiempo',
+  'Traducción revisada contra tu glosario',
+  'Voz clonada, sincronizada al video',
 ]
 
 /** Hasta ahora todo fallo decia "correo o contraseña incorrectos" o un
- * "intenta de nuevo" a secas. Son tres situaciones muy distintas y el
- * cliente no podia distinguirlas:
+ * "intenta de nuevo" a secas. Son situaciones muy distintas y el cliente no
+ * podia distinguirlas:
  *
  *   - la cuenta esta desactivada  -> reintentar no sirve, hay que avisar
  *   - el servidor no responde     -> el error no esta en lo que escribio
@@ -82,77 +82,132 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-2">
-      {/* El degradado no sigue el tema, igual que el menu lateral (ver el
-          comentario de --sidebar en index.css): es superficie de marca, y
-          en oscuro un violeta mas claro contrastaria peor con el blanco. */}
-      <aside className="flex flex-col justify-center gap-10 bg-[linear-gradient(140deg,hsl(243,75%,52%)_0%,hsl(258,72%,36%)_100%)] px-6 py-10 text-white lg:px-14 lg:py-16">
+    <div className="min-h-screen lg:grid lg:grid-cols-[1.05fr_1fr]">
+      {/* El panel no sigue el tema, igual que el menu lateral (ver el
+          comentario de --sidebar en index.css): es superficie de marca, y en
+          oscuro un violeta mas claro contrastaria peor con el blanco. */}
+      <aside className="relative isolate flex flex-col justify-between gap-6 overflow-hidden bg-[hsl(246,47%,7%)] px-6 py-9 text-white lg:gap-16 lg:px-14 lg:py-14">
+        {/* Rejilla tenue, desvanecida hacia los bordes: da textura de
+            herramienta sin competir con el texto. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:48px_48px] [mask-image:radial-gradient(ellipse_at_28%_40%,black,transparent_72%)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-32 top-16 -z-10 h-[34rem] w-[34rem] rounded-full bg-[hsl(243,80%,55%)] opacity-25 blur-[130px]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-24 bottom-0 -z-10 h-[26rem] w-[26rem] rounded-full bg-[hsl(262,80%,55%)] opacity-20 blur-[120px]"
+        />
+
         <div className="flex items-center gap-3">
           <img
             src="/logo.png"
             alt=""
-            className="h-10 w-10 shrink-0 rounded-xl bg-white/15 object-contain p-1.5"
+            className="h-9 w-9 shrink-0 rounded-xl bg-white/10 object-contain p-1.5"
           />
-          <span className="text-xl font-semibold tracking-tight">Prosodia</span>
+          <span className="text-lg font-semibold tracking-tight">Prosodia</span>
         </div>
 
-        <div className="max-w-md">
-          <h1 className="text-2xl font-semibold leading-snug lg:text-4xl">
-            Tus videos, hablando español.
+        <div className="max-w-xl">
+          <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/70">
+            Plataforma de doblaje y video
+          </span>
+
+          <h1 className="mt-5 text-2xl font-semibold leading-[1.15] tracking-tight lg:mt-6 lg:text-[2.6rem] lg:leading-[1.12]">
+            Tu video en español,{' '}
+            <span className="text-[hsl(246,90%,76%)]">con tu propia voz</span>.
           </h1>
-          <p className="mt-3 text-sm text-white/70 lg:text-base">
-            Sube un video o una idea. Prosodia se encarga del resto.
-          </p>
-        </div>
 
-        {/* En movil el panel es solo la cabecera: la lista empujaria el
-            formulario fuera de la pantalla, que es lo contrario de ayudar. */}
-        <ul className="hidden max-w-md flex-col gap-4 lg:flex">
-          {CAPACIDADES.map(({ icon: Icon, text }) => (
-            <li key={text} className="flex items-start gap-3 text-sm text-white/85">
-              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
-                <Icon className="h-4 w-4" />
-              </span>
-              <span className="pt-1.5">{text}</span>
-            </li>
-          ))}
-        </ul>
-      </aside>
-
-      <main className="relative flex items-center justify-center px-6 py-12 lg:py-16">
-        <ThemeToggle className="absolute right-4 top-4 lg:right-6 lg:top-6" />
-
-        <div className="w-full max-w-sm">
-          <h2 className="text-2xl font-semibold tracking-tight">Entra a tu cuenta</h2>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Usa el correo con el que te dieron acceso.
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-white/60 lg:mt-5 lg:text-base">
+            Súbelo una vez. Prosodia transcribe, traduce, dobla y subtitula — y
+            te deja el corte corto listo para publicar.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
-            {error && <Alert variant="error">{error}</Alert>}
+          {/* Una corrida de ejemplo. En movil no cabe sin empujar el
+              formulario fuera de la pantalla, que es lo contrario de ayudar. */}
+          <div className="relative mb-8 mt-10 hidden max-w-md lg:block">
+            {/* El pb-10 no es decorativo: reserva la banda donde cae la
+                tarjeta flotante, para que no se coma el ultimo paso. */}
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 pb-10 shadow-2xl shadow-black/40 backdrop-blur-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold">Campaña Q1 · inglés → español</p>
+                  <p className="mt-0.5 text-xs text-white/50">Doblaje · 2 min 14 s · hace 3 min</p>
+                </div>
+                <span className="shrink-0 rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs font-medium text-emerald-300">
+                  Listo
+                </span>
+              </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="email" className="text-sm font-medium">
-                Correo electrónico
-              </label>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="username"
-                autoFocus
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@empresa.com"
-                className="h-11"
-              />
+              <ul className="mt-5 flex flex-col gap-3">
+                {PASOS_DE_EJEMPLO.map((paso) => (
+                  <li key={paso} className="flex items-center gap-2.5 text-sm text-white/75">
+                    <Check className="h-4 w-4 shrink-0 text-emerald-400" />
+                    {paso}
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="absolute -bottom-7 right-2 flex items-center gap-3 rounded-xl border border-white/10 bg-[hsl(246,40%,12%)] px-4 py-3 shadow-xl shadow-black/50">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
+                <Clapperboard className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="text-sm font-medium">Micro-video · 0:28</p>
+                <p className="text-xs text-white/50">listo para LinkedIn y X</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p className="hidden max-w-md text-xs leading-relaxed text-white/40 lg:block">
+          Tus videos y tus voces son tuyos. Se procesan para generar lo que pediste
+          y nada más.
+        </p>
+      </aside>
+
+      <main className="relative flex items-center justify-center px-6 py-10 lg:px-10 lg:py-14">
+        <ThemeToggle className="absolute right-4 top-4 lg:right-6 lg:top-6" />
+
+        <div className="flex w-full max-w-sm flex-col">
+          <h2 className="text-3xl font-semibold tracking-tight">Bienvenido de nuevo</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Ingresa con tu correo y contraseña.
+          </p>
+
+          <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5 lg:mt-10">
+            {error && <Alert variant="error">{error}</Alert>}
+
+            <div className="flex flex-col gap-2">
+              <label htmlFor="email" className="text-sm font-medium">
+                Correo
+              </label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="username"
+                  autoFocus
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="nombre@empresa.com"
+                  className="h-11 pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
               <label htmlFor="password" className="text-sm font-medium">
                 Contraseña
               </label>
               <div className="relative">
+                <Lock className="pointer-events-none absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type={verContrasena ? 'text' : 'password'}
@@ -166,8 +221,7 @@ export function LoginPage() {
                   onKeyUp={(e: KeyboardEvent<HTMLInputElement>) =>
                     setHayMayusculas(e.getModifierState('CapsLock'))
                   }
-                  placeholder="••••••••"
-                  className="h-11 pr-11"
+                  className="h-11 pl-10 pr-11"
                 />
                 <button
                   type="button"
@@ -184,19 +238,35 @@ export function LoginPage() {
               )}
             </div>
 
-            <Button type="submit" size="lg" className="mt-1 w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Entrando…' : 'Entrar'}
+            <Button type="submit" className="mt-2 h-12 w-full text-base" disabled={isSubmitting}>
+              {isSubmitting ? (
+                'Entrando…'
+              ) : (
+                <>
+                  <ArrowRight className="h-4 w-4" />
+                  Ingresar
+                </>
+              )}
             </Button>
           </form>
 
-          {/* No hay endpoint de recuperacion (routers/auth.py solo tiene
-              login y me), asi que un enlace aqui seria un callejon sin
-              salida. Mejor decir la verdad: a quien olvido su contraseña
-              hoy lo desatasca una persona. */}
-          <p className="mt-8 text-center text-xs leading-relaxed text-muted-foreground">
-            ¿Olvidaste tu contraseña? Todavía no hay recuperación automática:
-            escríbele a quien administra Prosodia.
-          </p>
+          <div className="mt-10 flex items-end justify-between gap-6 text-xs text-muted-foreground lg:mt-14">
+            {/* No hay endpoint de recuperacion (routers/auth.py solo tiene
+                login y me), asi que un enlace aqui seria un callejon sin
+                salida: a quien olvido su contraseña hoy lo desatasca una
+                persona. */}
+            <p className="max-w-[16rem] leading-relaxed">
+              ¿No puedes ingresar? Pide ayuda a quien administra Prosodia.
+            </p>
+            {/* Solo si de verdad lo es. Un candado en una pagina servida por
+                http seria exactamente la clase de sello que no hay que creer. */}
+            {window.location.protocol === 'https:' && (
+              <span className="flex shrink-0 items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Conexión segura
+              </span>
+            )}
+          </div>
         </div>
       </main>
     </div>
