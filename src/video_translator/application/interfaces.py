@@ -243,6 +243,26 @@ class Summarizer(Protocol):
         ...
 
 
+class ScriptWriter(Protocol):
+    """Convierte una idea suelta en un guion narrable, asistido por LLM (RM-42).
+
+    Puerto aparte de ``Summarizer`` por el mismo motivo por el que aquel se
+    separo de ``Translator``: son tareas distintas con invariantes distintas.
+    Resumir CONDENSA un texto que ya existe; esto GENERA uno que no existia, a
+    partir de una idea de una linea, y el resultado tiene que caber en una
+    duracion hablada concreta.
+    """
+
+    def write_script(self, idea: str, objective: str, target_seconds: float | None) -> str:
+        """Devuelve un guion listo para narrar, en el mismo idioma que la idea.
+
+        ``objective`` orienta el tono y la estructura (ver RM-42);
+        ``target_seconds`` es la duracion hablada aproximada que debe ocupar, o
+        None si no hay tope.
+        """
+        ...
+
+
 class SpeechSynthesizer(Protocol):
     """Motor de Text-to-Speech para generar el doblaje (implementado con Coqui TTS)."""
 

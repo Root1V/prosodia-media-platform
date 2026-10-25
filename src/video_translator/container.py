@@ -17,6 +17,7 @@ from typing import cast
 
 from video_translator.application.interfaces import (
     MediaProcessor,
+    ScriptWriter,
     SpeechSynthesizer,
     Summarizer,
     Transcriber,
@@ -26,6 +27,9 @@ from video_translator.application.use_cases.generate_micro_video import Generate
 from video_translator.application.use_cases.synthesize_text import SynthesizeTextUseCase
 from video_translator.application.use_cases.transcribe_media import TranscribeMediaUseCase
 from video_translator.application.use_cases.translate_video import TranslateVideoUseCase
+from video_translator.application.use_cases.write_micro_video_script import (
+    WriteMicroVideoScriptUseCase,
+)
 from video_translator.config import Settings
 from video_translator.domain.exceptions import ConfigurationError
 from video_translator.infrastructure.media.ffmpeg_processor import FFmpegMediaProcessor
@@ -471,3 +475,16 @@ def _build_synthesizer(settings: Settings) -> tuple[SpeechSynthesizer, dict]:
         synthesizer_factory=factory, num_workers=num_workers, ffmpeg_binary=settings.ffmpeg_binary
     )
     return pool, notes
+
+
+def build_write_micro_video_script_use_case(settings: Settings) -> WriteMicroVideoScriptUseCase:
+    """Construye el caso de uso que convierte una idea en guion (ver RM-42).
+
+    Reusa el mismo backend de LLM que la traduccion, estrechado al puerto
+    ScriptWriter -- mismo patron que el Summarizer de RM-18
+    (`build_transcribe_media_use_case`): los dos backends ya saben hablar con el
+    modelo, y lo unico que cambia es el prompt.
+    """
+    return WriteMicroVideoScriptUseCase(
+        script_writer=cast(ScriptWriter, _build_translator(settings)),
+    )

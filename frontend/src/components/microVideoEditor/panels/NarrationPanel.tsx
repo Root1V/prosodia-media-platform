@@ -1,4 +1,10 @@
+import { useState } from 'react'
+import { Sparkles } from 'lucide-react'
 import { Textarea } from '../../ui/Textarea'
+import { Button } from '../../ui/Button'
+import { writeMicroVideoScript } from '../../../api/microVideo'
+import { getErrorMessage } from '../../../lib/errors'
+import type { Objective } from '../../../lib/objectives'
 import { Select } from '../../ui/Select'
 import { cn } from '../../../lib/cn'
 import { LANGUAGE_NAMES } from '../../../lib/labels'
@@ -23,6 +29,8 @@ const DURATION_OPTIONS: { value: number | null; label: string }[] = [
 interface NarrationPanelProps {
   text: string
   onTextChange: (text: string) => void
+  /** Para que es el video (ver RM-42): orienta el tono del guion generado. */
+  objective: Objective
   targetLang: string
   onTargetLangChange: (lang: string) => void
   targetDuration: number | null
@@ -34,6 +42,7 @@ interface NarrationPanelProps {
 export function NarrationPanel({
   text,
   onTextChange,
+  objective,
   targetLang,
   onTargetLangChange,
   targetDuration,
@@ -41,8 +50,54 @@ export function NarrationPanel({
   narrationVolume,
   onNarrationVolumeChange,
 }: NarrationPanelProps) {
+  const [idea, setIdea] = useState('')
+  const [generando, setGenerando] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const generar = async () => {
+    setGenerando(true)
+    setError(null)
+    try {
+      const script = await writeMicroVideoScript({ idea, objective, target_seconds: targetDuration })
+      // Se escribe en el campo editable, no se usa directamente: el guion es
+      // una propuesta y el usuario tiene que poder corregirla antes de generar.
+      onTextChange(script)
+    } catch (err) {
+      setError(getErrorMessage(err, 'No se pudo generar el guion.'))
+    } finally {
+      setGenerando(false)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="idea" className="text-sm font-medium">
+          ¿Cuál es tu idea?
+        </label>
+        <Textarea
+          id="idea"
+          value={idea}
+          onChange={(e) => setIdea(e.target.value)}
+          placeholder="Una línea basta. Ej: los equipos pequeños entregan más rápido que los grandes."
+          rows={2}
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={generar}
+          disabled={generando || idea.trim().length === 0}
+        >
+          <Sparkles className="h-4 w-4" />
+          {generando ? 'Escribiendo…' : 'Escribir el guion'}
+        </Button>
+        {error ? <p className="text-xs text-destructive">{error}</p> : null}
+        <p className="text-xs text-muted-foreground">
+          Escribe la propuesta abajo, para que la corrijas antes de generar. También puedes
+          saltarte esto y escribir el texto tú mismo.
+        </p>
+      </div>
+
       <div className="flex flex-col gap-1.5">
         <label htmlFor="text" className="text-sm font-medium">
           Texto a narrar

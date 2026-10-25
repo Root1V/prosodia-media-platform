@@ -16,6 +16,7 @@ import type {
   TtsVoiceOption,
 } from '../../types/project'
 import type { MusicCategory, MusicTrack } from '../../types/musicTracks'
+import type { Objective } from '../../lib/objectives'
 
 interface EditorRightPanelProps {
   activeTool: EditorTool
@@ -63,6 +64,7 @@ interface EditorRightPanelProps {
   onVoiceFileSelected: (file: File) => void
   onRemoveVoiceFile: () => void
 
+  objective: Objective
   musicTracks: MusicTrack[]
   suggestedMusicCategory?: MusicCategory | null
   backgroundMusic: string | null
@@ -131,6 +133,7 @@ function ToolPanelContent(props: EditorRightPanelProps) {
 
       {props.activeTool === 'narration' && (
         <NarrationPanel
+          objective={props.objective}
           text={props.text}
           onTextChange={props.onTextChange}
           targetLang={props.targetLang}

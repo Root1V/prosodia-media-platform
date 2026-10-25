@@ -24,6 +24,7 @@ from video_translator.web.routers import (
     auth,
     dashboard,
     media,
+    micro_video,
     music_tracks,
     projects,
     samples,
@@ -78,6 +79,7 @@ app.include_router(media.router, prefix="/api")
 app.include_router(samples.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(music_tracks.router, prefix="/api")
+app.include_router(micro_video.router, prefix="/api")
 
 
 @app.get("/api/health")

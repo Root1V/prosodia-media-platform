@@ -436,6 +436,7 @@ export function NewMicroVideoProjectPage() {
           voiceFile={voiceFile}
           onVoiceFileSelected={setVoiceFile}
           onRemoveVoiceFile={() => setVoiceFile(null)}
+          objective={objective}
           musicTracks={musicTracks}
           suggestedMusicCategory={profile.suggestedMusicCategory}
           backgroundMusic={backgroundMusic}

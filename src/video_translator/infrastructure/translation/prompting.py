@@ -171,3 +171,70 @@ def parse_numbered_lines(raw_text: str, expected: int) -> list[str]:
         )
 
     return [found[i] for i in range(1, expected + 1)]
+
+
+# --- Guion de micro-video a partir de una idea (RM-42) -----------------------
+
+SCRIPT_SYSTEM_PROMPT = """You are a scriptwriter for short social videos. You turn a \
+one-line idea into a script that someone will read out loud over a video.
+
+Rules:
+- Your FIRST step, before writing anything, is to detect the language the idea is written \
+in. Your ENTIRE script MUST be in that exact same language. NEVER translate.
+- Output ONLY the words to be spoken. No titles, no headings, no scene directions, no \
+camera notes, no emoji, no markdown, no quotation marks around the whole thing.
+- Write for the ear, not the eye: short sentences, everyday words, no bullet lists.
+- Open with the single most interesting thing. A short video loses its viewer in the first \
+seconds, so nothing goes before the hook.
+"""
+
+# Un bloque por objetivo, con el MISMO patron de "extras condicionales" que
+# build_system_prompt: la plantilla base de arriba es lo comun, y esto es lo
+# unico que cambia entre un perfil y otro.
+_SCRIPT_OBJECTIVE_BLOCKS = {
+    "product": """
+This script promotes a product or service.
+- Lead with what the viewer gains, not with what the product is.
+- Close with ONE clear call to action.
+- Confident and energetic, but never invent features, numbers or claims that are not in \
+the idea given to you.
+""",
+    "professional": """
+This script builds the author's professional credibility. It does NOT sell anything.
+- Make ONE point and defend it. A single idea argued well beats three mentioned.
+- Speak from experience and take a position; a script that could have been written by \
+anyone is worthless here.
+- NO call to action, no "follow me", no "comment below", no sales pitch of any kind.
+- Plain professional register: no hype, no superlatives, no buzzwords.
+""",
+}
+
+
+def build_script_system_prompt(objective: str) -> str:
+    """Prompt de sistema para generar un guion, orientado por el objetivo.
+
+    Un objetivo desconocido cae a "product", que es el comportamiento que la
+    app tenia antes de RM-42 -- mismo criterio tolerante que el resto del campo.
+    """
+    block = _SCRIPT_OBJECTIVE_BLOCKS.get(objective, _SCRIPT_OBJECTIVE_BLOCKS["product"])
+    return SCRIPT_SYSTEM_PROMPT + block
+
+
+def build_script_user_prompt(idea: str, target_seconds: float | None) -> str:
+    # El limite se expresa en PALABRAS y no en segundos porque un LLM no mide
+    # tiempo: ~2.5 palabras por segundo es el ritmo hablado normal en es/en, y
+    # se deja margen porque pasarse obliga a acelerar el audio para encajar
+    # (ver target_duration_seconds en GenerateMicroVideoRequest).
+    if target_seconds:
+        limite = (
+            f"The script must take about {int(target_seconds)} seconds to read out loud: "
+            f"roughly {int(target_seconds * 2.3)} words. Going over is worse than going under."
+        )
+    else:
+        limite = "Keep it short: under 150 words."
+    return (
+        f"{limite}\n\n"
+        "Remember: detect the language of the idea below and write in that same language, "
+        "and output only the spoken words.\n\n"
+        f"Idea:\n{idea}"
+    )
