@@ -63,7 +63,12 @@ arranca() {
     return
   fi
   cd "$ROOT"
-  nohup "$@" >"$RUN_DIR/$nombre.log" 2>&1 &
+  # Se APILA, no se trunca. Con ">" cada arranque borraba el log del anterior,
+  # y justo lo que se necesita al investigar una caida son las ultimas lineas
+  # del proceso que murio -- que es el que acabas de reemplazar. Paso de verdad:
+  # un doblaje quedo a medias y la evidencia ya no existia.
+  printf '\n===== arranque %s =====\n' "$(date '+%Y-%m-%d %H:%M:%S')" >>"$RUN_DIR/$nombre.log"
+  nohup "$@" >>"$RUN_DIR/$nombre.log" 2>&1 &
   local pid=$!
   echo "$pid" >"$RUN_DIR/$nombre.pid"
   disown "$pid" 2>/dev/null || true
