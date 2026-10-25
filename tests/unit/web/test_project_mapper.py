@@ -690,3 +690,58 @@ def test_build_micro_video_use_case_and_request_falls_back_to_legacy_image_confi
 
     assert [item.path for item in request.media_items] == [Path(project.input_video_path), Path(extra)]
     assert request.media_items[1].zoom == pytest.approx(1.5)
+
+
+def test_build_micro_video_use_case_and_request_defaults_are_the_product_profile(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, db_session: Session
+) -> None:
+    # Red de seguridad de RM-42. El perfil "producto" se define como "los
+    # defaults que la app ya tenia", asi que este test los fija TODOS en un
+    # solo sitio: si alguno se desvia al agregar el segundo perfil, lo que ya
+    # funcionaba (RM-14/RM-28) se degrada en silencio y nadie se entera.
+    # Un `config` con lo minimo imprescindible -- lo que manda el editor si el
+    # usuario no toca ningun panel.
+    project = _make_micro_video_project(tmp_path)
+    monkeypatch.setattr(project_mapper, "build_generate_micro_video_use_case", MagicMock(return_value=MagicMock()))
+
+    _, request = project_mapper.build_micro_video_use_case_and_request(project, db_session)
+
+    assert request.objective == "product"  # el unico objetivo previo a RM-42
+    assert request.target_duration_seconds is None  # dura lo que la narracion
+    assert request.caption_bg_color == "#000000"
+    assert request.caption_highlight_style == "background"
+    assert request.caption_text_color == "#FFFFFF"
+    assert request.background_music_path is None
+    assert request.background_music_start == pytest.approx(0.0)
+    assert request.background_music_end is None
+    assert request.background_music_volume == pytest.approx(0.12)
+    assert request.narration_volume == pytest.approx(1.0)
+    assert request.caption_x == pytest.approx(0.5)
+    assert request.caption_y == pytest.approx(0.85)
+    assert request.text_overlays == []
+    assert request.emoji_overlays == []
+
+
+def test_build_micro_video_use_case_and_request_maps_objective(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, db_session: Session
+) -> None:
+    project = _make_micro_video_project(tmp_path, objective="professional")
+    monkeypatch.setattr(project_mapper, "build_generate_micro_video_use_case", MagicMock(return_value=MagicMock()))
+
+    _, request = project_mapper.build_micro_video_use_case_and_request(project, db_session)
+
+    assert request.objective == "professional"
+
+
+def test_build_micro_video_use_case_and_request_empty_objective_falls_back_to_product(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, db_session: Session
+) -> None:
+    # Cadena vacia, no clave ausente: es lo que llega si el formulario manda
+    # el campo sin valor. Tiene que caer al default igual que si faltara, o la
+    # corrida se queda sin objetivo y el informe miente.
+    project = _make_micro_video_project(tmp_path, objective="")
+    monkeypatch.setattr(project_mapper, "build_generate_micro_video_use_case", MagicMock(return_value=MagicMock()))
+
+    _, request = project_mapper.build_micro_video_use_case_and_request(project, db_session)
+
+    assert request.objective == "product"

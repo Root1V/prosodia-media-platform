@@ -102,6 +102,9 @@ def create_project(
     # Solo para "transcription": ademas de la transcripcion completa, genera
     # un resumen con los highlights vía LLM (ver TranscribeMediaUseCase).
     include_summary: bool = Form(False),
+    # Solo para "micro_video": para que se hace el video (ver RM-42).
+    # "product" (default, el comportamiento previo a RM-42) / "professional".
+    objective: str = Form("product"),
     # Solo para "micro_video": None/omitido = el video dura lo que tarda la
     # narracion; si se fija, GenerateMicroVideoUseCase acelera el audio si
     # hace falta o mantiene la imagen el tiempo restante (ver docs/roadmap.md).
@@ -294,6 +297,7 @@ def create_project(
         project.config = {
             **project.config,
             "narration_text": text,
+            "objective": objective,
             "voice_option": voice_option,
             "target_duration_seconds": target_duration_seconds,
             "caption_bg_color": caption_bg_color,

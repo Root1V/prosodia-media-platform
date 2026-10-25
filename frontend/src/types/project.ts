@@ -167,8 +167,12 @@ export interface CreateMicroVideoProjectInput {
    * recorre en orden (ver RM-29, RM-36). Cada clip ocupa su propia duracion
    * real (recortada); las imagenes se reparten el tiempo restante. */
   mediaFiles: File[]
-  /** Idioma en el que se narra el texto. */
-  target_lang?: string
+  /** Idioma en el que se narra el texto. Obligatorio a proposito: el valor
+   * por defecto lo decide el editor (ver lib/objectives.ts), no esta capa.
+   * Tenerlo tambien aqui como `?? 'es'` creaba dos fuentes de verdad, y al
+   * condicionar los defaults por objetivo (RM-42) una de las dos quedaba
+   * sin aplicar. Mismo criterio para los tres campos de caption de abajo. */
+  target_lang: string
   /** "public_female" (voz de locutora, por defecto) / "public_male" (voz de
    * locutor) / "own" (usa `voiceFile` como voz de referencia). */
   voice_option: TtsVoiceOption
@@ -178,14 +182,14 @@ export interface CreateMicroVideoProjectInput {
    * tiempo restante (mas corto). */
   target_duration_seconds?: number
   /** Color del resaltado de los captions, "#RRGGBB" -- ver caption_highlight_style. */
-  caption_bg_color?: string
+  caption_bg_color: string
   /** "background" (default) = caja de fondo de ese color detras del texto
    * blanco. "text_color" = el texto queda de ese color, sin caja. */
-  caption_highlight_style?: CaptionHighlightStyle
+  caption_highlight_style: CaptionHighlightStyle
   /** Color del texto, "#RRGGBB" -- solo tiene efecto en "background" y
    * "karaoke_background" (ahi caption_bg_color es pura y exclusivamente el
    * color de la caja/resaltado, no del texto). Blanco por defecto. */
-  caption_text_color?: string
+  caption_text_color: string
   /** Id de una pista de música (ver MUSIC_OPTIONS en NewMicroVideoProjectPage),
    * o undefined = sin música de fondo. */
   background_music?: string

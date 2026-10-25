@@ -229,7 +229,7 @@ export async function createMicroVideoProject(
   formData.set('file', input.mediaFiles[0])
   input.mediaFiles.slice(1).forEach((f) => formData.append('additional_media', f))
   formData.set('text', input.text)
-  formData.set('target_lang', input.target_lang ?? 'es')
+  formData.set('target_lang', input.target_lang)
   formData.set('voice_option', input.voice_option)
   if (input.voice_option === 'own' && input.voiceFile) {
     formData.set('voice_file', input.voiceFile)
@@ -237,9 +237,9 @@ export async function createMicroVideoProject(
   if (input.target_duration_seconds != null) {
     formData.set('target_duration_seconds', String(input.target_duration_seconds))
   }
-  formData.set('caption_bg_color', input.caption_bg_color ?? '#000000')
-  formData.set('caption_highlight_style', input.caption_highlight_style ?? 'background')
-  formData.set('caption_text_color', input.caption_text_color ?? '#FFFFFF')
+  formData.set('caption_bg_color', input.caption_bg_color)
+  formData.set('caption_highlight_style', input.caption_highlight_style)
+  formData.set('caption_text_color', input.caption_text_color)
   if (input.background_music) {
     formData.set('background_music', input.background_music)
     if (input.background_music_start != null) {

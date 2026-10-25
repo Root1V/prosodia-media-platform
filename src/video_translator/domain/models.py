@@ -259,6 +259,18 @@ class GenerateMicroVideoRequest:
     text: str
     output_dir: Path
     language: str = "es"
+    # Para que se hace el video (ver RM-42). No cambia lo que el pipeline
+    # SABE hacer -- cambia lo que la app propone antes de llegar aqui
+    # (formato, duracion, estilo de captions, musica, tono del guion). Llega
+    # hasta aca para quedar en effective_config y poder preguntar despues
+    # "que perfil se usa de verdad".
+    # "product" = promocionar algo, el unico objetivo que la app servia hasta
+    # RM-42 y por tanto el default: un proyecto viejo o reanudado via /resume
+    # no tiene la clave y tiene que seguir comportandose igual.
+    # "professional" = posicionar un perfil profesional (LinkedIn, X).
+    # String y no enum, mismo criterio que caption_highlight_style y
+    # filter_preset: un valor no reconocido cae al default en vez de romper.
+    objective: str = "product"
     speaker_reference_wav: Path | None = None  # None = usa la voz por defecto
     # None = el video dura lo que tarda la narracion (comportamiento previo).
     # Si se fija: narracion mas larga se acelera (atempo) para encajar;

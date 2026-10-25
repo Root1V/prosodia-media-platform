@@ -238,8 +238,10 @@ class GenerateMicroVideoUseCase:
 
         report_path = request.output_dir / "pipeline_timings.json"
         timings = PipelineTimings(report_path=report_path)
-        if self._effective_config:
-            timings.set_effective_config(**self._effective_config)
+        # El objetivo sale del request y no del contenedor (que no lo ve),
+        # pero se vuelca igual: es lo que permite preguntarle despues al
+        # informe que perfil se uso de verdad en cada corrida (ver RM-42).
+        timings.set_effective_config(**self._effective_config, objective=request.objective)
         log = logger.bind(run_id=timings.run_id)
         log.info("generate_micro_video.start", chars=len(request.text))
 
