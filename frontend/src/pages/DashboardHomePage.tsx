@@ -77,9 +77,9 @@ const services = [
     icon: Volume2,
   },
   {
-    to: '/micro-video/new',
+    to: '/micro-video',
     title: 'Micro-Video',
-    description: 'Sube una imagen y un texto: genera un video vertical narrado para redes sociales.',
+    description: 'Sube una imagen y un texto: genera un video corto narrado para redes sociales.',
     icon: Clapperboard,
   },
 ]

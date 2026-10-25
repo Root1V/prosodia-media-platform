@@ -1,5 +1,6 @@
 import type { CaptionHighlightStyle } from '../types/project'
 import type { MusicCategory } from '../types/musicTracks'
+import { VIDEO_FORMATS } from './videoFormats'
 import type { VideoFormat } from './videoFormats'
 
 /**
@@ -59,6 +60,15 @@ export const OBJECTIVES: Record<Objective, ObjectiveProfile> = {
     captionHighlightStyle: 'text_color',
     suggestedMusicCategory: 'commercials_professional',
   },
+}
+
+/** Etiqueta del formato de cada objetivo, para poder decir en la pantalla de
+ * eleccion QUE cambia antes de elegir. Sin esto la eleccion parece no tener
+ * consecuencias, que es exactamente la impresion que da entrar al editor y no
+ * ver nada distinto. */
+export const VIDEO_FORMATS_LABEL_BY_OBJECTIVE: Record<Objective, string> = {
+  product: VIDEO_FORMATS[OBJECTIVES.product.format].label,
+  professional: VIDEO_FORMATS[OBJECTIVES.professional.format].label,
 }
 
 /** Tolerante a proposito: lo que venga de la URL es de fuera y no se puede

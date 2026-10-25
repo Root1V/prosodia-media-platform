@@ -27,7 +27,7 @@ const servicesNav: NavItem[] = [
   { to: '/subtitles/new', label: 'Subtítulos', icon: Captions },
   { to: '/transcription/new', label: 'Transcripción', icon: FileText },
   { to: '/tts/new', label: 'Voz y Clonación', icon: Volume2 },
-  { to: '/micro-video/new', label: 'Micro-Video', icon: Clapperboard },
+  { to: '/micro-video', label: 'Micro-Video', icon: Clapperboard },
 ]
 
 const libraryNav: NavItem[] = [

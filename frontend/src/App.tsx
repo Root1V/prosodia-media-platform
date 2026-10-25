@@ -14,6 +14,7 @@ import { NewSubtitlesProjectPage } from './pages/NewSubtitlesProjectPage'
 import { NewTranscriptionProjectPage } from './pages/NewTranscriptionProjectPage'
 import { NewTtsProjectPage } from './pages/NewTtsProjectPage'
 import { NewMicroVideoProjectPage } from './pages/NewMicroVideoProjectPage'
+import { MicroVideoObjectivePage } from './pages/MicroVideoObjectivePage'
 import { UsersListPage } from './pages/UsersListPage'
 import { MusicTracksPage } from './pages/MusicTracksPage'
 
@@ -87,6 +88,17 @@ export default function App() {
                 element={
                   <ProtectedPage>
                     <NewTtsProjectPage />
+                  </ProtectedPage>
+                }
+              />
+              {/* La eleccion de objetivo (RM-42) va ANTES del editor y sin
+                  fullBleed: es una pagina normal con el padding del shell, no
+                  un lienzo a sangre como el editor. */}
+              <Route
+                path="/micro-video"
+                element={
+                  <ProtectedPage>
+                    <MicroVideoObjectivePage />
                   </ProtectedPage>
                 }
               />
