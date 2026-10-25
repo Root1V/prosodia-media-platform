@@ -105,6 +105,9 @@ def create_project(
     # Solo para "micro_video": para que se hace el video (ver RM-42).
     # "product" (default, el comportamiento previo a RM-42) / "professional".
     objective: str = Form("product"),
+    # Solo para "micro_video": relacion de aspecto de salida (ver RM-42).
+    # "vertical" (default, 9:16, el comportamiento previo) / "square" / "landscape".
+    video_format: str = Form("vertical"),
     # Solo para "micro_video": None/omitido = el video dura lo que tarda la
     # narracion; si se fija, GenerateMicroVideoUseCase acelera el audio si
     # hace falta o mantiene la imagen el tiempo restante (ver docs/roadmap.md).
@@ -298,6 +301,7 @@ def create_project(
             **project.config,
             "narration_text": text,
             "objective": objective,
+            "video_format": video_format,
             "voice_option": voice_option,
             "target_duration_seconds": target_duration_seconds,
             "caption_bg_color": caption_bg_color,

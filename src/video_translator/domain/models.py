@@ -271,6 +271,13 @@ class GenerateMicroVideoRequest:
     # String y no enum, mismo criterio que caption_highlight_style y
     # filter_preset: un valor no reconocido cae al default en vez de romper.
     objective: str = "product"
+    # Relacion de aspecto del video de salida (ver RM-42). Hasta RM-42 era una
+    # constante del caso de uso fija en 9:16, porque el unico destino era un
+    # short vertical; un video para LinkedIn o X no lo es. Los valores validos
+    # los define VIDEO_FORMATS en generate_micro_video.py, y "vertical" es el
+    # default porque es lo que el pipeline hacia antes.
+    # String y no enum, mismo criterio que objective.
+    video_format: str = "vertical"
     speaker_reference_wav: Path | None = None  # None = usa la voz por defecto
     # None = el video dura lo que tarda la narracion (comportamiento previo).
     # Si se fija: narracion mas larga se acelera (atempo) para encajar;

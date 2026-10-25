@@ -306,6 +306,7 @@ def build_micro_video_use_case_and_request(
         # Sin la clave (proyecto anterior a RM-42, o /resume de uno viejo) cae
         # a "product", que es el comportamiento que esa corrida ya tuvo.
         objective=config.get("objective") or "product",
+        video_format=config.get("video_format") or "vertical",
         speaker_reference_wav=reference_wav,
         target_duration_seconds=float(target_duration) if target_duration else None,
         caption_bg_color=config.get("caption_bg_color", "#000000"),

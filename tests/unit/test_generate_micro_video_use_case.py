@@ -868,7 +868,7 @@ def test_execute_writes_overlay_position_bold_color_and_font(tmp_path: Path):
     assert fields[1] == "Impact"
     assert fields[2] == "64"
     assert fields[7] == "-1"  # Bold
-    # x=0.25*1080=270, y=0.5*1920=960 (ver VIDEO_WIDTH/VIDEO_HEIGHT en _make_use_case).
+    # x=0.25*1080=270, y=0.5*1920=960 (formato vertical, ver VIDEO_FORMATS).
     dialogue_line = next(line for line in content.splitlines() if line.startswith("Dialogue: 0,0:00:00.00"))
     assert "\\pos(270,960)" in dialogue_line
     assert "Hola mundo" in dialogue_line
@@ -941,7 +941,7 @@ def test_execute_writes_long_shadow_style(tmp_path: Path):
     assert len(overlay_dialogues) == 19
     ribbon_lines, main_line = overlay_dialogues[:-1], overlay_dialogues[-1]
     assert all("\\1c&H000000&\\bord0\\shad0" in line for line in ribbon_lines)
-    # x=0.5*1080=540, y=0.5*1920=960 (ver VIDEO_WIDTH/VIDEO_HEIGHT en
+    # x=0.5*1080=540, y=0.5*1920=960 (formato vertical, ver VIDEO_FORMATS en
     # _make_use_case) -- offsets diagonales decrecientes: la primera copia
     # (mas lejos) es +18,+18, la ultima del ribbon (mas cerca) es +1,+1.
     assert "\\pos(558,978)" in ribbon_lines[0]
@@ -1715,3 +1715,53 @@ def test_execute_allows_open_end_on_the_last_range(tmp_path: Path):
     # (2-0) + (10-5) = 7s -- el end=None del ultimo rango se resuelve
     # contra la duracion real del archivo (10s).
     assert result.duration_seconds == pytest.approx(7.0)
+
+
+def test_execute_defaults_to_the_vertical_format(tmp_path: Path) -> None:
+    # El default tiene que seguir siendo 9:16: es lo que el pipeline hacia
+    # antes de RM-42 y lo que un proyecto reanudado sin la clave tiene que
+    # producir. Si esto cambia, todos los micro-videos existentes cambian de
+    # forma sin que nadie lo haya pedido.
+    media = FakeMediaProcessor()
+    use_case = _make_use_case(media=media)
+    request = GenerateMicroVideoRequest(
+        media_items=[MicroVideoMediaItem(path=_make_image(tmp_path))],
+        text="Hola mundo.",
+        output_dir=tmp_path / "out",
+    )
+
+    use_case.execute(request)
+
+    assert (media.render_calls[0]["width"], media.render_calls[0]["height"]) == (1080, 1920)
+
+
+def test_execute_square_format_changes_the_dimensions_given_to_the_processor(tmp_path: Path) -> None:
+    media = FakeMediaProcessor()
+    use_case = _make_use_case(media=media)
+    request = GenerateMicroVideoRequest(
+        media_items=[MicroVideoMediaItem(path=_make_image(tmp_path))],
+        text="Hola mundo.",
+        output_dir=tmp_path / "out",
+        video_format="square",
+    )
+
+    use_case.execute(request)
+
+    assert (media.render_calls[0]["width"], media.render_calls[0]["height"]) == (1080, 1080)
+
+
+def test_execute_unknown_format_falls_back_to_vertical(tmp_path: Path) -> None:
+    # El formato llega de `config`, que es JSON sin esquema -- un valor que no
+    # esta en VIDEO_FORMATS no puede tirar la corrida entera.
+    media = FakeMediaProcessor()
+    use_case = _make_use_case(media=media)
+    request = GenerateMicroVideoRequest(
+        media_items=[MicroVideoMediaItem(path=_make_image(tmp_path))],
+        text="Hola mundo.",
+        output_dir=tmp_path / "out",
+        video_format="no-existe",
+    )
+
+    use_case.execute(request)
+
+    assert (media.render_calls[0]["width"], media.render_calls[0]["height"]) == (1080, 1920)

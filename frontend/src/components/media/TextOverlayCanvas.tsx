@@ -1,3 +1,5 @@
+import { pxToCqw, VIDEO_FORMATS } from '../../lib/videoFormats'
+import type { VideoFormat } from '../../lib/videoFormats'
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { Pause, Play } from 'lucide-react'
@@ -30,8 +32,10 @@ const CSS_FILTER_BY_PRESET: Record<FilterPreset, string | undefined> = {
 // tamano de fuente es lo que hace que el grosor del contorno/sombra en el
 // preview escale igual que el font-size (antes eran px fijos: un font_size
 // grande dejaba el contorno desproporcionadamente fino, y viceversa).
-function px2cqw(px: number): string {
-  return `${(px / 1080) * 100}cqw`
+// Envoltorio local de pxToCqw con el ancho ya aplicado (ver lib/videoFormats).
+// Se construye por render porque el ancho depende del formato elegido.
+function makePx2Cqw(videoWidth: number) {
+  return (px: number) => pxToCqw(px, videoWidth)
 }
 
 // Aproximacion visual (no pixel-perfect) de los estilos de texto de RM-33
@@ -41,7 +45,7 @@ function px2cqw(px: number): string {
 // video final (CSS linear-gradient es continuo, el backend lo discretiza
 // por caracter), mismo criterio ya aceptado para el resto de los previews
 // de este editor.
-function textOverlayStyle(overlay: TextOverlay): CSSProperties {
+function textOverlayStyle(overlay: TextOverlay, px2cqw: (px: number) => string): CSSProperties {
   switch (overlay.text_style) {
     case 'hard_shadow':
       return { color: overlay.color, textShadow: `${px2cqw(8)} ${px2cqw(8)} 0 rgba(0,0,0,0.9)` }
@@ -93,22 +97,27 @@ function textOverlayStyle(overlay: TextOverlay): CSSProperties {
   }
 }
 
-// Debe coincidir con el aspecto del contenedor (`aspectRatio: '9 / 16'` mas
-// abajo) y con VIDEO_WIDTH/VIDEO_HEIGHT del backend.
-const CONTAINER_ASPECT = 9 / 16
+// El aspecto ya no es una constante: sale del formato elegido (ver RM-42 y
+// lib/videoFormats). Tiene que ser el MISMO que el del contenedor (`aspectRatio`
+// mas abajo) y que el de VIDEO_FORMATS en el backend, o el encuadre que se
+// arrastra no coincide con el que se renderiza.
 
 /** Cuanto mas grande es la imagen ya escalada (cover-fit + zoom, ver RM-30)
  * que el marco, como fraccion del ancho/alto del marco -- 0 = sin sobrante
  * en ese eje (no se puede desplazar). Mismo orden de operaciones que
  * `ffmpeg_processor.py::render_image_video`: 1) cubrir el marco 9:16
  * (aspect-fit "increase"), 2) escalar un extra `zoom`x. */
-function computeExcess(naturalSize: { width: number; height: number } | null, zoom: number) {
+function computeExcess(
+  naturalSize: { width: number; height: number } | null,
+  zoom: number,
+  containerAspect: number,
+) {
   if (!naturalSize) return { excessX: 0, excessY: 0 }
   const imageAspect = naturalSize.width / naturalSize.height
-  if (imageAspect >= CONTAINER_ASPECT) {
-    return { excessX: (imageAspect / CONTAINER_ASPECT) * zoom - 1, excessY: zoom - 1 }
+  if (imageAspect >= containerAspect) {
+    return { excessX: (imageAspect / containerAspect) * zoom - 1, excessY: zoom - 1 }
   }
-  return { excessX: zoom - 1, excessY: (CONTAINER_ASPECT / imageAspect) * zoom - 1 }
+  return { excessX: zoom - 1, excessY: (containerAspect / imageAspect) * zoom - 1 }
 }
 
 export interface CaptionPreview {
@@ -123,6 +132,10 @@ export interface CaptionPreview {
 }
 
 interface TextOverlayCanvasProps {
+  /** Relacion de aspecto del video de salida (ver RM-42). El lienzo es un
+   * preview del render, asi que esto fija tanto la forma del marco como la
+   * escala de los tamanos en pixeles. */
+  videoFormat: VideoFormat
   mediaUrl: string
   /** 'video' cuando el item activo es un clip de video (ver RM-36) -- de lo
    * contrario se renderiza como imagen (comportamiento previo). */
@@ -177,13 +190,14 @@ interface TextOverlayCanvasProps {
   onMoveEmoji?: (id: string, x: number, y: number) => void
 }
 
-/** Lienzo de edicion: la imagen de fondo (misma relacion de aspecto 9:16
- * que el video final) con cada TextOverlay encima, arrastrable a mano con
+/** Lienzo de edicion: la imagen de fondo (misma relacion de aspecto que el
+ * video final, ver videoFormat) con cada TextOverlay encima, arrastrable a mano con
  * eventos de puntero nativos -- no hay libreria de drag-and-drop instalada
  * y no hace falta agregar una solo para mover unas pocas cajas libres (ver
  * RM-28 en docs/roadmap.md). `x`/`y` de cada overlay son fracciones 0-1 del
  * ancho/alto, asi que la posicion no depende del tamano en pantalla. */
 export function TextOverlayCanvas({
+  videoFormat,
   mediaUrl,
   mediaKind = 'image',
   overlays,
@@ -204,6 +218,13 @@ export function TextOverlayCanvas({
   onSelectEmoji,
   onMoveEmoji,
 }: TextOverlayCanvasProps) {
+  // Geometria del formato elegido (ver RM-42). El aspecto tiene que ser el
+  // mismo que el del contenedor de abajo y que el del backend, o el encuadre
+  // que se arrastra no coincide con el que se renderiza.
+  const { width: videoWidth, height: videoHeight } = VIDEO_FORMATS[videoFormat]
+  const containerAspect = videoWidth / videoHeight
+  const px2cqw = makePx2Cqw(videoWidth)
+
   const containerRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -368,7 +389,7 @@ export function TextOverlayCanvas({
     // que el arrastre siga al cursor 1 a 1 -- si un eje no tiene sobrante
     // (p.ej. recien al hacer zoom aparece sobrante vertical que antes era
     // cero), antes se quedaba trabado sin poder moverse en ese eje.
-    const { excessX, excessY } = computeExcess(naturalSize, mediaAdjustment.zoom)
+    const { excessX, excessY } = computeExcess(naturalSize, mediaAdjustment.zoom, containerAspect)
 
     function handleMouseMove(moveEvent: MouseEvent) {
       if (!container) return
@@ -410,7 +431,7 @@ export function TextOverlayCanvas({
         filter: CSS_FILTER_BY_PRESET[filterPreset],
       }
     }
-    const { excessX, excessY } = computeExcess(naturalSize, zoom)
+    const { excessX, excessY } = computeExcess(naturalSize, zoom, containerAspect)
     return {
       position: 'absolute',
       // El preflight de Tailwind pone `img { max-width: 100%; height: auto }`
@@ -431,7 +452,7 @@ export function TextOverlayCanvas({
     <div
       ref={containerRef}
       className="relative mx-auto h-full max-h-full max-w-full select-none overflow-hidden rounded-2xl border border-border bg-secondary/30 shadow-lg"
-      style={{ aspectRatio: '9 / 16', containerType: 'inline-size' }}
+      style={{ aspectRatio: `${videoWidth} / ${videoHeight}`, containerType: 'inline-size' }}
     >
       {mediaKind === 'video' ? (
         <>
@@ -596,8 +617,8 @@ export function TextOverlayCanvas({
             fontWeight: overlay.bold ? 'bold' : 'normal',
             // El tamano de fuente en el video final esta en px sobre un
             // ancho de 1080 -- se escala al ancho real del canvas en pantalla.
-            fontSize: `${(overlay.font_size / 1080) * 100}cqw`,
-            ...textOverlayStyle(overlay),
+            fontSize: pxToCqw(overlay.font_size, videoWidth),
+            ...textOverlayStyle(overlay, px2cqw),
           }}
         >
           {overlay.text || 'Texto'}

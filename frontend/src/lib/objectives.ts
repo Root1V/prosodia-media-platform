@@ -1,5 +1,6 @@
 import type { CaptionHighlightStyle } from '../types/project'
 import type { MusicCategory } from '../types/musicTracks'
+import type { VideoFormat } from './videoFormats'
 
 /**
  * Para que se hace el video (ver RM-42).
@@ -15,6 +16,8 @@ export const DEFAULT_OBJECTIVE: Objective = 'product'
 
 interface ObjectiveProfile {
   label: string
+  /** Relacion de aspecto del video (ver lib/videoFormats). */
+  format: VideoFormat
   /** Una linea, en segunda persona: es lo que se lee al elegir. */
   description: string
   /** null = el video dura lo que tarde la narracion. */
@@ -35,6 +38,7 @@ export const OBJECTIVES: Record<Objective, ObjectiveProfile> = {
   product: {
     label: 'Promocionar un producto',
     description: 'Vender algo en redes: el video engancha y termina en una llamada a la acción.',
+    format: 'vertical',
     targetDuration: null,
     captionHighlightStyle: 'background',
     suggestedMusicCategory: null,
@@ -42,6 +46,10 @@ export const OBJECTIVES: Record<Objective, ObjectiveProfile> = {
   professional: {
     label: 'Posicionar tu perfil profesional',
     description: 'Publicar una idea en LinkedIn o X: no vendes, construyes criterio.',
+    // Cuadrado y no vertical: en el feed de LinkedIn y de X un 9:16 se recorta
+    // o se muestra con bandas. El cuadrado es el que ocupa mas sin recortarse
+    // en las dos.
+    format: 'square',
     // Fija, y corta: en una red profesional el video compite con el texto del
     // post, no con otros videos. Sin tope, la narracion se alarga sola y el
     // resultado deja de servir para el sitio donde se va a publicar.

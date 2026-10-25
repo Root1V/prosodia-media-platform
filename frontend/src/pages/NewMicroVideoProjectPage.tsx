@@ -82,6 +82,7 @@ export function NewMicroVideoProjectPage() {
   const [clipDurationsByFile, setClipDurationsByFile] = useState<Map<File, number>>(new Map())
   const [voiceOption, setVoiceOption] = useState<TtsVoiceOption>('public_female')
   const [voiceFile, setVoiceFile] = useState<File | null>(null)
+  const [videoFormat] = useState(() => profile.format)
   const [targetDuration, setTargetDuration] = useState<number | null>(profile.targetDuration)
   const [captionBgColor, setCaptionBgColor] = useState('#000000')
   const [captionTextColor, setCaptionTextColor] = useState('#FFFFFF')
@@ -215,6 +216,7 @@ export function NewMicroVideoProjectPage() {
           name: name.trim(),
           text: text.trim(),
           objective,
+          video_format: videoFormat,
           mediaFiles,
           target_lang: targetLang,
           voice_option: voiceOption,
@@ -304,6 +306,7 @@ export function NewMicroVideoProjectPage() {
         <div className="flex flex-1 items-center justify-center overflow-y-auto p-6">
           {mediaUrl ? (
             <TextOverlayCanvas
+              videoFormat={videoFormat}
               mediaUrl={mediaUrl}
               mediaKind={activeIsVideoClip ? 'video' : 'image'}
               overlays={textOverlays}

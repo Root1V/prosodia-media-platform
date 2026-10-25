@@ -40,8 +40,24 @@ SUPPORTED_MEDIA_EXTENSIONS = SUPPORTED_IMAGE_EXTENSIONS | SUPPORTED_VIDEO_EXTENS
 # ya cubren toda la duracion pedida (ver execute) -- un segmento de 0s
 # produce un mp4 de un frame que el demuxer concat no maneja bien.
 MIN_IMAGE_SEGMENT_SECONDS = 1.0
-VIDEO_WIDTH = 1080
-VIDEO_HEIGHT = 1920
+# Dimensiones de salida por formato (ver RM-42). Hasta RM-42 esto era un par
+# de constantes fijas en 9:16: el unico destino del micro-video era un short
+# vertical. "vertical" sigue siendo el default (= lo que el pipeline hacia
+# antes); lo que cambia es que `execute` las deriva del formato del request.
+#
+# OJO con los tamanos de fuente: los overlays y los captions se miden en
+# pixeles sobre el ANCHO del video, asi que el mismo font_size se ve
+# relativamente mas pequeño en "landscape" (1920 de ancho) que en los otros
+# dos (1080). No se normaliza aqui a proposito: el editor divide por el ancho
+# de ESTE mismo formato (ver TextOverlayCanvas en el frontend), asi que lo que
+# se ve en el preview es lo que sale. Normalizar en un solo lado romperia esa
+# correspondencia, que es lo unico que el usuario puede comprobar.
+VIDEO_FORMATS: dict[str, tuple[int, int]] = {
+    "vertical": (1080, 1920),  # 9:16 -- shorts, Reels, TikTok
+    "square": (1080, 1080),  # 1:1 -- feed de LinkedIn y X
+    "landscape": (1920, 1080),  # 16:9
+}
+DEFAULT_VIDEO_FORMAT = "vertical"
 # Los fragmentos de TTS (hasta DEFAULT_MAX_CHUNK_CHARS) son del tamano
 # correcto para sintetizar, pero un caption con cientos de caracteres
 # aparece como un bloque estatico que cubre buena parte de la pantalla en
@@ -238,10 +254,19 @@ class GenerateMicroVideoUseCase:
 
         report_path = request.output_dir / "pipeline_timings.json"
         timings = PipelineTimings(report_path=report_path)
+        # Un formato desconocido cae al default en vez de romper: el valor
+        # llega de `config`, que es JSON sin esquema, y un proyecto reanudado
+        # via /resume puede no tener la clave.
+        video_width, video_height = VIDEO_FORMATS.get(request.video_format, VIDEO_FORMATS[DEFAULT_VIDEO_FORMAT])
+
         # El objetivo sale del request y no del contenedor (que no lo ve),
         # pero se vuelca igual: es lo que permite preguntarle despues al
         # informe que perfil se uso de verdad en cada corrida (ver RM-42).
-        timings.set_effective_config(**self._effective_config, objective=request.objective)
+        timings.set_effective_config(
+            **self._effective_config,
+            objective=request.objective,
+            video_format=f"{video_width}x{video_height}",
+        )
         log = logger.bind(run_id=timings.run_id)
         log.info("generate_micro_video.start", chars=len(request.text))
 
@@ -357,8 +382,8 @@ class GenerateMicroVideoUseCase:
             _write_ass_captions(
                 caption_segments,
                 captions_path,
-                VIDEO_WIDTH,
-                VIDEO_HEIGHT,
+                video_width,
+                video_height,
                 request.caption_bg_color,
                 request.caption_highlight_style,
                 text_color=request.caption_text_color,
@@ -391,8 +416,8 @@ class GenerateMicroVideoUseCase:
                             segment_path,
                             duration_seconds=end - start,
                             start_seconds=start,
-                            width=VIDEO_WIDTH,
-                            height=VIDEO_HEIGHT,
+                            width=video_width,
+                            height=video_height,
                             offset_x=item.offset_x,
                             offset_y=item.offset_y,
                             zoom=item.zoom,
@@ -418,8 +443,8 @@ class GenerateMicroVideoUseCase:
                                 sub_path,
                                 duration_seconds=end - start,
                                 start_seconds=start,
-                                width=VIDEO_WIDTH,
-                                height=VIDEO_HEIGHT,
+                                width=video_width,
+                                height=video_height,
                                 offset_x=item.offset_x,
                                 offset_y=item.offset_y,
                                 zoom=item.zoom,
@@ -433,8 +458,8 @@ class GenerateMicroVideoUseCase:
                         None,
                         segment_path,
                         duration_seconds=image_duration,
-                        width=VIDEO_WIDTH,
-                        height=VIDEO_HEIGHT,
+                        width=video_width,
+                        height=video_height,
                         offset_x=item.offset_x,
                         offset_y=item.offset_y,
                         zoom=item.zoom,
@@ -466,7 +491,7 @@ class GenerateMicroVideoUseCase:
             placements = _resolve_emoji_placements(request.emoji_overlays)
             with timings.stage("emoji_burn", num_emojis=len(placements)):
                 self._media.overlay_emojis(
-                    captioned_path, placements, output_video, VIDEO_WIDTH, video_duration
+                    captioned_path, placements, output_video, video_width, video_duration
                 )
         else:
             with timings.stage("caption_burn"):

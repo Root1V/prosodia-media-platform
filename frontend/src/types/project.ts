@@ -1,3 +1,4 @@
+import type { VideoFormat } from '../lib/videoFormats'
 import type { Objective } from '../lib/objectives'
 
 export type ServiceType = 'dubbing' | 'subtitles' | 'transcription' | 'tts' | 'micro_video'
@@ -169,6 +170,9 @@ export interface CreateMicroVideoProjectInput {
    * que el editor propone; el backend lo guarda para poder preguntar despues
    * que perfil se uso de verdad. */
   objective: Objective
+  /** Relacion de aspecto de salida (ver RM-42 y lib/videoFormats). La elige el
+   * objetivo; el lienzo del editor ya dibuja con esta misma forma. */
+  video_format: VideoFormat
   /** Al menos un item, imagen o clip de video -- si hay varios, el video los
    * recorre en orden (ver RM-29, RM-36). Cada clip ocupa su propia duracion
    * real (recortada); las imagenes se reparten el tiempo restante. */
