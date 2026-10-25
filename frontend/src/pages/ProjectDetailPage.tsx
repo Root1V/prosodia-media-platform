@@ -189,7 +189,10 @@ export function ProjectDetailPage() {
           </div>
         </div>
         <div className="flex shrink-0 gap-2">
-          {dbStatus === 'failed' && (
+          {/* Tambien con una corrida interrumpida (RM-44/RM-45): la fila sigue
+              diciendo "running", pero no hay nadie procesandola. Sin esto el
+              proyecto se queda sin salida posible. */}
+          {(dbStatus === 'failed' || status?.interrupted) && (
             <Button
               variant="outline"
               size="sm"
@@ -223,6 +226,7 @@ export function ProjectDetailPage() {
                   ? `Se cortó en la etapa "${getStageLabel(status.current_stage.name)}". `
                   : 'Se cortó antes de completar la primera etapa. '}
                 El proceso que la ejecutaba dejó de responder, así que no va a avanzar sola.
+                Usa <strong>Reintentar</strong> para lanzarla de nuevo.
               </p>
             </div>
           </div>

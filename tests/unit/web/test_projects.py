@@ -15,6 +15,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from video_translator.web.db.models import Project, ProjectStatus, User
+from video_translator.web.services import status_reader
 from video_translator.web.tasks.run_project import run_dubbing_project
 
 
@@ -304,6 +305,59 @@ def test_resume_failed_project_reenqueues(
     assert body["status"] == "queued"
     assert body["error_message"] is None
     assert body["celery_task_id"] == "fake-task-id"
+
+
+def test_resume_interrupted_running_project_reenqueues(
+    client: TestClient,
+    make_user: Callable[..., User],
+    db_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Una corrida interrumpida (RM-44) sigue diciendo "running" porque el worker
+    # que debia marcarla como fallida es el que murio. Sin esto se quedaba sin
+    # salida posible: el endpoint exigia "failed" y devolvia 409 para siempre.
+    make_user(email="alice@example.com", password="hunter2")
+    headers = _auth_headers(client, "alice@example.com", "hunter2")
+    created = _create_project(client, headers).json()
+
+    project = db_session.get(Project, uuid.UUID(created["id"]))
+    assert project is not None
+    project.status = ProjectStatus.RUNNING
+    project.celery_task_id = "task-muerta"
+    db_session.commit()
+    monkeypatch.setattr(status_reader, "_celery_task_is_active", lambda _id: False)
+
+    resp = client.post(f"/api/projects/{created['id']}/resume", headers=headers)
+
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "queued"
+
+
+def test_resume_refuses_a_project_that_is_really_running(
+    client: TestClient,
+    make_user: Callable[..., User],
+    db_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # La proteccion que importa: relanzar algo que SI esta corriendo pondria dos
+    # workers a escribir en el mismo directorio de salida. El estado de la fila
+    # es identico al del test anterior -- lo unico que cambia es que la tarea
+    # sigue viva, y eso lo decide Celery, no el cliente.
+    make_user(email="alice@example.com", password="hunter2")
+    headers = _auth_headers(client, "alice@example.com", "hunter2")
+    created = _create_project(client, headers).json()
+
+    project = db_session.get(Project, uuid.UUID(created["id"]))
+    assert project is not None
+    project.status = ProjectStatus.RUNNING
+    project.celery_task_id = "task-viva"
+    db_session.commit()
+    monkeypatch.setattr(status_reader, "_celery_task_is_active", lambda _id: True)
+
+    resp = client.post(f"/api/projects/{created['id']}/resume", headers=headers)
+
+    assert resp.status_code == 409
+    assert "ahora mismo" in resp.json()["detail"]
 
 
 def test_download_artifact_not_ready_returns_404(

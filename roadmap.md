@@ -48,3 +48,4 @@
 | RM-42 | Perfiles de objetivo: producto vs posicionamiento profesional | todo | El objetivo del video pasa a ser una elección explícita que condiciona guion, tono, formato y redes, con las mismas herramientas. |
 | RM-43 | Tema según el sistema | done | Tercera opción además de claro y oscuro: seguir al sistema operativo, en vivo. |
 | RM-44 | Avisar de una ejecución interrumpida | done | Un worker que muere deja el proyecto en "corriendo" para siempre; ahora se detecta y se dice en qué etapa se cortó. |
+| RM-45 | Relanzar una ejecución interrumpida | done | El botón Reintentar ya sirve para una corrida que murió, no solo para una fallida. |

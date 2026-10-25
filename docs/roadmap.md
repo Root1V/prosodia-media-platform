@@ -214,6 +214,10 @@ Dos problemas salieron por el camino y estan documentados en el canal: el confli
 **Why:** si el worker muere a mitad, la fila queda en `running` para siempre -- el proceso que debía marcarla como fallida es justo el que murió. En la UI se ve idéntica a una que avanza, así que el usuario mira una etapa "en curso" que no se va a mover nunca. Pasó de verdad con un micro-video (`run_id ee2ad68b50de`), que murió cargando el modelo de TTS.
 **Scope:** `read_project_status` marca `interrupted` cuando el proyecto dice `running` y la tarea ya no está activa, y la página de detalle lo dice señalando la etapa donde se cortó. **Quién decide es Celery, no el reloj**: una etapa puede tardar minutos sin escribir nada (cargar el modelo de IndexTTS son ~10 GB), así que darla por muerta por tiempo daría falsos positivos. El tiempo solo decide *cuándo* se paga el broadcast, para no hacerlo en cada sondeo del frontend. Si nadie contesta, no se afirma nada: decir "murió" de algo vivo invita a relanzarlo por encima. No incluye relanzarlo (RM-45) ni reanudar desde donde se quedó (RM-46).
 
+## RM-45 — Relanzar una ejecución interrumpida
+**Why:** `/resume` solo aceptaba proyectos en `failed`, y una corrida interrumpida (RM-44) se queda en `running` para siempre. O sea que el único proyecto que de verdad necesitaba relanzarse era justo el que el endpoint rechazaba con un 409.
+**Scope:** `/resume` acepta además un proyecto `running` **verificado como interrumpido**, y el botón Reintentar aparece en ese caso. La verificación se hace en el servidor y no se confía en el cliente: relanzar algo que sí está corriendo pondría dos workers escribiendo en el mismo directorio de salida. No incluye reanudar desde la etapa donde se cortó (RM-46): hoy la corrida empieza de cero.
+
 ---
 
 **Descartado:** reemplazo/agregado de pista de audio en un video existente — evaluado, sin caso de uso claro con el negocio. Sin ID (nunca entró en desarrollo activo).

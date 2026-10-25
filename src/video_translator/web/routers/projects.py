@@ -419,11 +419,26 @@ def resume_project(
     db: Session = Depends(get_db_session),
 ) -> ProjectOut:
     project = _get_owned_project(project_id, current_user, db)
-    if project.status != ProjectStatus.FAILED:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Solo se puede reintentar un proyecto en estado 'failed'.",
-        )
+
+    # Una corrida interrumpida (ver RM-44) tambien se puede relanzar, aunque la
+    # fila siga diciendo "running": el worker que la procesaba murio y nadie
+    # la va a marcar como fallida, asi que exigir "failed" la dejaba sin salida.
+    # Se comprueba AQUI y no se confia en lo que diga el cliente: relanzar algo
+    # que de verdad esta corriendo pondria dos workers a escribir en el mismo
+    # directorio de salida.
+    interrumpido = (
+        project.status == ProjectStatus.RUNNING and read_project_status(project)["interrupted"]
+    )
+    if project.status != ProjectStatus.FAILED and not interrumpido:
+        if project.status == ProjectStatus.RUNNING:
+            detalle = (
+                "El proyecto se esta procesando ahora mismo. Espera a que termine o falle."
+            )
+        else:
+            detalle = (
+                "Solo se puede reintentar un proyecto que fallo o cuya ejecucion se interrumpio."
+            )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=detalle)
 
     project.status = ProjectStatus.QUEUED
     project.error_message = None

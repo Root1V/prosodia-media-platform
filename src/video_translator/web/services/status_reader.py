@@ -11,6 +11,8 @@ esta completa para que M2 (tarea Celery real) no necesite tocar este archivo.
 from __future__ import annotations
 
 import json
+import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -27,6 +29,16 @@ logger = structlog.get_logger(__name__)
 # de IndexTTS son ~10 GB), asi que darla por muerta por tiempo seria falso.
 # Esto solo decide CUANDO se paga la pregunta; quien responde es Celery.
 STALE_SECONDS = 60.0
+
+# El frontend sondea el estado cada pocos segundos, y `inspect()` de Celery no
+# es un plazo maximo sino una VENTANA DE RECOLECCION: siempre tarda lo que se
+# le pida, aunque el worker conteste al instante. Sin cache, cada sondeo de un
+# proyecto estancado costaba 2 s de broadcast, y varios en vuelo a la vez se
+# pisaban y devolvian "nadie contesto" -- medido: la deteccion no se disparaba
+# nunca mientras la pagina estaba abierta.
+_LIVENESS_TTL = 15.0
+_LIVENESS_LOCK = threading.Lock()
+_liveness_cache: dict[str, tuple[float, bool | None]] = {}
 
 
 def read_project_status(project: Project) -> dict[str, Any]:
@@ -102,6 +114,24 @@ def _celery_task_is_active(task_id: str | None) -> bool | None:
     """
     if not task_id:
         return None
+
+    ahora = time.monotonic()
+    cacheado = _liveness_cache.get(task_id)
+    if cacheado is not None and ahora - cacheado[0] < _LIVENESS_TTL:
+        return cacheado[1]
+
+    # Un solo broadcast en vuelo a la vez. Quien llegue mientras otro pregunta
+    # se encuentra la respuesta ya puesta al entrar.
+    with _LIVENESS_LOCK:
+        cacheado = _liveness_cache.get(task_id)
+        if cacheado is not None and time.monotonic() - cacheado[0] < _LIVENESS_TTL:
+            return cacheado[1]
+        resultado = _ask_celery(task_id)
+        _liveness_cache[task_id] = (time.monotonic(), resultado)
+        return resultado
+
+
+def _ask_celery(task_id: str) -> bool | None:
     try:
         from video_translator.web.tasks.celery_app import celery_app
 
