@@ -22,7 +22,7 @@
 | RM-16 | Columnas de ejecución en la tabla de proyectos | done | Agregar ID de ejecución y duración total al listado. |
 | RM-17 | Selector de fuente de media: orden y validación de URL | done | YouTube primero; validar URL antes de habilitar el envío si falla el preview. |
 | RM-18 | Resumen con highlights en Transcripción | done | Toggle opcional: además de la transcripción completa, un resumen de puntos clave. |
-| RM-19 | Modo oscuro | done | Detecta claro/oscuro por la hora del sistema; botón para alternar a demanda. |
+| RM-19 | Modo oscuro | done | Paleta oscura y botón para alternar el tema (el automático lo redefine RM-43). |
 | RM-20 | Auditoría de diseño responsive | done | Revisar y corregir el diseño para tablet/celular. |
 | RM-21 | Mensajes de error legibles del pipeline | todo | Traducir el error técnico de una etapa fallida a una causa probable entendible. |
 | RM-22 | Micro-video con video generado por IA | todo | Alternativa a RM-14 con un modelo de video generativo en vez de composición ffmpeg. |
@@ -46,3 +46,4 @@
 | RM-40 | Cortar y eliminar segmentos del video | done | Quitar varios tramos sueltos de la duración de un clip (inicio, medio, fin) y no solo un único rango, con deshacer tipo Cmd+Z. |
 | RM-41 | Telemetría OpenTelemetry (integración Argus) | done | Instrumentar API y worker: la traza cruza la cola Redis→Celery y los logs del pipeline llegan correlacionados. |
 | RM-42 | Perfiles de objetivo: producto vs posicionamiento profesional | todo | El objetivo del video pasa a ser una elección explícita que condiciona guion, tono, formato y redes, con las mismas herramientas. |
+| RM-43 | Tema según el sistema | done | Tercera opción además de claro y oscuro: seguir al sistema operativo, en vivo. |

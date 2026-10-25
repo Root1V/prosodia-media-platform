@@ -9,14 +9,17 @@
       // Aplica el tema antes de que React monte, para evitar un flash del
       // tema equivocado. Misma logica que src/lib/theme.ts (duplicada a
       // proposito: este script debe correr antes de que cargue el bundle).
+      // Si se cambia alla, hay que cambiarlo aqui: desincronizados no da
+      // ningun error, solo un parpadeo al cargar que es dificil de atribuir.
       (function () {
         var stored = localStorage.getItem('prosodia-theme')
-        var theme = stored === 'light' || stored === 'dark' ? stored : null
-        if (!theme) {
-          var hour = new Date().getHours()
-          theme = hour >= 6 && hour < 18 ? 'light' : 'dark'
-        }
-        if (theme === 'dark') document.documentElement.classList.add('dark')
+        var pref = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system'
+        var dark =
+          pref === 'dark' ||
+          (pref === 'system' &&
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches)
+        if (dark) document.documentElement.classList.add('dark')
       })()
     </script>
   </head>
