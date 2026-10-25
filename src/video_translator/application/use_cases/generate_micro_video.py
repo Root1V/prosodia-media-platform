@@ -11,6 +11,8 @@ la alternativa con video generado por IA (RM-22).
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -58,6 +60,10 @@ VIDEO_FORMATS: dict[str, tuple[int, int]] = {
     "landscape": (1920, 1080),  # 16:9
 }
 DEFAULT_VIDEO_FORMAT = "vertical"
+
+# Nombre del manifiesto que permite reanudar la sintesis (ver RM-46). Vive
+# junto a los propios .wav, en el workdir del proyecto.
+TTS_MANIFEST_NAME = "chunks.json"
 # Los fragmentos de TTS (hasta DEFAULT_MAX_CHUNK_CHARS) son del tamano
 # correcto para sintetizar, pero un caption con cientos de caracteres
 # aparece como un bloque estatico que cubre buena parte de la pantalla en
@@ -245,6 +251,41 @@ class GenerateMicroVideoUseCase:
         self._max_chunk_chars = max_chunk_chars
         self._effective_config = dict(effective_config) if effective_config else {}
 
+    def _reusable_chunks(
+        self,
+        chunk_dir: Path,
+        chunks: list[str],
+        request: GenerateMicroVideoRequest,
+        speaker_wav: Path,
+    ) -> set[int]:
+        """Indices cuyo .wav de una corrida anterior sigue siendo valido.
+
+        Solo con `resume`: una corrida normal sintetiza todo, porque reusar
+        audio sin que nadie lo haya pedido convierte un directorio de trabajo
+        sucio en un resultado silenciosamente viejo.
+        """
+        if not request.resume:
+            return set()
+        manifiesto = _read_tts_manifest(chunk_dir)
+        if not manifiesto:
+            return set()
+        reusables = set()
+        for i, chunk_text in enumerate(chunks):
+            ruta = chunk_dir / f"chunk_{i:03d}.wav"
+            try:
+                vacio = ruta.stat().st_size == 0
+            except OSError:
+                continue  # no existe: hay que sintetizarlo
+            if vacio:
+                # Un .wav de 0 bytes es justo lo que deja una corrida que murio
+                # a mitad de escribir ese fragmento.
+                continue
+            if manifiesto.get(str(i)) == _chunk_fingerprint(
+                chunk_text, request.language, speaker_wav
+            ):
+                reusables.add(i)
+        return reusables
+
     def execute(self, request: GenerateMicroVideoRequest) -> GenerateMicroVideoResult:
         self._validate_request(request)
         request.output_dir.mkdir(parents=True, exist_ok=True)
@@ -275,20 +316,39 @@ class GenerateMicroVideoUseCase:
         chunks = split_into_chunks(request.text, self._max_chunk_chars)
         segments: list[tuple[float, Path, float]] = []
         cursor = 0.0
+        # La sintesis se lleva el 93% de la corrida (medido: 53,8 s de 58,1 en
+        # un micro-video de 58 s). Es la unica etapa que vale la pena reanudar;
+        # todo lo demas junto son ~4 s de ffmpeg y rehacerlo cuesta menos que
+        # persistirlo. Ver RM-46.
+        reusables = self._reusable_chunks(chunk_dir, chunks, request, speaker_wav)
+        manifiesto: dict[str, str] = {}
         with timings.stage("text_to_speech", num_chunks=len(chunks)):
+            reusados = 0
             for i, chunk_text in enumerate(chunks):
                 chunk_path = chunk_dir / f"chunk_{i:03d}.wav"
-                self._synthesizer.synthesize_segment(
-                    text=_strip_bold_markers(chunk_text),
-                    output_path=chunk_path,
-                    target_duration_seconds=0.0,
-                    speaker_reference_wav=speaker_wav,
-                    language=request.language,
-                )
+                huella = _chunk_fingerprint(chunk_text, request.language, speaker_wav)
+                manifiesto[str(i)] = huella
+                if i in reusables:
+                    reusados += 1
+                else:
+                    self._synthesizer.synthesize_segment(
+                        text=_strip_bold_markers(chunk_text),
+                        output_path=chunk_path,
+                        target_duration_seconds=0.0,
+                        speaker_reference_wav=speaker_wav,
+                        language=request.language,
+                    )
+                    # Se escribe DESPUES de cada fragmento, no al final: si la
+                    # corrida muere a mitad, lo ya sintetizado tiene que quedar
+                    # reutilizable -- que es el caso para el que existe esto.
+                    _write_tts_manifest(chunk_dir, manifiesto)
                 chunk_duration = self._media.get_duration_seconds(chunk_path)
                 segments.append((cursor, chunk_path, chunk_duration))
                 cursor += chunk_duration
-        log.info("generate_micro_video.narration_done", num_chunks=len(chunks))
+        timings.annotate_stage("text_to_speech", num_chunks_reused=reusados)
+        log.info(
+            "generate_micro_video.narration_done", num_chunks=len(chunks), reused=reusados
+        )
 
         narration_path = workdir / "narration.wav"
         with timings.stage("audio_concatenation"):
@@ -911,3 +971,37 @@ def _format_ass_timestamp(seconds: float) -> str:
     minutes, rem = divmod(rem, 6_000)
     secs, centis = divmod(rem, 100)
     return f"{hours}:{minutes:02d}:{secs:02d}.{centis:02d}"
+
+
+def _chunk_fingerprint(chunk_text: str, language: str, speaker_wav: Path) -> str:
+    """Identifica lo que determina el audio de un fragmento.
+
+    Si cambia cualquiera de los tres, el .wav que haya en disco ya no sirve y
+    hay que volver a sintetizarlo. Sin esta comprobacion, reanudar tras editar
+    el texto reusaria audio de la version anterior -- un fallo silencioso:
+    el video se genera, suena bien, y dice otra cosa.
+    """
+    h = hashlib.sha256()
+    for parte in (chunk_text, language, str(speaker_wav)):
+        h.update(parte.encode("utf-8"))
+        h.update(b"\x00")
+    return h.hexdigest()
+
+
+def _read_tts_manifest(chunk_dir: Path) -> dict[str, str]:
+    try:
+        datos = json.loads((chunk_dir / TTS_MANIFEST_NAME).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return datos if isinstance(datos, dict) else {}
+
+
+def _write_tts_manifest(chunk_dir: Path, manifiesto: dict[str, str]) -> None:
+    try:
+        (chunk_dir / TTS_MANIFEST_NAME).write_text(
+            json.dumps(manifiesto, indent=2), encoding="utf-8"
+        )
+    except OSError:
+        # No poder escribir el manifiesto solo cuesta no poder reanudar; que
+        # eso tire una corrida de minutos seria peor que el problema.
+        logger.warning("generate_micro_video.tts_manifest_write_failed")

@@ -262,6 +262,7 @@ def build_synthesize_use_case_and_request(
 def build_micro_video_use_case_and_request(
     project: Project,
     db: Session,
+    resume: bool = False,
 ) -> tuple[GenerateMicroVideoUseCase, GenerateMicroVideoRequest]:
     """Version delgada para el servicio de micro-video (`ServiceType.MICRO_VIDEO`):
     a diferencia de TTS, aca `input_video_path` es la imagen o el clip de
@@ -307,6 +308,7 @@ def build_micro_video_use_case_and_request(
         # a "product", que es el comportamiento que esa corrida ya tuvo.
         objective=config.get("objective") or "product",
         video_format=config.get("video_format") or "vertical",
+        resume=resume,
         speaker_reference_wav=reference_wav,
         target_duration_seconds=float(target_duration) if target_duration else None,
         caption_bg_color=config.get("caption_bg_color", "#000000"),

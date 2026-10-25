@@ -1765,3 +1765,72 @@ def test_execute_unknown_format_falls_back_to_vertical(tmp_path: Path) -> None:
     use_case.execute(request)
 
     assert (media.render_calls[0]["width"], media.render_calls[0]["height"]) == (1080, 1920)
+
+
+# --- Reanudacion de la sintesis (RM-46) --------------------------------------
+#
+# text_to_speech se lleva el 93% de la corrida, asi que es la unica etapa que
+# se reanuda. El riesgo no es no reusar: es reusar audio que ya no corresponde
+# al texto, porque eso no falla -- genera un video que suena bien y dice otra
+# cosa.
+
+
+def _run(tmp_path: Path, text: str, *, resume: bool, synthesizer=None):
+    synth = synthesizer or FakeSpeechSynthesizer()
+    use_case = _make_use_case(synthesizer=synth)
+    request = GenerateMicroVideoRequest(
+        media_items=[MicroVideoMediaItem(path=_make_image(tmp_path))],
+        text=text,
+        output_dir=tmp_path / "out",
+        resume=resume,
+    )
+    use_case.execute(request)
+    return synth
+
+
+def test_resume_reuses_already_synthesized_chunks(tmp_path: Path) -> None:
+    primera = _run(tmp_path, "Hola mundo.", resume=False)
+    assert len(primera.calls) == 1
+
+    segunda = _run(tmp_path, "Hola mundo.", resume=True)
+
+    assert segunda.calls == []  # no volvio a sintetizar nada
+
+
+def test_resume_resynthesizes_when_the_text_changed(tmp_path: Path) -> None:
+    # El caso peligroso. Si se reusara, el video narraria el texto viejo sin
+    # que nada falle.
+    _run(tmp_path, "Texto original.", resume=False)
+
+    segunda = _run(tmp_path, "Texto corregido.", resume=True)
+
+    assert len(segunda.calls) == 1
+    assert segunda.calls[0]["text"] == "Texto corregido."
+
+
+def test_without_resume_nothing_is_reused(tmp_path: Path) -> None:
+    # Una corrida normal sintetiza todo: reusar audio sin que nadie lo pida
+    # convierte un directorio de trabajo sucio en un resultado viejo.
+    _run(tmp_path, "Hola mundo.", resume=False)
+
+    segunda = _run(tmp_path, "Hola mundo.", resume=False)
+
+    assert len(segunda.calls) == 1
+
+
+def test_resume_ignores_an_empty_chunk_file(tmp_path: Path) -> None:
+    # Un .wav de 0 bytes es justo lo que deja una corrida que murio mientras
+    # escribia ese fragmento.
+    _run(tmp_path, "Hola mundo.", resume=False)
+    for wav in (tmp_path / "out").rglob("chunk_*.wav"):
+        wav.write_bytes(b"")
+
+    segunda = _run(tmp_path, "Hola mundo.", resume=True)
+
+    assert len(segunda.calls) == 1
+
+
+def test_resume_without_a_previous_run_synthesizes_everything(tmp_path: Path) -> None:
+    primera = _run(tmp_path, "Hola mundo.", resume=True)
+
+    assert len(primera.calls) == 1

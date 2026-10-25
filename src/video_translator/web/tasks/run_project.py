@@ -95,7 +95,7 @@ def run_dubbing_project(self: Task, project_id: str, resume: bool = False) -> No
                 tts_use_case.execute(tts_request)
             elif project.service_type == ServiceType.MICRO_VIDEO:
                 micro_video_use_case, micro_video_request = build_micro_video_use_case_and_request(
-                    project, db=session
+                    project, db=session, resume=resume
                 )
                 micro_video_use_case.execute(micro_video_request)
             else:

@@ -278,6 +278,11 @@ class GenerateMicroVideoRequest:
     # default porque es lo que el pipeline hacia antes.
     # String y no enum, mismo criterio que objective.
     video_format: str = "vertical"
+    # Reanudar una corrida anterior en el mismo directorio de trabajo (RM-46):
+    # se reusan los fragmentos de voz ya sintetizados cuyo texto no cambio. Va
+    # en el request y no en el caso de uso (a diferencia del doblaje) porque es
+    # una propiedad de ESTA corrida, no de como se construyo el pipeline.
+    resume: bool = False
     speaker_reference_wav: Path | None = None  # None = usa la voz por defecto
     # None = el video dura lo que tarda la narracion (comportamiento previo).
     # Si se fija: narracion mas larga se acelera (atempo) para encajar;

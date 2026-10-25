@@ -218,6 +218,10 @@ Dos problemas salieron por el camino y estan documentados en el canal: el confli
 **Why:** `/resume` solo aceptaba proyectos en `failed`, y una corrida interrumpida (RM-44) se queda en `running` para siempre. O sea que el único proyecto que de verdad necesitaba relanzarse era justo el que el endpoint rechazaba con un 409.
 **Scope:** `/resume` acepta además un proyecto `running` **verificado como interrumpido**, y el botón Reintentar aparece en ese caso. La verificación se hace en el servidor y no se confía en el cliente: relanzar algo que sí está corriendo pondría dos workers escribiendo en el mismo directorio de salida. No incluye reanudar desde la etapa donde se cortó (RM-46): hoy la corrida empieza de cero.
 
+## RM-46 — Reanudar el micro-video desde donde se quedó
+**Why:** relanzar una corrida interrumpida (RM-45) empezaba de cero, y el micro-video no tenía checkpoints de ningún tipo. Rehacer la síntesis de voz es lo caro: medido en una corrida real, **53,8 s de 58,1 — el 93%**.
+**Scope:** solo se reanuda `text_to_speech`, porque todo lo demás junto son ~4 s de ffmpeg y persistirlo costaría más de lo que ahorra. Los `.wav` ya están en disco; lo que se añade es un manifiesto con la huella de cada fragmento (texto + idioma + voz de referencia) para no reusar audio que ya no corresponde — **ese es el riesgo real, porque no falla: genera un video que suena bien y dice otra cosa**. El manifiesto se escribe después de cada fragmento, no al final, porque el caso para el que existe es justo el de una corrida que muere a mitad. Solo con `resume`: una corrida normal sintetiza todo, para que un directorio de trabajo sucio no se convierta en un resultado silenciosamente viejo.
+
 ---
 
 **Descartado:** reemplazo/agregado de pista de audio en un video existente — evaluado, sin caso de uso claro con el negocio. Sin ID (nunca entró en desarrollo activo).

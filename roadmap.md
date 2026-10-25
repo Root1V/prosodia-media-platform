@@ -49,3 +49,4 @@
 | RM-43 | Tema según el sistema | done | Tercera opción además de claro y oscuro: seguir al sistema operativo, en vivo. |
 | RM-44 | Avisar de una ejecución interrumpida | done | Un worker que muere deja el proyecto en "corriendo" para siempre; ahora se detecta y se dice en qué etapa se cortó. |
 | RM-45 | Relanzar una ejecución interrumpida | done | El botón Reintentar ya sirve para una corrida que murió, no solo para una fallida. |
+| RM-46 | Reanudar el micro-video desde donde se quedó | done | Al relanzar, se reusa la voz ya sintetizada si el texto no cambió (es el 93% del tiempo). |
