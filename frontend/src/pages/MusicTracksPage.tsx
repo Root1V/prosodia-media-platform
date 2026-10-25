@@ -123,7 +123,7 @@ export function MusicTracksPage() {
         } de ${CATEGORIES.length} categorías.`
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-6">
+    <div className="mx-auto flex max-w-7xl flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Música de fondo</h1>
@@ -301,12 +301,14 @@ export function MusicTracksPage() {
                   {pistas.length} {pistas.length === 1 ? 'pista' : 'pistas'}
                 </span>
               </div>
-              <div className="overflow-hidden rounded-2xl border border-border bg-card">
-                {pistas.map((track, indice) => (
-                  <FilaPista
+              {/* En una sola columna cada pista usaba un quinto del ancho y
+                  dejaba el resto vacio. Los titulos son cortos: caben dos o
+                  tres por fila, y se ven tres veces mas pistas de un vistazo. */}
+              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {pistas.map((track) => (
+                  <TarjetaPista
                     key={track.id}
                     track={track}
-                    primera={indice === 0}
                     confirmando={porBorrar === track.id}
                     borrando={deleteMutation.isPending && porBorrar === track.id}
                     onPedirBorrado={() => setPorBorrar(track.id)}
@@ -359,9 +361,8 @@ function ChipCategoria({
   )
 }
 
-function FilaPista({
+function TarjetaPista({
   track,
-  primera,
   confirmando,
   borrando,
   onPedirBorrado,
@@ -369,47 +370,28 @@ function FilaPista({
   onConfirmar,
 }: {
   track: MusicTrack
-  primera: boolean
   confirmando: boolean
   borrando: boolean
   onPedirBorrado: () => void
   onCancelar: () => void
   onConfirmar: () => void
 }) {
-  return (
-    <div
-      className={cn(
-        'flex items-center gap-4 px-4 py-3',
-        !primera && 'border-t border-border',
-        confirmando && 'bg-destructive/5',
-      )}
-    >
-      {/* Escuchar es la accion principal de esta pagina: dos pistas con
-          nombres parecidos no se distinguen de ninguna otra forma. */}
-      <SamplePreviewButton
-        sampleKey={`music-${track.id}`}
-        fetchUrl={() => fetchMusicSampleUrl(track.id)}
-        className="h-9 w-9"
-      />
-
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{track.title}</p>
-        <p className="text-xs text-muted-foreground">
-          Agregada {formatRelativeTime(track.created_at)}
-        </p>
-      </div>
-
-      {confirmando ? (
-        <div className="flex items-center gap-2">
-          <span className="hidden text-xs text-muted-foreground sm:block">
-            Se borra el archivo, sin vuelta atrás.
-          </span>
+  if (confirmando) {
+    return (
+      <div className="flex h-12 items-center justify-between gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-3">
+        {/* El nombre se queda a la vista: entre decenas de tarjetas iguales,
+            un "¿seguro?" sin decir de que es como no preguntar. */}
+        <span className="min-w-0 truncate text-sm font-medium" title={track.title}>
+          ¿Borrar «{track.title}»?
+        </span>
+        <div className="flex shrink-0 items-center gap-1">
           <Button
             type="button"
             variant="destructive"
             size="sm"
             disabled={borrando}
             onClick={onConfirmar}
+            title={`Borrar «${track.title}» y su archivo, sin vuelta atrás`}
           >
             {borrando ? 'Borrando…' : 'Borrar'}
           </Button>
@@ -417,19 +399,40 @@ function FilaPista({
             Cancelar
           </Button>
         </div>
-      ) : (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label={`Borrar ${track.title}`}
-          title={`Borrar ${track.title}`}
-          onClick={onPedirBorrado}
-          className="text-muted-foreground hover:text-destructive"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-12 items-center gap-3 rounded-xl border border-border bg-card px-3">
+      {/* Escuchar es la accion principal de esta pagina: dos pistas con
+          nombres parecidos no se distinguen de ninguna otra forma. */}
+      <SamplePreviewButton
+        sampleKey={`music-${track.id}`}
+        fetchUrl={() => fetchMusicSampleUrl(track.id)}
+        className="h-8 w-8"
+      />
+
+      {/* La fecha pasa al tooltip: escrita era una segunda linea que decia
+          "hace 2 meses" en las 33 pistas y doblaba el alto de cada fila. */}
+      <p
+        className="min-w-0 flex-1 truncate text-sm font-medium"
+        title={`${track.title} · agregada ${formatRelativeTime(track.created_at)}`}
+      >
+        {track.title}
+      </p>
+
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        aria-label={`Borrar ${track.title}`}
+        title={`Borrar ${track.title}`}
+        onClick={onPedirBorrado}
+        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
     </div>
   )
 }
