@@ -225,3 +225,11 @@ Dos problemas salieron por el camino y estan documentados en el canal: el confli
 ---
 
 **Descartado:** reemplazo/agregado de pista de audio en un video existente — evaluado, sin caso de uso claro con el negocio. Sin ID (nunca entró en desarrollo activo).
+
+## RM-47 — Rediseño del login
+**Why:** primer paso de una revisión de UX pantalla por pantalla, pedida por el usuario. El login se veía bien pero fallaba donde importa: **todo error decía lo mismo**. Una cuenta desactivada leía "correo o contraseña incorrectos" y reintentaba para siempre, aunque el backend sí mandaba el motivo en `detail` y el frontend lo tiraba. Y con la API caída -- que pasó dos veces durante el desarrollo -- el mensaje era indistinguible de una contraseña mal escrita.
+**Scope:** dos columnas, con un panel de marca que dice qué hace Prosodia (es la única pantalla que ve quien todavía no entró); en móvil ese panel se reduce a la cabecera para no empujar el formulario fuera de la pantalla. Contraseña con ojo, autofoco en el correo y aviso de Bloq Mayús. Cuatro mensajes de error distintos en vez de dos. **502/503/504 cuentan como "servidor caído", no como error del servidor**: con la API apagada quien responde es el proxy de delante (Vite en desarrollo, el servidor web en producción), así que decir "el servidor respondió" es falso y "reintenta" es mal consejo -- reintentar no levanta un proceso caído. El control del tema se extrajo a un componente porque ahora vive en dos sitios (topbar y login). No incluye recuperación de contraseña (RM-48): no hay endpoint, así que el login lo dice en vez de ofrecer un enlace a ningún lado.
+
+## RM-48 — Recuperar la contraseña
+**Why:** `routers/auth.py` solo tiene `login` y `me`, y `routers/users.py` solo crea usuarios con una contraseña inicial. No hay forma de cambiarla: quien la olvida necesita que alguien edite la base de datos a mano.
+**Scope:** por definir. Lo mínimo honesto sería que un admin pueda restablecerla; el envío de correo es otra decisión aparte.
