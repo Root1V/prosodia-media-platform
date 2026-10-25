@@ -11,15 +11,35 @@ interface AppShellProps {
   fullBleed?: boolean
 }
 
+const CLAVE_COLAPSADO = 'prosodia-sidebar-colapsado'
+
 export function AppShell({ children, fullBleed }: AppShellProps) {
   // Drawer del sidebar (ver RM-20) -- solo relevante por debajo de `lg`,
   // el estado vive aca porque tanto Topbar (boton de hamburguesa) como
   // Sidebar (el drawer en si) lo necesitan.
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  // Colapsado a iconos: se lee en el inicializador y no en un efecto, para
+  // que el menu no se pinte ancho y salte al estrecho en el primer frame.
+  const [colapsado, setColapsado] = useState(
+    () => localStorage.getItem(CLAVE_COLAPSADO) === '1',
+  )
+
+  function toggleColapsado() {
+    setColapsado((actual) => {
+      const siguiente = !actual
+      localStorage.setItem(CLAVE_COLAPSADO, siguiente ? '1' : '0')
+      return siguiente
+    })
+  }
 
   return (
     <div className="flex h-screen w-full bg-background">
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        colapsado={colapsado}
+        onToggleColapsado={toggleColapsado}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onOpenSidebar={() => setSidebarOpen(true)} />
         <main className={cn('flex-1', fullBleed ? 'overflow-hidden' : 'overflow-y-auto p-4 sm:p-6')}>

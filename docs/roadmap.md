@@ -233,3 +233,15 @@ Dos problemas salieron por el camino y estan documentados en el canal: el confli
 ## RM-48 — Recuperar la contraseña
 **Why:** `routers/auth.py` solo tiene `login` y `me`, y `routers/users.py` solo crea usuarios con una contraseña inicial. No hay forma de cambiarla: quien la olvida necesita que alguien edite la base de datos a mano.
 **Scope:** por definir. Lo mínimo honesto sería que un admin pueda restablecerla; el envío de correo es otra decisión aparte.
+
+## RM-49 — Menú lateral colapsable
+**Why:** el menú ocupa 256 px fijos en todas las pantallas, y en las más densas (el editor de micro-video, el detalle de un proyecto) ese ancho se echa de menos. Quien ya se sabe los iconos no necesita leer los nombres cada vez.
+**Scope:** un botón al pie del menú lo reduce a 72 px, solo iconos, con el nombre en el tooltip y una raya fina donde iba el título de cada grupo. La elección se guarda en `localStorage` y se lee en el inicializador del estado, no en un efecto, para que no se pinte ancho y salte al estrecho en el primer frame. **Colapsar es cosa de `lg` para arriba**: por debajo el menú es un cajón (RM-20) que se abre entero o no se abre, así que las etiquetas se esconden por CSS (`lg:hidden`) y no condicionando el JSX -- hacerlo en JS filtraba el estado de escritorio al móvil y dejaba el cajón ancho y sin nombres.
+
+## RM-50 — Rediseño de Música de fondo
+**Why:** la página servía sobre todo para escuchar y ordenar lo que ya hay, pero el formulario de alta ocupaba la primera pantalla entera antes de dejar ver una sola pista. Además pintaba una tarjeta por categoría aunque estuviera vacía, y la papelera borraba el `.wav` de un clic, sin preguntar y sin vuelta atrás.
+**Scope:** el alta se abre con un botón y arranca cerrada; buscador por título y filtro por categoría con su conteo; solo aparecen las categorías que tienen algo; cada fila lleva el play como acción principal (dos pistas de nombre parecido no se distinguen de otra forma) y la fecha de alta. El borrado se confirma en la propia fila -- no en un `window.confirm`, que es lo que todavía usa `ProjectDetailPage`. **No incluye la duración de cada pista**: el modelo solo guarda `title`, `category`, `file_path` y `created_at`, así que mostrarla exige tocar el backend. Tampoco comprueba si un micro-video está usando la pista que se borra; hoy `delete_music_track` borra el archivo sin mirar.
+
+## RM-51 — La API debe decir su zona horaria
+**Why:** las columnas de fecha son `timestamp without time zone` y el valor se guarda en UTC, así que la API devuelve `2026-10-25T23:09:38.445708`, sin marca. JavaScript lee una fecha sin zona como hora **local**, de modo que toda la app mostraba las fechas corridas el offset del usuario -- en UTC-5, cinco horas. Era invisible en proyectos de días atrás; saltó al mostrar una pista recién subida como "Agregada dentro de 5 horas".
+**Scope:** por definir, en el backend. Mientras tanto `lib/format.ts` asume UTC cuando la marca no trae zona, en el único sitio por el que pasan todas las fechas del frontend.

@@ -1,7 +1,22 @@
+/** Las marcas de tiempo de la API son UTC pero vienen SIN zona
+ * ("2026-10-25T23:09:38.445708"): la columna es `timestamp without time
+ * zone`, asi que el offset se pierde al guardar. JavaScript interpreta una
+ * fecha sin zona como hora LOCAL, de modo que sin esto toda la app muestra
+ * las fechas corridas el offset del usuario -- en UTC-5 una pista recien
+ * subida decia "Agregada dentro de 5 horas".
+ *
+ * El arreglo de fondo es que la API diga la zona que quiere decir; mientras
+ * tanto se asume UTC aqui, en el unico sitio por el que pasan todas. */
+function parseApiDate(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const tieneZona = /(?:Z|[+-]\d{2}:?\d{2})$/.test(value)
+  const date = new Date(tieneZona ? value : `${value}Z`)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 export function formatDateTime(value: string | null | undefined): string {
-  if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '—'
+  const date = parseApiDate(value)
+  if (!date) return '—'
   return date.toLocaleString('es-ES', {
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -9,9 +24,8 @@ export function formatDateTime(value: string | null | undefined): string {
 }
 
 export function formatRelativeTime(value: string | null | undefined): string {
-  if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '—'
+  const date = parseApiDate(value)
+  if (!date) return '—'
 
   const diffMs = date.getTime() - Date.now()
   const diffSeconds = Math.round(diffMs / 1000)
@@ -36,9 +50,8 @@ export function formatRelativeTime(value: string | null | undefined): string {
  * already obvious from the surrounding run and repeating it would just be
  * noise. */
 export function formatTime(value: string | null | undefined): string {
-  if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '—'
+  const date = parseApiDate(value)
+  if (!date) return '—'
   return date.toLocaleTimeString('es-ES', { timeStyle: 'medium' })
 }
 

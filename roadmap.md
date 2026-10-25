@@ -52,3 +52,6 @@
 | RM-46 | Reanudar el micro-video desde donde se quedó | done | Al relanzar, se reusa la voz ya sintetizada si el texto no cambió (es el 93% del tiempo). |
 | RM-47 | Rediseño del login | done | Dos columnas que dicen qué hace Prosodia, contraseña visible, y errores que distinguen clave mala, cuenta desactivada y servidor caído. |
 | RM-48 | Recuperar la contraseña | todo | Hoy no existe: quien la olvida depende de que alguien toque la base de datos, y el login tiene que admitirlo. |
+| RM-49 | Menú lateral colapsable | done | Un botón reduce el menú a solo iconos y recuerda la elección; en móvil el cajón sigue abriéndose entero. |
+| RM-50 | Rediseño de Música de fondo | done | El alta deja de ocupar la primera pantalla, se puede buscar y filtrar por categoría, y la papelera pregunta antes de borrar. |
+| RM-51 | La API debe decir su zona horaria | todo | Las fechas viajan en UTC pero sin marca de zona, así que el navegador las lee como locales; hoy se compensa en el frontend. |
