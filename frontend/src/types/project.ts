@@ -91,6 +91,9 @@ export interface ProjectStatusResponse {
   total_seconds: number | null
   realtime_factor: number | null
   warnings: PipelineWarning[] | null
+  /** El proyecto dice "corriendo" pero ya no lo procesa nadie: el worker murio
+   * a mitad. Sin esto se ve exactamente igual que uno que avanza. */
+  interrupted: boolean
 }
 
 export type DownloadArtifact =

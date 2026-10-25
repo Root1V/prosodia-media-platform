@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Download, Loader2, RotateCcw, Trash2 } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Download, Loader2, RotateCcw, Trash2 } from 'lucide-react'
 import {
   deleteProject,
   downloadProjectArtifact,
@@ -12,6 +12,7 @@ import {
 } from '../api/projects'
 import type { DownloadArtifact, ProjectStage } from '../types/project'
 import { StageTimeline } from '../components/projects/StageTimeline'
+import { Alert } from '../components/ui/Alert'
 import { MediaPreview } from '../components/media/MediaPreview'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { CopyableValue } from '../components/ui/CopyableValue'
@@ -19,7 +20,12 @@ import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { formatDateTime, formatSecondsDuration } from '../lib/format'
 import { PROJECT_STATUS_BADGE_VARIANT, PROJECT_STATUS_LABELS, isActiveStatus } from '../lib/status'
-import { OUTPUT_MODE_LABELS, SERVICE_TYPE_LABELS, getExpectedStageNames } from '../lib/labels'
+import {
+  OUTPUT_MODE_LABELS,
+  SERVICE_TYPE_LABELS,
+  getExpectedStageNames,
+  getStageLabel,
+} from '../lib/labels'
 
 function normalizeStages(
   stages: ProjectStage[] | Record<string, unknown> | null,
@@ -205,6 +211,23 @@ export function ProjectDetailPage() {
           </Button>
         </div>
       </div>
+
+      {status?.interrupted ? (
+        <Alert variant="error">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <div className="flex flex-col gap-1">
+              <p className="font-medium">La ejecución se interrumpió</p>
+              <p className="text-sm">
+                {status.current_stage?.name
+                  ? `Se cortó en la etapa "${getStageLabel(status.current_stage.name)}". `
+                  : 'Se cortó antes de completar la primera etapa. '}
+                El proceso que la ejecutaba dejó de responder, así que no va a avanzar sola.
+              </p>
+            </div>
+          </div>
+        </Alert>
+      ) : null}
 
       <Card>
         <CardHeader>

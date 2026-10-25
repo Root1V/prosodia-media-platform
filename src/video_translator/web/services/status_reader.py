@@ -11,10 +11,22 @@ esta completa para que M2 (tarea Celery real) no necesite tocar este archivo.
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import structlog
+
 from video_translator.web.db.models import Project, ProjectStatus
+
+logger = structlog.get_logger(__name__)
+
+# Cuanto puede estar el informe sin actualizarse antes de que valga la pena
+# preguntarle a Celery si la tarea sigue viva. NO es un umbral de muerte: una
+# etapa puede tardar minutos legitimamente sin escribir nada (cargar el modelo
+# de IndexTTS son ~10 GB), asi que darla por muerta por tiempo seria falso.
+# Esto solo decide CUANDO se paga la pregunta; quien responde es Celery.
+STALE_SECONDS = 60.0
 
 
 def read_project_status(project: Project) -> dict[str, Any]:
@@ -30,6 +42,7 @@ def read_project_status(project: Project) -> dict[str, Any]:
             "total_seconds": timings.get("total_seconds"),
             "realtime_factor": timings.get("realtime_factor"),
             "warnings": timings.get("warnings"),
+            "interrupted": _is_interrupted(project, timings),
         }
 
     return {
@@ -41,7 +54,67 @@ def read_project_status(project: Project) -> dict[str, Any]:
         "total_seconds": None,
         "realtime_factor": None,
         "warnings": None,
+        "interrupted": _is_interrupted(project, None),
     }
+
+
+def _is_interrupted(project: Project, timings: dict[str, Any] | None) -> bool:
+    """¿El proyecto dice "corriendo" pero ya no lo procesa nadie?
+
+    Es el hueco que deja un worker que muere a mitad: la fila queda en RUNNING
+    para siempre, porque el propio proceso que debia marcarla como fallida es
+    el que murio. En la UI se ve identico a un trabajo que avanza.
+
+    Se pregunta a Celery y no se deduce del tiempo: una etapa puede tardar
+    minutos sin escribir nada. El tiempo solo decide cuando preguntar.
+    """
+    if project.status != ProjectStatus.RUNNING:
+        return False
+    if not _looks_stale(timings):
+        return False
+    alive = _celery_task_is_active(project.celery_task_id)
+    # None = no se pudo averiguar (broker caido, nadie contesta). Ante la duda
+    # NO se marca como interrumpido: decir "murio" de algo que sigue vivo es
+    # peor que tardar en detectarlo, porque invita a relanzarlo por encima.
+    return alive is False
+
+
+def _looks_stale(timings: dict[str, Any] | None) -> bool:
+    if timings is None:
+        return True
+    raw = timings.get("generated_at")
+    if not isinstance(raw, str):
+        return True
+    try:
+        generated = datetime.fromisoformat(raw)
+    except ValueError:
+        return True
+    if generated.tzinfo is None:
+        generated = generated.replace(tzinfo=timezone.utc)
+    return (datetime.now(timezone.utc) - generated).total_seconds() > STALE_SECONDS
+
+
+def _celery_task_is_active(task_id: str | None) -> bool | None:
+    """True/False si se pudo determinar, None si no.
+
+    Import perezoso a proposito: este modulo lo usa tambien el worker, y
+    `celery_app` arranca la telemetria al importarse.
+    """
+    if not task_id:
+        return None
+    try:
+        from video_translator.web.tasks.celery_app import celery_app
+
+        activas = celery_app.control.inspect(timeout=2.0).active()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("status_reader.celery_inspect_failed", error=str(exc))
+        return None
+    if activas is None:
+        # Ningun worker contesto. Puede ser que no haya ninguno (y entonces la
+        # tarea no corre) o que esten saturados y no respondan al broadcast.
+        # No se distingue, asi que no se afirma nada.
+        return None
+    return any(t.get("id") == task_id for tareas in activas.values() for t in tareas)
 
 
 def read_full_timings_report(project: Project) -> dict[str, Any] | None:

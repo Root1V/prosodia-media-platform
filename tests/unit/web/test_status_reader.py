@@ -5,9 +5,13 @@ from __future__ import annotations
 
 import json
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
+import pytest
+
 from video_translator.web.db.models import Project, ProjectStatus
+from video_translator.web.services import status_reader
 from video_translator.web.services.status_reader import read_project_status
 
 
@@ -87,3 +91,81 @@ def test_read_project_status_falls_back_when_file_is_corrupt(tmp_path: Path) -> 
     assert result["db_status"] == ProjectStatus.RUNNING
     assert result["run_id"] is None
     assert result["stages"] is None
+
+
+# --- Deteccion de corrida interrumpida ---------------------------------------
+#
+# Un worker que muere a mitad deja la fila en RUNNING para siempre: el proceso
+# que debia marcarla como fallida es el que murio. Estos tests fijan QUIEN
+# decide (Celery) y quien no (el reloj).
+
+
+def _timings(generated_at: str, **extra: object) -> dict:
+    return {"run_id": "abc123", "completed": False, "generated_at": generated_at, **extra}
+
+
+def _write(output_dir: Path, data: dict) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "pipeline_timings.json").write_text(json.dumps(data), encoding="utf-8")
+
+
+def test_running_with_live_celery_task_is_not_interrupted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Informe viejo PERO la tarea sigue activa: es una etapa larga que no
+    # escribe (cargar un modelo de 10 GB tarda minutos). No es interrumpida.
+    _write(tmp_path, _timings("2020-01-01T00:00:00+00:00"))
+    project = _make_project(tmp_path, status=ProjectStatus.RUNNING)
+    project.celery_task_id = "task-1"
+    monkeypatch.setattr(status_reader, "_celery_task_is_active", lambda _id: True)
+
+    assert read_project_status(project)["interrupted"] is False
+
+
+def test_running_with_dead_celery_task_is_interrupted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write(tmp_path, _timings("2020-01-01T00:00:00+00:00"))
+    project = _make_project(tmp_path, status=ProjectStatus.RUNNING)
+    project.celery_task_id = "task-1"
+    monkeypatch.setattr(status_reader, "_celery_task_is_active", lambda _id: False)
+
+    assert read_project_status(project)["interrupted"] is True
+
+
+def test_unknown_celery_state_is_not_interrupted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Nadie contesto al broadcast. Decir "murio" de algo que puede seguir vivo
+    # es peor que tardar en detectarlo: invita a relanzarlo por encima.
+    _write(tmp_path, _timings("2020-01-01T00:00:00+00:00"))
+    project = _make_project(tmp_path, status=ProjectStatus.RUNNING)
+    project.celery_task_id = "task-1"
+    monkeypatch.setattr(status_reader, "_celery_task_is_active", lambda _id: None)
+
+    assert read_project_status(project)["interrupted"] is False
+
+
+def test_fresh_report_never_asks_celery(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # El filtro por tiempo existe para NO pagar el broadcast en cada sondeo del
+    # frontend. Si el informe esta fresco, ni se pregunta.
+    _write(tmp_path, _timings(datetime.now(timezone.utc).isoformat()))
+    project = _make_project(tmp_path, status=ProjectStatus.RUNNING)
+    project.celery_task_id = "task-1"
+
+    def _no_llamar(_id: str | None) -> bool:
+        raise AssertionError("no deberia preguntarle a Celery con el informe fresco")
+
+    monkeypatch.setattr(status_reader, "_celery_task_is_active", _no_llamar)
+
+    assert read_project_status(project)["interrupted"] is False
+
+
+def test_completed_project_is_never_interrupted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write(tmp_path, _timings("2020-01-01T00:00:00+00:00", completed=True))
+    project = _make_project(tmp_path, status=ProjectStatus.COMPLETED)
+    monkeypatch.setattr(status_reader, "_celery_task_is_active", lambda _id: False)
+
+    assert read_project_status(project)["interrupted"] is False

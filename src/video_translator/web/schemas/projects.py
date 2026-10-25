@@ -51,3 +51,7 @@ class ProjectStatusOut(BaseModel):
     total_seconds: float | None
     realtime_factor: float | None
     warnings: list[Any] | None
+    # El proyecto dice "corriendo" pero ya no lo procesa nadie: el worker murio
+    # a mitad y la fila quedo en RUNNING porque el proceso que debia marcarla
+    # como fallida es el que murio. Sin esto se ve igual que uno que avanza.
+    interrupted: bool = False
