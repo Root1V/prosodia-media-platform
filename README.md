@@ -1030,7 +1030,24 @@ apply them once against the `api` container the same way as the admin
 script above: `docker compose exec api alembic upgrade head`.
 
 **Option B — local processes with hot reload (recommended while actively
-developing the dashboard itself):**
+developing the dashboard itself).** The quick way is one command:
+
+```bash
+./scripts/dev_stack.sh start     # postgres, redis, API, worker and frontend
+./scripts/dev_stack.sh status    # what's alive, and which identity the API got
+./scripts/dev_stack.sh stop
+./scripts/dev_stack.sh logs api  # or worker / frontend
+```
+
+Use it rather than launching the processes by hand: it passes the per-process
+telemetry identities (see
+[Telemetry variables](#telemetry-variables-argus--opentelemetry) — forgetting
+them fails silently), and it detaches the processes so they survive the
+terminal that started them. A dead API is easy to misread, because the
+frontend stays up and proxies `/api` to nothing: the browser shows a login
+error, not a connection error.
+
+The same thing step by step, if you'd rather run the pieces yourself:
 
 ```bash
 # 1. Postgres + Redis only
