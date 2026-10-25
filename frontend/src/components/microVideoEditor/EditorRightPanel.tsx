@@ -15,7 +15,7 @@ import type {
   TextOverlay,
   TtsVoiceOption,
 } from '../../types/project'
-import type { MusicTrack } from '../../types/musicTracks'
+import type { MusicCategory, MusicTrack } from '../../types/musicTracks'
 
 interface EditorRightPanelProps {
   activeTool: EditorTool
@@ -64,6 +64,7 @@ interface EditorRightPanelProps {
   onRemoveVoiceFile: () => void
 
   musicTracks: MusicTrack[]
+  suggestedMusicCategory?: MusicCategory | null
   backgroundMusic: string | null
   onSelectMusic: (id: string | null) => void
 
@@ -155,6 +156,7 @@ function ToolPanelContent(props: EditorRightPanelProps) {
       {props.activeTool === 'music' && (
         <MusicPanel
           musicTracks={props.musicTracks}
+          suggestedCategory={props.suggestedMusicCategory}
           backgroundMusic={props.backgroundMusic}
           onSelectMusic={props.onSelectMusic}
         />

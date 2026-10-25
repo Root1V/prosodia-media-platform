@@ -220,6 +220,7 @@ export async function createMicroVideoProject(
   const formData = new FormData()
   formData.set('name', input.name)
   formData.set('service_type', 'micro_video')
+  formData.set('objective', input.objective)
   // Sin significado para micro-video (no hay traduccion/doblaje) -- solo
   // satisface la columna NOT NULL, mismo patron que TTS/transcripcion.
   formData.set('output_mode', 'subtitles_only')

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { createMicroVideoProject } from '../api/projects'
 import { fetchMusicTracks } from '../api/musicTracks'
 import { fetchEmojiSampleUrl, fetchMusicSampleUrl } from '../api/samples'
 import { EMOJI_PALETTE } from '../lib/emojiPalette'
+import { OBJECTIVES, parseObjective } from '../lib/objectives'
 import { TextOverlayCanvas } from '../components/media/TextOverlayCanvas'
 import type { CaptionPreview } from '../components/media/TextOverlayCanvas'
 import { VideoSegmentTimeline } from '../components/media/VideoSegmentTimeline'
@@ -59,6 +60,15 @@ function makeEmojiOverlay(emojiId: string): EmojiOverlay {
 export function NewMicroVideoProjectPage() {
   const navigate = useNavigate()
 
+  // El objetivo llega por la URL (ver RM-42): la pantalla de eleccion navega
+  // aqui con ?objective=..., y entrar sin el --un enlace viejo, un favorito--
+  // cae a "product", que es como se comportaba el editor antes de RM-42.
+  // Se lee una sola vez: cambiarlo a mitad de una edicion pisaria valores que
+  // el usuario ya toco, asi que para cambiar de objetivo se vuelve a empezar.
+  const [searchParams] = useSearchParams()
+  const [objective] = useState(() => parseObjective(searchParams.get('objective')))
+  const profile = OBJECTIVES[objective]
+
   const [name, setName] = useState('')
   const [text, setText] = useState('')
   const [targetLang, setTargetLang] = useState('es')
@@ -72,10 +82,10 @@ export function NewMicroVideoProjectPage() {
   const [clipDurationsByFile, setClipDurationsByFile] = useState<Map<File, number>>(new Map())
   const [voiceOption, setVoiceOption] = useState<TtsVoiceOption>('public_female')
   const [voiceFile, setVoiceFile] = useState<File | null>(null)
-  const [targetDuration, setTargetDuration] = useState<number | null>(null)
+  const [targetDuration, setTargetDuration] = useState<number | null>(profile.targetDuration)
   const [captionBgColor, setCaptionBgColor] = useState('#000000')
   const [captionTextColor, setCaptionTextColor] = useState('#FFFFFF')
-  const [highlightStyle, setHighlightStyle] = useState<CaptionHighlightStyle>('background')
+  const [highlightStyle, setHighlightStyle] = useState<CaptionHighlightStyle>(profile.captionHighlightStyle)
   const [backgroundMusic, setBackgroundMusic] = useState<string | null>(null)
   const [musicStart, setMusicStart] = useState(0)
   const [musicEnd, setMusicEnd] = useState<number | undefined>(undefined)
@@ -204,6 +214,7 @@ export function NewMicroVideoProjectPage() {
         {
           name: name.trim(),
           text: text.trim(),
+          objective,
           mediaFiles,
           target_lang: targetLang,
           voice_option: voiceOption,
@@ -423,6 +434,7 @@ export function NewMicroVideoProjectPage() {
           onVoiceFileSelected={setVoiceFile}
           onRemoveVoiceFile={() => setVoiceFile(null)}
           musicTracks={musicTracks}
+          suggestedMusicCategory={profile.suggestedMusicCategory}
           backgroundMusic={backgroundMusic}
           onSelectMusic={setBackgroundMusic}
           highlightStyle={highlightStyle}

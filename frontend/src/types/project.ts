@@ -1,3 +1,5 @@
+import type { Objective } from '../lib/objectives'
+
 export type ServiceType = 'dubbing' | 'subtitles' | 'transcription' | 'tts' | 'micro_video'
 
 export type OutputMode =
@@ -163,6 +165,10 @@ export interface CreateTtsProjectInput {
 export interface CreateMicroVideoProjectInput {
   name: string
   text: string
+  /** Para que se hace el video (ver RM-42 y lib/objectives.ts). Condiciona lo
+   * que el editor propone; el backend lo guarda para poder preguntar despues
+   * que perfil se uso de verdad. */
+  objective: Objective
   /** Al menos un item, imagen o clip de video -- si hay varios, el video los
    * recorre en orden (ver RM-29, RM-36). Cada clip ocupa su propia duracion
    * real (recortada); las imagenes se reparten el tiempo restante. */

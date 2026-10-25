@@ -10,16 +10,30 @@ interface MusicPanelProps {
   musicTracks: MusicTrack[]
   backgroundMusic: string | null
   onSelectMusic: (id: string | null) => void
+  /** Categoria que el objetivo del video ofrece primero (ver RM-42 y
+   * lib/objectives.ts). null = el orden de siempre. No preselecciona nada:
+   * mueve la categoria al principio de la lista, nada mas -- las demas siguen
+   * ahi y "Sin musica" sigue siendo el estado inicial. */
+  suggestedCategory?: MusicCategory | null
 }
 
-export function MusicPanel({ musicTracks, backgroundMusic, onSelectMusic }: MusicPanelProps) {
+export function MusicPanel({
+  musicTracks,
+  backgroundMusic,
+  onSelectMusic,
+  suggestedCategory,
+}: MusicPanelProps) {
+  const categories = suggestedCategory
+    ? [suggestedCategory, ...MUSIC_CATEGORIES.filter((c) => c !== suggestedCategory)]
+    : MUSIC_CATEGORIES
+
   return (
     <div className="flex flex-col gap-1.5">
       <SelectableCard selected={backgroundMusic === null} onSelect={() => onSelectMusic(null)}>
         <span className="text-sm font-medium">Sin música</span>
         <span className="text-xs text-muted-foreground">Solo la narración</span>
       </SelectableCard>
-      {MUSIC_CATEGORIES.map((cat) => {
+      {categories.map((cat) => {
         const categoryTracks = musicTracks.filter((t) => t.category === cat)
         if (categoryTracks.length === 0) return null
         return (
