@@ -62,3 +62,4 @@
 | RM-56 | Decir qué está pasando durante la síntesis de voz | todo | Sintetizar cuesta ~13× lo que durará el audio y el pipeline calla: 10 minutos indistinguibles de una ejecución muerta. |
 | RM-57 | Rediseño de Nueva transcripción | done | Abre en "Subir archivo" y no en el buscador de YouTube, el nombre deja de ser obligatorio, y Transcribir se habilita solo cuando hay algo que transcribir. |
 | RM-58 | Rediseño de Nuevos subtítulos, con idiomas visibles | done | La página traducía inglés→español en silencio; ahora el par se elige, y contexto/tono/glosario se pliegan. |
+| RM-59 | Rediseño de Nuevo doblaje, con idiomas visibles | done | Misma omisión que RM-58 — el par de idiomas era fijo y mudo — más un rango de hablantes que nadie validaba. |
