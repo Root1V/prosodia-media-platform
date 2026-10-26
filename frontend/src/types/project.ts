@@ -71,9 +71,18 @@ export interface ProjectStage {
 /** Matches `PipelineTimings.as_dict()["current_stage"]` — present only while a
  * stage is in flight, absent (null) when idle/completed. It is an object
  * (`{name, started_at}`), not a bare stage name string. */
+export interface StageProgress {
+  done: number
+  total: number
+}
+
 export interface CurrentStage {
   name: string
   started_at?: string
+  /** Avance dentro de la etapa (RM-56). Solo lo reportan las etapas que
+   * trabajan por fragmentos y tardan lo bastante como para que callar se
+   * confunda con estar muerta. */
+  progress?: StageProgress
   [key: string]: unknown
 }
 

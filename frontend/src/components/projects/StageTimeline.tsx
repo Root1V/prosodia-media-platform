@@ -3,7 +3,7 @@ import { Check, Loader2, X } from 'lucide-react'
 import { cn } from '../../lib/cn'
 import { formatSecondsDuration, formatTime } from '../../lib/format'
 import { getStageLabel, getStageSubtitle } from '../../lib/labels'
-import type { ProjectStage, ProjectStatus } from '../../types/project'
+import type { ProjectStage, ProjectStatus, StageProgress } from '../../types/project'
 
 /** How long a stage stays visually "in progress" after we first notice it's
  * done, so short stages (a few seconds or less) still get a moment of
@@ -20,6 +20,8 @@ interface StageTimelineProps {
   expectedStageNames: string[]
   stages: ProjectStage[]
   currentStageName?: string | null
+  /** Avance dentro de la etapa en curso (RM-56), si la reporta. */
+  currentStageProgress?: StageProgress | null
   dbStatus: ProjectStatus
   /** Not part of any stage's own data, but relevant to show next to
    * subtitles_writing (which language pair the .srt files are actually in). */
@@ -39,6 +41,7 @@ interface Step {
   state: StepState
   seconds?: number
   subtitle?: string | null
+  progress?: StageProgress
 }
 
 /** `rendering_dubbed`'s own timer in translate_video.py wraps the whole
@@ -84,6 +87,7 @@ function buildSteps(
   expectedStageNames: string[],
   realStages: ProjectStage[],
   currentStageName: string | null | undefined,
+  currentStageProgress: StageProgress | null | undefined,
   dbStatus: ProjectStatus,
   revealDelayKeys: Set<string>,
   sourceLang: string | undefined,
@@ -116,7 +120,12 @@ function buildSteps(
       }
     }
     if (name === currentStageName) {
-      return { key: name, label: getStageLabel(name), state: 'active' }
+      return {
+        key: name,
+        label: getStageLabel(name),
+        state: 'active',
+        progress: currentStageProgress ?? undefined,
+      }
     }
     return { key: name, label: getStageLabel(name), state: 'pending' }
   })
@@ -148,7 +157,12 @@ function buildSteps(
     }
   }
   if (currentStageName && !steps.some((step) => step.key === currentStageName)) {
-    steps.push({ key: currentStageName, label: getStageLabel(currentStageName), state: 'active' })
+    steps.push({
+      key: currentStageName,
+      label: getStageLabel(currentStageName),
+      state: 'active',
+      progress: currentStageProgress ?? undefined,
+    })
   }
 
   if (hasDownloadStep) {
@@ -241,6 +255,7 @@ export function StageTimeline({
   expectedStageNames,
   stages,
   currentStageName,
+  currentStageProgress,
   dbStatus,
   sourceLang,
   targetLang,
@@ -282,6 +297,7 @@ export function StageTimeline({
     expectedStageNames,
     stages,
     currentStageName,
+    currentStageProgress,
     dbStatus,
     revealDelayKeys,
     sourceLang,
@@ -317,6 +333,24 @@ export function StageTimeline({
                 </span>
                 {step.subtitle && (
                   <span className="mt-0.5 text-xs text-muted-foreground/80">{step.subtitle}</span>
+                )}
+                {/* Lo que convierte "en curso" en "avanzando": sin esto, una
+                    etapa de diez minutos se ve igual que una muerta. */}
+                {step.progress && step.progress.total > 0 && (
+                  <span className="mt-1.5 flex items-center gap-2">
+                    <span className="h-1 w-24 overflow-hidden rounded-full bg-secondary">
+                      <span
+                        className="block h-full rounded-full bg-primary transition-[width] duration-500"
+                        style={{
+                          width: `${(step.progress.done / step.progress.total) * 100}%`,
+                        }}
+                      />
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      fragmento {Math.min(step.progress.done + 1, step.progress.total)} de{' '}
+                      {step.progress.total}
+                    </span>
+                  </span>
                 )}
                 {step.state === 'failed' && errorMessage && (
                   <span className="mt-0.5 text-xs text-destructive/70">{errorMessage}</span>

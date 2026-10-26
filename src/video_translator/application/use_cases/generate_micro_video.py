@@ -323,6 +323,9 @@ class GenerateMicroVideoUseCase:
         reusables = self._reusable_chunks(chunk_dir, chunks, request, speaker_wav)
         manifiesto: dict[str, str] = {}
         with timings.stage("text_to_speech", num_chunks=len(chunks)):
+            # Antes de empezar, no despues del primero: con un fragmento unico
+            # y largo, esperar a terminarlo seria callar todo el rato.
+            timings.report_progress(0, len(chunks))
             reusados = 0
             for i, chunk_text in enumerate(chunks):
                 chunk_path = chunk_dir / f"chunk_{i:03d}.wav"
@@ -345,6 +348,10 @@ class GenerateMicroVideoUseCase:
                 chunk_duration = self._media.get_duration_seconds(chunk_path)
                 segments.append((cursor, chunk_path, chunk_duration))
                 cursor += chunk_duration
+                # Esta etapa es el 93% del tiempo de un micro-video (RM-46):
+                # sin esto, la pantalla no mueve nada durante casi todo lo que
+                # el usuario espera.
+                timings.report_progress(i + 1, len(chunks))
         timings.annotate_stage("text_to_speech", num_chunks_reused=reusados)
         log.info(
             "generate_micro_video.narration_done", num_chunks=len(chunks), reused=reusados

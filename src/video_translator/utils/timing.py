@@ -223,6 +223,22 @@ class PipelineTimings:
         )
         return len(self._previous_stages)
 
+    def report_progress(self, done: int, total: int) -> None:
+        """Avance DENTRO de la etapa en curso (RM-56).
+
+        Una etapa larga sin esto es indistinguible de una muerta: la sintesis
+        de voz puede tardar diez minutos escribiendo tres lineas de log, que
+        es exactamente lo que se ve cuando el worker muere a mitad.
+
+        Se escribe sobre `current_stage`, que ya viaja a la UI en cada
+        snapshot. Si no hay etapa en curso no hace nada: el progreso solo
+        significa algo mientras algo corre.
+        """
+        if self._current_stage is None:
+            return
+        self._current_stage["progress"] = {"done": done, "total": total}
+        self._flush_report()
+
     @contextmanager
     def stage(self, name: str, **metadata: object) -> Iterator[None]:
         """Cronometra un bloque de codigo como una etapa nombrada.

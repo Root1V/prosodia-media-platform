@@ -65,6 +65,10 @@ class SynthesizeTextUseCase:
         segments: list[tuple[float, Path, float]] = []
         cursor = 0.0
         with timings.stage("text_to_speech", num_chunks=len(chunks)):
+            # El progreso se reporta ANTES de empezar: con un solo fragmento
+            # largo, esperar a terminarlo para decir "0 de 1" significaria
+            # callar justo durante todo el rato que dura.
+            timings.report_progress(0, len(chunks))
             for i, chunk_text in enumerate(chunks):
                 chunk_path = chunk_dir / f"chunk_{i:03d}.wav"
                 self._synthesizer.synthesize_segment(
@@ -77,6 +81,11 @@ class SynthesizeTextUseCase:
                 chunk_duration = self._media.get_duration_seconds(chunk_path)
                 segments.append((cursor, chunk_path, chunk_duration))
                 cursor += chunk_duration
+                # Esta etapa es el 89% del tiempo de una corrida (ver RM-61):
+                # callar aqui es callar casi todo el rato que el usuario
+                # espera.
+                timings.report_progress(i + 1, len(chunks))
+                log.info("synthesize_text.chunk_done", chunk=i + 1, num_chunks=len(chunks))
         log.info("synthesize_text.chunks_done", num_chunks=len(chunks))
 
         audio_path = request.output_dir / "speech.wav"
