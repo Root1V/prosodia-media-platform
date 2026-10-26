@@ -1,23 +1,24 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
+  AlertTriangle,
   ArrowRight,
   AudioLines,
   Captions,
   Clapperboard,
   Clock,
   FileText,
-  Globe,
-  Mic,
   FolderKanban,
+  Globe,
+  Info,
   Volume2,
 } from 'lucide-react'
 import { fetchProjects } from '../api/projects'
 import { fetchDashboardStats } from '../api/dashboard'
-import type { DashboardStats } from '../types/dashboard'
+import type { DashboardStats, ServiceStats } from '../types/dashboard'
+import type { ServiceType } from '../types/project'
 import { Card, CardContent } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
-import { Button } from '../components/ui/Button'
 import {
   Table,
   TableBody,
@@ -26,30 +27,15 @@ import {
   TableHeader,
   TableRow,
 } from '../components/ui/Table'
-import { formatDateTime, formatSecondsDuration } from '../lib/format'
-import { PROJECT_STATUS_BADGE_VARIANT, PROJECT_STATUS_LABELS } from '../lib/status'
+import { cn } from '../lib/cn'
+import { formatRelativeTime, formatDateTime, formatSecondsDuration } from '../lib/format'
+import {
+  construirInsights,
+  serieDeActividad,
+  tasaDeExito,
+} from '../lib/dashboardInsights'
+import { PROJECT_STATUS_BADGE_VARIANT, PROJECT_STATUS_LABELS, isActiveStatus } from '../lib/status'
 import { SERVICE_TYPE_LABELS } from '../lib/labels'
-
-interface StatCard {
-  label: string
-  value: string
-  icon: typeof FolderKanban
-}
-
-function buildStats(stats: DashboardStats | undefined): StatCard[] {
-  return [
-    { label: 'Proyectos', value: stats ? String(stats.total_projects) : '—', icon: FolderKanban },
-    {
-      label: 'Tiempo procesado',
-      value: stats ? formatSecondsDuration(stats.total_seconds_processed) : '—',
-      icon: Clock,
-    },
-    { label: 'Idiomas', value: stats ? String(stats.distinct_languages) : '—', icon: Globe },
-    // Fijo en 0 hasta que exista la libreria de voces (P1.5) -- ver
-    // schemas/dashboard.py::DashboardStatsOut.saved_voices.
-    { label: 'Voces guardadas', value: stats ? String(stats.saved_voices) : '—', icon: Mic },
-  ]
-}
 
 const services = [
   {
@@ -84,37 +70,257 @@ const services = [
   },
 ]
 
+function Cifra({
+  label,
+  value,
+  icon: Icon,
+  title,
+}: {
+  label: string
+  value: string
+  icon: typeof FolderKanban
+  title?: string
+}) {
+  return (
+    <Card>
+      <CardContent className="flex items-center justify-between p-5">
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground" title={title}>
+            {label}
+          </p>
+          <p className="mt-1 truncate text-2xl font-semibold">{value}</p>
+        </div>
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <Icon className="h-5 w-5" />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+/** Barras de los últimos 30 días, dibujadas con divs.
+ *
+ * Sin librería de gráficos: para una serie de 30 enteros, traerse una
+ * dependencia de cientos de kilobytes cuesta más de lo que resuelve. */
+function GraficoActividad({ stats }: { stats: DashboardStats | undefined }) {
+  const serie = serieDeActividad(stats)
+  const maximo = Math.max(...serie.map((p) => p.count), 1)
+  const total = serie.reduce((suma, p) => suma + p.count, 0)
+
+  return (
+    <Card>
+      <CardContent className="flex flex-col gap-4 p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-base font-semibold">Actividad</h2>
+          <p className="text-xs text-muted-foreground">
+            {total === 0
+              ? 'Nada en los últimos 30 días'
+              : `${total} ${total === 1 ? 'corrida' : 'corridas'} en los últimos 30 días`}
+          </p>
+        </div>
+
+        <div className="flex h-28 items-end gap-[3px]">
+          {serie.map((punto) => (
+            <div
+              key={punto.day}
+              // El título lleva el dato exacto: la altura de una barra se lee
+              // de un vistazo, pero no se lee con precisión.
+              title={`${punto.day}: ${punto.count} ${punto.count === 1 ? 'corrida' : 'corridas'}`}
+              className="flex h-full flex-1 items-end"
+            >
+              <div
+                className={cn(
+                  'w-full rounded-sm transition-colors',
+                  punto.count > 0 ? 'bg-primary' : 'bg-secondary',
+                )}
+                // Las barras vacías conservan una franja mínima: un día sin
+                // nada sigue siendo un día, y verlo da la escala del hueco.
+                style={{ height: punto.count > 0 ? `${(punto.count / maximo) * 100}%` : '3px' }}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>hace 30 días</span>
+          <span>hoy</span>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function TablaPorServicio({ filas }: { filas: ServiceStats[] }) {
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <div className="flex items-baseline justify-between gap-3 px-6 pb-2 pt-6">
+          <h2 className="text-base font-semibold">Qué usas y cuánto cuesta</h2>
+          <p className="text-xs text-muted-foreground">Media de las corridas completadas</p>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Servicio</TableHead>
+              <TableHead className="text-right">Corridas</TableHead>
+              <TableHead className="text-right">Éxito</TableHead>
+              <TableHead className="text-right">Tiempo medio</TableHead>
+              <TableHead className="text-right">Factor</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filas.map((fila) => {
+              const exito = tasaDeExito(fila)
+              return (
+                <TableRow key={fila.service_type}>
+                  <TableCell className="font-medium">
+                    {SERVICE_TYPE_LABELS[fila.service_type as ServiceType] ?? fila.service_type}
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground">{fila.total}</TableCell>
+                  <TableCell className="text-right">
+                    {exito === null ? (
+                      <span className="text-muted-foreground">—</span>
+                    ) : (
+                      <span
+                        className={cn(
+                          exito < 0.7 ? 'font-medium text-destructive' : 'text-muted-foreground',
+                        )}
+                        title={`${fila.completed} completadas, ${fila.failed} fallidas`}
+                      >
+                        {Math.round(exito * 100)}%
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground">
+                    {fila.avg_seconds === null ? '—' : formatSecondsDuration(fila.avg_seconds)}
+                  </TableCell>
+                  <TableCell
+                    className="text-right text-muted-foreground"
+                    // El guion no es un cero: en micro-video y voz no hay
+                    // duracion de entrada contra la que medir.
+                    title={
+                      fila.avg_realtime_factor === null
+                        ? 'No aplica: este servicio no parte de un audio o video'
+                        : 'Veces que el proceso tarda lo que dura el material'
+                    }
+                  >
+                    {fila.avg_realtime_factor === null
+                      ? '—'
+                      : `${fila.avg_realtime_factor.toFixed(1)}×`}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  )
+}
+
 export function DashboardHomePage() {
   const navigate = useNavigate()
   const { data, isLoading } = useQuery({
     queryKey: ['projects', { page_size: 5 }],
     queryFn: () => fetchProjects({ page_size: 5 }),
   })
-  const { data: dashboardStats } = useQuery({
+  const { data: stats } = useQuery({
     queryKey: ['dashboard', 'stats'],
     queryFn: fetchDashboardStats,
+    // Mientras haya algo corriendo, estos numeros cambian solos.
+    refetchInterval: (query) => (query.state.data?.active_now ? 10000 : false),
   })
 
   const projects = data?.items ?? []
-  const stats = buildStats(dashboardStats)
+  const insights = construirInsights(stats)
+  const sinNada = stats !== undefined && stats.total_projects === 0
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="flex items-center justify-between p-5">
-              <div>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <p className="mt-1 text-2xl font-semibold">{stat.value}</p>
-              </div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <stat.icon className="h-5 w-5" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+    <div className="mx-auto flex max-w-7xl flex-col gap-6">
+      {sinNada ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-3 py-14 text-center">
+            <FolderKanban className="h-7 w-7 text-muted-foreground" />
+            <div>
+              <p className="font-medium">Todavía no has procesado nada</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                En cuanto lances tu primera corrida, aquí verás cuánto tarda cada servicio y qué
+                se te está fallando.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <Cifra
+              label="Proyectos"
+              value={stats ? String(stats.total_projects) : '—'}
+              icon={FolderKanban}
+            />
+            <Cifra
+              label="Material procesado"
+              value={stats ? formatSecondsDuration(stats.total_seconds_processed) : '—'}
+              icon={Clock}
+              title="Duración del audio y video que has pasado por Prosodia. No incluye la voz generada a partir de texto, que no parte de un material con duración."
+            />
+            <Cifra
+              label="Idiomas"
+              value={stats ? String(stats.distinct_languages) : '—'}
+              icon={Globe}
+              title="Idiomas distintos entre origen y destino de tus proyectos"
+            />
+          </div>
+
+          {insights.length > 0 && (
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {insights.map((insight) => (
+                <Card
+                  key={insight.id}
+                  className={cn(insight.tone === 'warning' && 'border-destructive/40')}
+                >
+                  <CardContent className="flex items-start gap-3 p-5">
+                    <div
+                      className={cn(
+                        'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl',
+                        insight.tone === 'warning'
+                          ? 'bg-destructive/10 text-destructive'
+                          : 'bg-primary/10 text-primary',
+                      )}
+                    >
+                      {insight.tone === 'warning' ? (
+                        <AlertTriangle className="h-4 w-4" />
+                      ) : (
+                        <Info className="h-4 w-4" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">{insight.title}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{insight.detail}</p>
+                      {insight.to && (
+                        <Link
+                          to={insight.to}
+                          className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                        >
+                          {insight.linkLabel ?? 'Ver'}
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <GraficoActividad stats={stats} />
+            {stats && stats.by_service.length > 0 && (
+              <TablaPorServicio filas={stats.by_service} />
+            )}
+          </div>
+        </>
+      )}
 
       <div>
         <h2 className="mb-3 text-lg font-semibold">Servicios</h2>
@@ -128,9 +334,7 @@ export function DashboardHomePage() {
                   </div>
                   <div className="flex-1">
                     <p className="font-medium">{service.title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {service.description}
-                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">{service.description}</p>
                   </div>
                   <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
                 </CardContent>
@@ -140,66 +344,62 @@ export function DashboardHomePage() {
         </div>
       </div>
 
-      <div>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Proyectos recientes</h2>
-          {projects.length > 0 && (
-            <Link
-              to="/projects"
-              className="text-sm font-medium text-primary hover:underline"
-            >
+      {projects.length > 0 && (
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Proyectos recientes</h2>
+            <Link to="/projects" className="text-sm font-medium text-primary hover:underline">
               Ver todos
             </Link>
-          )}
-        </div>
-        <Card>
-          <CardContent className="p-0">
-            {isLoading ? (
-              <p className="p-6 text-sm text-muted-foreground">Cargando…</p>
-            ) : projects.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 py-12 text-center">
-                <p className="text-sm text-muted-foreground">
-                  Aún no tienes proyectos
-                </p>
-                <Button onClick={() => navigate('/dubbing/new')}>
-                  Crear tu primer proyecto
-                </Button>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Servicio</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead>Creado</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {projects.map((project) => (
-                    <TableRow
-                      key={project.id}
-                      className="cursor-pointer"
-                      onClick={() => navigate(`/projects/${project.id}`)}
-                    >
-                      <TableCell className="font-medium">{project.name}</TableCell>
-                      <TableCell>{SERVICE_TYPE_LABELS[project.service_type]}</TableCell>
-                      <TableCell>
-                        <Badge variant={PROJECT_STATUS_BADGE_VARIANT[project.status]}>
-                          {PROJECT_STATUS_LABELS[project.status]}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {formatDateTime(project.created_at)}
-                      </TableCell>
+          </div>
+          <Card>
+            <CardContent className="p-0">
+              {isLoading ? (
+                <p className="p-6 text-sm text-muted-foreground">Cargando…</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nombre</TableHead>
+                      <TableHead>Servicio</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead>Creado</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                  </TableHeader>
+                  <TableBody>
+                    {projects.map((project) => (
+                      <TableRow
+                        key={project.id}
+                        className="cursor-pointer"
+                        onClick={() => navigate(`/projects/${project.id}`)}
+                      >
+                        <TableCell className="font-medium">{project.name}</TableCell>
+                        <TableCell>{SERVICE_TYPE_LABELS[project.service_type]}</TableCell>
+                        <TableCell>
+                          <Badge variant={PROJECT_STATUS_BADGE_VARIANT[project.status]}>
+                            <span className="flex items-center gap-1.5">
+                              {isActiveStatus(project.status) && (
+                                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
+                              )}
+                              {PROJECT_STATUS_LABELS[project.status]}
+                            </span>
+                          </Badge>
+                        </TableCell>
+                        <TableCell
+                          className="whitespace-nowrap text-muted-foreground"
+                          title={formatDateTime(project.created_at)}
+                        >
+                          {formatRelativeTime(project.created_at)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

@@ -84,7 +84,9 @@ def test_dashboard_stats_empty_for_new_user(
         "total_projects": 0,
         "total_seconds_processed": 0.0,
         "distinct_languages": 0,
-        "saved_voices": 0,
+        "active_now": 0,
+        "by_service": [],
+        "activity": [],
     }
 
 
@@ -154,3 +156,83 @@ def test_dashboard_stats_only_counts_current_user_projects(
 
     assert resp.status_code == 200
     assert resp.json()["total_projects"] == 0
+
+
+def test_by_service_promedia_solo_las_completadas(
+    client: TestClient, make_user: Callable[..., User], db_session: Session
+) -> None:
+    """Una corrida que fallo a los 10s no dice lo que cuesta el servicio.
+
+    Mezclarla en el promedio haria que mas fallos parecieran mas rapidez, que
+    es exactamente la lectura contraria a la verdadera.
+    """
+    alice = make_user(email="alice@example.com", password="hunter2")
+    headers = _auth_headers(client, "alice@example.com", "hunter2")
+
+    proyecto = _make_project(db_session, alice)
+    _make_metrics(db_session, proyecto, status="completed", total_seconds=600.0, realtime_factor=5.0)
+    _make_metrics(db_session, proyecto, status="completed", total_seconds=400.0, realtime_factor=3.0)
+    _make_metrics(db_session, proyecto, status="failed", total_seconds=10.0, realtime_factor=0.1)
+    db_session.commit()
+
+    body = client.get("/api/dashboard/stats", headers=headers).json()
+    (fila,) = body["by_service"]
+
+    assert fila["service_type"] == "dubbing"
+    assert (fila["total"], fila["completed"], fila["failed"]) == (3, 2, 1)
+    # (600 + 400) / 2 -- la fallida de 10s queda fuera.
+    assert fila["avg_seconds"] == 500.0
+    assert fila["avg_realtime_factor"] == 4.0
+
+
+def test_by_service_deja_el_factor_en_none_donde_no_aplica(
+    client: TestClient, make_user: Callable[..., User], db_session: Session
+) -> None:
+    """Micro-video parte de una imagen: no hay duracion de entrada contra la
+    que comparar, y un 0 ahi se leeria como "instantaneo"."""
+    alice = make_user(email="alice@example.com", password="hunter2")
+    headers = _auth_headers(client, "alice@example.com", "hunter2")
+
+    proyecto = _make_project(db_session, alice)
+    _make_metrics(
+        db_session, proyecto, service_type="micro_video", status="completed",
+        total_seconds=100.0, realtime_factor=None,
+    )
+    db_session.commit()
+
+    (fila,) = client.get("/api/dashboard/stats", headers=headers).json()["by_service"]
+    assert fila["avg_seconds"] == 100.0
+    assert fila["avg_realtime_factor"] is None
+
+
+def test_active_now_cuenta_los_que_siguen_en_marcha(
+    client: TestClient, make_user: Callable[..., User], db_session: Session
+) -> None:
+    alice = make_user(email="alice@example.com", password="hunter2")
+    headers = _auth_headers(client, "alice@example.com", "hunter2")
+
+    _make_project(db_session, alice, status=ProjectStatus.RUNNING)
+    _make_project(db_session, alice, status=ProjectStatus.QUEUED)
+    _make_project(db_session, alice, status=ProjectStatus.COMPLETED)
+    _make_project(db_session, alice, status=ProjectStatus.FAILED)
+    db_session.commit()
+
+    assert client.get("/api/dashboard/stats", headers=headers).json()["active_now"] == 2
+
+
+def test_las_metricas_de_otro_usuario_no_se_mezclan(
+    client: TestClient, make_user: Callable[..., User], db_session: Session
+) -> None:
+    alice = make_user(email="alice@example.com", password="hunter2")
+    bob = make_user(email="bob@example.com", password="secret456")
+    headers = _auth_headers(client, "bob@example.com", "secret456")
+
+    proyecto = _make_project(db_session, alice)
+    _make_metrics(db_session, proyecto, status="completed")
+    _make_project(db_session, alice, status=ProjectStatus.RUNNING)
+    db_session.commit()
+
+    body = client.get("/api/dashboard/stats", headers=headers).json()
+    assert body["by_service"] == []
+    assert body["active_now"] == 0
+    assert bob.id != alice.id
