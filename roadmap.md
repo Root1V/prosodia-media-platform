@@ -57,3 +57,4 @@
 | RM-51 | La API debe decir su zona horaria | todo | Las fechas viajan en UTC pero sin marca de zona, así que el navegador las lee como locales; hoy se compensa en el frontend. |
 | RM-52 | Rediseño del listado de proyectos | done | "Nuevo proyecto" deja elegir el servicio en vez de meterte en doblaje, se busca por nombre, y la lista se refresca sola mientras algo corre. |
 | RM-53 | Rediseño del detalle de un proyecto | done | Lo primero que se ve de un proyecto terminado es lo que produjo, no sus seis etapas internas; el contenido usa el ancho de la pantalla. |
+| RM-54 | Soporte táctil en el editor de Micro-Video | done | Los gestos de arrastre (mover texto/emoji, paneo, recorte/unión de segmentos) funcionan también con touch, no solo mouse. |

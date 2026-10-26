@@ -4,6 +4,7 @@ import { Redo2, Scissors, Trash2, Undo2 } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { cn } from '../../lib/cn'
 import { formatClockTime } from '../../lib/format'
+import { dragPoint, trackDrag, type DragStartEvent } from '../../lib/dragEvents'
 
 const MIN_SPAN_SECONDS = 0.2
 // Arrastrar el cuerpo de un tramo hacia (o lejos de) un vecino tiene que
@@ -196,9 +197,10 @@ function displayToSource(
  * con o sin "union"; `keepRanges` (lo unico que sale de este componente)
  * nunca incluye que huecos estan unidos.
  *
- * Mouse events puros (no Pointer Events/setPointerCapture): mismo criterio
- * que TextOverlayCanvas, evita un bug de larga data en Safari que rompe
- * pointermove/pointerup tras capturar el puntero. */
+ * Mouse y touch events puros (no Pointer Events/setPointerCapture): mismo
+ * criterio que TextOverlayCanvas, evita un bug de larga data en Safari que
+ * rompe pointermove/pointerup tras capturar el puntero (ver trackDrag en
+ * lib/dragEvents.ts) -- funciona igual con mouse o con un dedo. */
 export function VideoSegmentTimeline({
   duration,
   keepRanges,
@@ -232,16 +234,7 @@ export function VideoSegmentTimeline({
   }
 
   function startDrag(onMove: (displayTime: number) => void, onEnd?: () => void) {
-    function handleMouseMove(event: MouseEvent) {
-      onMove(displayTimeAt(event.clientX))
-    }
-    function handleMouseUp() {
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
-      onEnd?.()
-    }
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
+    trackDrag((clientX) => onMove(displayTimeAt(clientX)), onEnd)
   }
 
   // Un unico punto de entrada al historial -- SIEMPRE se llama con el
@@ -344,9 +337,9 @@ export function VideoSegmentTimeline({
   // Para cualquier otro, queda CONGELADO en su posicion actual como piso
   // -- nunca puede cruzar hacia el hueco (ese contenido ya fue cortado),
   // solo puede crecer hacia la DERECHA (acortar el propio tramo).
-  function handleLeftEdgeDown(event: ReactMouseEvent, index: number) {
+  function handleLeftEdgeDown(event: DragStartEvent, index: number) {
     if (disabled) return
-    event.preventDefault()
+    if (!('touches' in event)) event.preventDefault()
     event.stopPropagation()
     pushHistory(keepRanges, closedGaps)
     const [start, end] = keepRanges[index]
@@ -362,9 +355,9 @@ export function VideoSegmentTimeline({
   // Idem, para el borde DERECHO del tramo `index` -- libre solo si es el
   // ultimo tramo (sin hueco a la derecha); si no, congelado como techo, y
   // solo puede acortarse moviendose hacia la IZQUIERDA.
-  function handleRightEdgeDown(event: ReactMouseEvent, index: number) {
+  function handleRightEdgeDown(event: DragStartEvent, index: number) {
     if (disabled) return
-    event.preventDefault()
+    if (!('touches' in event)) event.preventDefault()
     event.stopPropagation()
     pushHistory(keepRanges, closedGaps)
     const [start, end] = keepRanges[index]
@@ -385,10 +378,12 @@ export function VideoSegmentTimeline({
   // soltar el mouse (no en cada paso), comparando el desplazamiento neto
   // contra JOIN_DRAG_THRESHOLD_SECONDS -- asi un clic tembloroso no une o
   // separa por accidente.
-  function handleRangeBodyDrag(event: ReactMouseEvent, index: number) {
+  function handleRangeBodyDrag(event: DragStartEvent, index: number) {
     if (disabled) return
-    event.preventDefault()
-    const grabTime = displayTimeAt(event.clientX)
+    if (!('touches' in event)) event.preventDefault()
+    const start = dragPoint(event)
+    if (!start) return
+    const grabTime = displayTimeAt(start.clientX)
     let netDelta = 0
     startDrag(
       (displayTime) => {
@@ -426,11 +421,13 @@ export function VideoSegmentTimeline({
   // dispara un setState en la pagina que re-renderiza el lienzo entero,
   // y mousemove nativo llega mucho mas seguido que eso durante un arrastre
   // rapido.
-  function handleRangeBodySelect(event: ReactMouseEvent, range: [number, number]) {
+  function handleRangeBodySelect(event: DragStartEvent, range: [number, number]) {
     if (disabled) return
-    event.preventDefault()
+    if (!('touches' in event)) event.preventDefault()
+    const start = dragPoint(event)
+    if (!start) return
     const [rangeStart, rangeEnd] = range
-    const anchor = clamp(sourceTimeAt(event.clientX), rangeStart, rangeEnd)
+    const anchor = clamp(sourceTimeAt(start.clientX), rangeStart, rangeEnd)
     setPendingSelection([anchor, anchor])
     onSeek(anchor)
     let lastSeekAt = 0
@@ -477,8 +474,11 @@ export function VideoSegmentTimeline({
                 onMouseDown={(event) =>
                   cutMode ? handleRangeBodySelect(event, [start, end]) : handleRangeBodyDrag(event, index)
                 }
+                onTouchStart={(event) =>
+                  cutMode ? handleRangeBodySelect(event, [start, end]) : handleRangeBodyDrag(event, index)
+                }
                 className={cn(
-                  'absolute inset-y-0 rounded-md bg-primary/20',
+                  'absolute inset-y-0 touch-none rounded-md bg-primary/20',
                   cutMode ? 'cursor-crosshair' : 'cursor-grab active:cursor-grabbing',
                   joinedWithNext && 'border-r-2 border-secondary',
                 )}
@@ -489,12 +489,14 @@ export function VideoSegmentTimeline({
               >
                 <div
                   onMouseDown={(event) => handleLeftEdgeDown(event, index)}
-                  className="absolute inset-y-0 left-0 w-2.5 cursor-ew-resize rounded-l-md bg-primary"
+                  onTouchStart={(event) => handleLeftEdgeDown(event, index)}
+                  className="absolute inset-y-0 left-0 w-2.5 touch-none cursor-ew-resize rounded-l-md bg-primary"
                   aria-label={`Inicio del tramo ${index + 1}`}
                 />
                 <div
                   onMouseDown={(event) => handleRightEdgeDown(event, index)}
-                  className="absolute inset-y-0 right-0 w-2.5 cursor-ew-resize rounded-r-md bg-primary"
+                  onTouchStart={(event) => handleRightEdgeDown(event, index)}
+                  className="absolute inset-y-0 right-0 w-2.5 touch-none cursor-ew-resize rounded-r-md bg-primary"
                   aria-label={`Fin del tramo ${index + 1}`}
                 />
               </div>
