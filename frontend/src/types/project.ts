@@ -48,6 +48,10 @@ export interface ProjectListResponse {
 export interface ProjectListParams {
   status?: ProjectStatus
   service_type?: ServiceType
+  /** Subcadena del nombre, insensible a mayusculas. El filtro lo aplica el
+   * servidor: el listado viene paginado, asi que buscar en el cliente
+   * miraria 20 proyectos de N. */
+  q?: string
   page?: number
   page_size?: number
 }

@@ -341,6 +341,7 @@ def create_project(
 def list_projects(
     status_filter: str | None = Query(None, alias="status"),
     service_type: str | None = Query(None),
+    q: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
@@ -351,6 +352,14 @@ def list_projects(
         stmt = stmt.where(Project.status == status_filter)
     if service_type is not None:
         stmt = stmt.where(Project.service_type == service_type)
+    # Busca en el servidor y no en el cliente: el listado viene paginado, asi
+    # que filtrar la pagina actual buscaria en 20 proyectos de N y diria "no
+    # hay" de los que estan en la pagina siguiente.
+    if q is not None and q.strip():
+        # `%` y `_` son comodines de LIKE: sin escaparlos, buscar "clip_2min"
+        # traeria tambien "clipX2min".
+        patron = q.strip().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        stmt = stmt.where(Project.name.ilike(f"%{patron}%", escape="\\"))
 
     total = db.execute(select(func.count()).select_from(stmt.subquery())).scalar_one()
 

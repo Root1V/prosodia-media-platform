@@ -1281,3 +1281,30 @@ def test_download_micro_video_uses_generic_video_artifact(
 
     assert resp.status_code == 200
     assert resp.content == b"fake-mp4-bytes"
+
+
+def test_list_projects_search_by_name(
+    client: TestClient, make_user: Callable[..., User]
+) -> None:
+    make_user(email="alice@example.com", password="hunter2")
+    headers = _auth_headers(client, "alice@example.com", "hunter2")
+    _create_project(client, headers, name="clip_2min_test")
+    _create_project(client, headers, name="clipX2min_test")
+    _create_project(client, headers, name="Demo final")
+
+    # Insensible a mayusculas y por subcadena.
+    resp = client.get("/api/projects", params={"q": "DEMO"}, headers=headers)
+    assert [p["name"] for p in resp.json()["items"]] == ["Demo final"]
+
+    # El `_` del nombre es un comodin de LIKE: sin escaparlo, esta busqueda
+    # traeria tambien "clipX2min_test".
+    resp = client.get("/api/projects", params={"q": "clip_2min"}, headers=headers)
+    assert [p["name"] for p in resp.json()["items"]] == ["clip_2min_test"]
+    assert resp.json()["total"] == 1
+
+    # Una busqueda en blanco no filtra nada (es el estado inicial del campo).
+    resp = client.get("/api/projects", params={"q": "   "}, headers=headers)
+    assert resp.json()["total"] == 3
+
+    resp = client.get("/api/projects", params={"q": "no existe"}, headers=headers)
+    assert resp.json()["total"] == 0
