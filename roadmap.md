@@ -59,3 +59,4 @@
 | RM-53 | Rediseño del detalle de un proyecto | done | Lo primero que se ve de un proyecto terminado es lo que produjo, no sus seis etapas internas; el contenido usa el ancho de la pantalla. |
 | RM-54 | Soporte táctil en el editor de Micro-Video | done | Los gestos de arrastre (mover texto/emoji, paneo, recorte/unión de segmentos) funcionan también con touch, no solo mouse. |
 | RM-55 | Rediseño de Voz y clonación, con ayuda de IA para el texto | done | El texto ocupa el centro, muestra cuánto audio será, y la IA lo redacta desde una idea o lo corrige — con deshacer. |
+| RM-56 | Decir qué está pasando durante la síntesis de voz | todo | Sintetizar cuesta ~13× lo que durará el audio y el pipeline calla: 10 minutos indistinguibles de una ejecución muerta. |
