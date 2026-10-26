@@ -26,6 +26,35 @@ class ServiceStatsOut(BaseModel):
 class ActivityPointOut(BaseModel):
     day: str
     count: int
+    completed: int
+    failed: int
+
+
+class OutcomesOut(BaseModel):
+    """Como terminan las corridas del periodo. `active` son las que siguen
+    vivas: ni exito ni fallo todavia."""
+
+    completed: int
+    failed: int
+    active: int
+
+
+class FailureReasonOut(BaseModel):
+    """Por que fallan, agrupado por el mensaje de error.
+
+    Sale de `Project.error_message`, no de las metricas: el mensaje no se
+    copia a ProjectMetrics, asi que un proyecto borrado se lleva su motivo.
+    """
+
+    reason: str
+    count: int
+
+
+class PeriodComparisonOut(BaseModel):
+    """Los ultimos 30 dias contra los 30 anteriores."""
+
+    current: int
+    previous: int
 
 
 class StagePhaseOut(BaseModel):
@@ -68,3 +97,6 @@ class DashboardStatsOut(BaseModel):
     # None cuando no hay ninguna corrida completada de la que sacarlo.
     stage_breakdown: StageBreakdownOut | None
     quality: QualityOut
+    outcomes: OutcomesOut
+    failure_reasons: list[FailureReasonOut]
+    runs_vs_previous: PeriodComparisonOut

@@ -87,6 +87,9 @@ def test_dashboard_stats_empty_for_new_user(
         "active_now": 0,
         "by_service": [],
         "activity": [],
+        "outcomes": {"completed": 0, "failed": 0, "active": 0},
+        "failure_reasons": [],
+        "runs_vs_previous": {"current": 0, "previous": 0},
         # Sin ninguna corrida no hay de donde sacar un reparto de tiempo: el
         # panel enseña el estado inicial, no un grafico vacio.
         "stage_breakdown": None,
@@ -312,3 +315,57 @@ def test_senales_de_calidad_cuentan_lo_que_un_completado_esconde(
         "runs_with_trimmed_segments": 1,
         "runs_with_warnings": 1,
     }
+
+
+def test_actividad_desglosa_por_desenlace(
+    client: TestClient, make_user: Callable[..., User], db_session: Session
+) -> None:
+    alice = make_user(email="alice@example.com", password="hunter2")
+    headers = _auth_headers(client, "alice@example.com", "hunter2")
+    proyecto = _make_project(db_session, alice)
+
+    _make_metrics(db_session, proyecto, status="completed")
+    _make_metrics(db_session, proyecto, status="completed")
+    _make_metrics(db_session, proyecto, status="failed")
+    db_session.commit()
+
+    body = client.get("/api/dashboard/stats", headers=headers).json()
+    (punto,) = body["activity"]
+    assert (punto["count"], punto["completed"], punto["failed"]) == (3, 2, 1)
+    # El anillo mira TODAS las corridas, no solo las de los ultimos 30 dias.
+    assert body["outcomes"] == {"completed": 2, "failed": 1, "active": 0}
+
+
+def test_motivos_de_fallo_agrupan_el_mismo_error(
+    client: TestClient, make_user: Callable[..., User], db_session: Session
+) -> None:
+    """Los mensajes del pipeline acaban en detalles irrepetibles (puertos,
+    rutas); agrupar por el principio junta las causas iguales."""
+    alice = make_user(email="alice@example.com", password="hunter2")
+    headers = _auth_headers(client, "alice@example.com", "hunter2")
+
+    mismo = "Error de comunicacion con llama-server en http://localhost:8087"
+    _make_project(db_session, alice, status=ProjectStatus.FAILED, error_message=f"{mismo}: errno 61")
+    _make_project(db_session, alice, status=ProjectStatus.FAILED, error_message=f"{mismo}: errno 61")
+    _make_project(db_session, alice, status=ProjectStatus.FAILED, error_message="Otro fallo distinto")
+    # Un proyecto completado no es un motivo de fallo.
+    _make_project(db_session, alice, status=ProjectStatus.COMPLETED)
+    db_session.commit()
+
+    motivos = client.get("/api/dashboard/stats", headers=headers).json()["failure_reasons"]
+    assert [(m["reason"][: len(mismo)], m["count"]) for m in motivos] == [
+        (mismo, 2),
+        ("Otro fallo distinto", 1),
+    ]
+
+
+def test_sin_periodo_anterior_no_se_inventa_una_comparacion(
+    client: TestClient, make_user: Callable[..., User], db_session: Session
+) -> None:
+    alice = make_user(email="alice@example.com", password="hunter2")
+    headers = _auth_headers(client, "alice@example.com", "hunter2")
+    _make_metrics(db_session, _make_project(db_session, alice), status="completed")
+    db_session.commit()
+
+    comparacion = client.get("/api/dashboard/stats", headers=headers).json()["runs_vs_previous"]
+    assert comparacion == {"current": 1, "previous": 0}

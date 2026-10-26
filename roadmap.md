@@ -64,3 +64,4 @@
 | RM-58 | Rediseño de Nuevos subtítulos, con idiomas visibles | done | La página traducía inglés→español en silencio; ahora el par se elige, y contexto/tono/glosario se pliegan. |
 | RM-59 | Rediseño de Nuevo doblaje, con idiomas visibles | done | Misma omisión que RM-58 — el par de idiomas era fijo y mudo — más un rango de hablantes que nadie validaba. |
 | RM-60 | Dashboard con datos que sirven para decidir | done | Tasa de fallos y coste por servicio, en qué se va el tiempo, señales de calidad que un "completado" esconde, y actividad de 30 días. |
+| RM-61 | Gráficos y orden en el dashboard | done | Sparklines con comparación, área multiserie, anillo de desenlaces y ranking de causas — SVG propio, sin dependencias. |

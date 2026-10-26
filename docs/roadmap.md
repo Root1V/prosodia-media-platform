@@ -291,5 +291,13 @@ El gráfico son divs: para una serie de 30 enteros, una librería de gráficos c
 
 **Ampliado después (RM-61):** las columnas JSON de `ProjectMetrics` -- `stats`, `effective_config` -- no se usaban, y ahí estaba lo más revelador. Medido sobre corridas reales: **la síntesis de voz es el 88,6% del tiempo de un doblaje** (485 s de 548 de media), hubo corridas que sintetizaron en **CPU en vez de GPU**, y en varias se **recortaron frases** para que el doblaje encajara en el hueco del original -- es decir, el resultado dice menos que el video de partida, y un "completado" no lo cuenta. Esas señales son ahora insights, y el reparto de tiempo una barra apilada. Los insights pasan de tres tarjetas enormes a una lista: la pantalla parecía vacía teniendo datos de sobra. `stats` guarda **listas** (una entrada por invocación de la etapa), así que se suman antes de promediar; quedarse con la primera subestimaría la fase.
 
+## RM-61 — Gráficos y orden en el dashboard
+**Why:** RM-60 dejó los datos correctos pero presentados como texto y barras planas, y el usuario trajo una referencia: KPIs con sparkline y comparación contra el periodo anterior, área multiserie con leyenda y eje de fechas, anillo con sus porcentajes, ranking de causas.
+**Scope:** tres componentes SVG propios -- `Sparkline`, `AreaChart`, `Donut` -- en vez de una librería: solo hacen falta esos tres tipos, y el peso de una librería de gráficos no se justifica por ellos. El área usa **Catmull-Rom convertido a bézier** para que la curva pase por todos los puntos, con los puntos de control recortados a la banda del gráfico (una serie que toca el cero y vuelve a subir genera tangentes que se irían por debajo del eje). Las series van **superpuestas y no apiladas**: "completadas" y "fallidas" son partes de "corridas", así que apilarlas contaría lo mismo dos veces.
+
+Datos nuevos: desglose diario por desenlace, totales del periodo anterior (**sin inventar un "+100%" cuando no hay con qué comparar**), anillo de desenlaces y **ranking de motivos de fallo** agrupando por los primeros 90 caracteres del error -- los mensajes del pipeline acaban en puertos y rutas irrepetibles. Esa lista solo cubre proyectos que siguen existiendo, porque el mensaje no se copia a `ProjectMetrics`, y la tarjeta lo dice.
+
+El orden pasa a ser: qué pasó (cifras + tendencia + desenlace) → qué hacer (insights) → el detalle (por qué falla, dónde se va el tiempo, qué usas).
+
 ---
 **Descartado:** reemplazo/agregado de pista de audio en un video existente — evaluado, sin caso de uso claro con el negocio. Sin ID (nunca entró en desarrollo activo).

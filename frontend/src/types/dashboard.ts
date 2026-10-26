@@ -13,6 +13,25 @@ export interface ServiceStats {
 export interface ActivityPoint {
   day: string
   count: number
+  completed: number
+  failed: number
+}
+
+export interface Outcomes {
+  completed: number
+  failed: number
+  /** Siguen vivas: ni éxito ni fallo todavía. */
+  active: number
+}
+
+export interface FailureReason {
+  reason: string
+  count: number
+}
+
+export interface PeriodComparison {
+  current: number
+  previous: number
 }
 
 export interface StagePhase {
@@ -48,4 +67,9 @@ export interface DashboardStats {
   /** null si no hay ninguna corrida completada de la que sacarlo. */
   stage_breakdown: StageBreakdown | null
   quality: Quality
+  outcomes: Outcomes
+  /** Solo cubre proyectos que siguen existiendo: el mensaje de error no se
+   * copia a las métricas, así que un proyecto borrado se lleva su motivo. */
+  failure_reasons: FailureReason[]
+  runs_vs_previous: PeriodComparison
 }

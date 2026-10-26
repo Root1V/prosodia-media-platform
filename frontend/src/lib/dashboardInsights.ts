@@ -139,15 +139,21 @@ export function construirInsights(stats: DashboardStats | undefined): Insight[] 
 export function serieDeActividad(
   stats: DashboardStats | undefined,
   dias = 30,
-): { day: string; count: number }[] {
-  const porDia = new Map((stats?.activity ?? []).map((p) => [p.day, p.count]))
+): { day: string; count: number; completed: number; failed: number }[] {
+  const porDia = new Map((stats?.activity ?? []).map((p) => [p.day, p]))
   const hoy = new Date()
   return Array.from({ length: dias }, (_, i) => {
     const fecha = new Date(
       Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), hoy.getUTCDate() - (dias - 1 - i)),
     )
     const clave = fecha.toISOString().slice(0, 10)
-    return { day: clave, count: porDia.get(clave) ?? 0 }
+    const punto = porDia.get(clave)
+    return {
+      day: clave,
+      count: punto?.count ?? 0,
+      completed: punto?.completed ?? 0,
+      failed: punto?.failed ?? 0,
+    }
   })
 }
 

@@ -92,3 +92,20 @@ export function formatBytes(bytes: number): string {
   const value = bytes / 1024 ** exponent
   return `${value.toFixed(exponent === 0 ? 0 : 1)} ${units[exponent]}`
 }
+
+/** "26 sept" -- una fecha de eje, sin año.
+ *
+ * Recibe el "YYYY-MM-DD" que agrupa el servidor (UTC) y lo formatea SIN
+ * convertir a zona local: un `new Date("2026-10-25")` se interpreta como
+ * medianoche UTC y en cualquier huso al oeste se pintaría como el día
+ * anterior, corriendo todo el eje una casilla.
+ */
+export function formatDayShort(isoDay: string): string {
+  const [year, month, day] = isoDay.split('-').map(Number)
+  if (!year || !month || !day) return isoDay
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  })
+}

@@ -19,6 +19,9 @@ from video_translator.web.deps import get_current_user, get_db_session
 from video_translator.web.schemas.dashboard import (
     ActivityPointOut,
     DashboardStatsOut,
+    FailureReasonOut,
+    OutcomesOut,
+    PeriodComparisonOut,
     QualityOut,
     ServiceStatsOut,
     StageBreakdownOut,
@@ -36,6 +39,14 @@ _LANGUAGE_CONFIG_KEYS = ("source_lang", "target_lang")
 # que cada una quede en un pixel, y es el horizonte en el que uno se pregunta
 # "¿que he estado haciendo?".
 _ACTIVITY_DAYS = 30
+
+# Cuantos motivos de fallo distintos se listan. Mas de cinco deja de ser un
+# ranking y pasa a ser el log de errores, que ya esta en cada proyecto.
+_MAX_MOTIVOS = 5
+# Los mensajes del pipeline son largos y acaban en detalles irrepetibles
+# (rutas, puertos, trazas). Agrupar por el principio junta las causas iguales
+# sin fundir dos distintas.
+_LARGO_MOTIVO = 90
 
 
 @router.get("/stats", response_model=DashboardStatsOut)
@@ -102,13 +113,47 @@ def get_dashboard_stats(
         for service_type, total, completed, failed, avg_seconds, avg_factor in filas
     ]
 
-    desde = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=_ACTIVITY_DAYS)
+    ahora = datetime.now(timezone.utc).replace(tzinfo=None)
+    desde = ahora - timedelta(days=_ACTIVITY_DAYS)
     dia = func.date(ProjectMetrics.created_at)
     actividad = db.execute(
-        select(dia, func.count())
+        select(
+            dia,
+            func.count(),
+            func.sum(case((completadas, 1), else_=0)),
+            func.sum(case((ProjectMetrics.status == "failed", 1), else_=0)),
+        )
         .where(ProjectMetrics.user_id == current_user.id, ProjectMetrics.created_at >= desde)
         .group_by(dia)
         .order_by(dia)
+    ).all()
+
+    # Los 30 dias anteriores a los 30 actuales, para poder decir "mas o menos
+    # que antes" en vez de dar un numero suelto que no compara con nada.
+    anterior = db.execute(
+        select(func.count())
+        .select_from(ProjectMetrics)
+        .where(
+            ProjectMetrics.user_id == current_user.id,
+            ProjectMetrics.created_at >= ahora - timedelta(days=_ACTIVITY_DAYS * 2),
+            ProjectMetrics.created_at < desde,
+        )
+    ).scalar_one()
+
+    # Los motivos salen de Project, no de las metricas: el mensaje de error no
+    # se copia a ProjectMetrics, asi que esta lista solo cubre los proyectos
+    # que siguen existiendo.
+    motivo = func.substr(Project.error_message, 1, _LARGO_MOTIVO)
+    motivos = db.execute(
+        select(motivo, func.count())
+        .where(
+            Project.user_id == current_user.id,
+            Project.status == ProjectStatus.FAILED,
+            Project.error_message.isnot(None),
+        )
+        .group_by(motivo)
+        .order_by(func.count().desc())
+        .limit(_MAX_MOTIVOS)
     ).all()
 
     # Las columnas JSON se agregan en Python: `stats` guarda listas y sumarlas
@@ -128,7 +173,20 @@ def get_dashboard_stats(
         by_service=by_service,
         # `func.date` devuelve date en Postgres y str en SQLite: se normaliza
         # a ISO aqui para que el contrato no dependa del motor.
-        activity=[ActivityPointOut(day=str(d), count=n) for d, n in actividad],
+        activity=[
+            ActivityPointOut(day=str(d), count=n, completed=int(ok or 0), failed=int(ko or 0))
+            for d, n, ok, ko in actividad
+        ],
         stage_breakdown=StageBreakdownOut(**reparto) if reparto else None,
         quality=QualityOut(**senales_de_calidad(metricas)),
+        outcomes=OutcomesOut(
+            completed=sum(s.completed for s in by_service),
+            failed=sum(s.failed for s in by_service),
+            active=active_now,
+        ),
+        failure_reasons=[FailureReasonOut(reason=r, count=n) for r, n in motivos],
+        runs_vs_previous=PeriodComparisonOut(
+            current=sum(n for _, n, _, _ in actividad),
+            previous=anterior,
+        ),
     )
