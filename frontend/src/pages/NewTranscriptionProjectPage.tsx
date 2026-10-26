@@ -11,6 +11,7 @@ import { Alert } from '../components/ui/Alert'
 import { MediaSourceInput } from '../components/media/MediaSourceInput'
 import { getErrorMessage } from '../lib/errors'
 import { LANGUAGE_NAMES } from '../lib/labels'
+import { nombreDesdeOrigen } from '../lib/projectName'
 
 const LANGUAGE_OPTIONS = [
   { value: '', label: 'Detectar automáticamente' },
@@ -19,29 +20,6 @@ const LANGUAGE_OPTIONS = [
     label: name.charAt(0).toUpperCase() + name.slice(1),
   })),
 ]
-
-function stripExtension(filename: string): string {
-  const lastDot = filename.lastIndexOf('.')
-  return lastDot > 0 ? filename.slice(0, lastDot) : filename
-}
-
-/** El nombre solo sirve para reconocer el proyecto en la lista, asi que si el
- * usuario no escribe uno se saca de lo que ya eligio. Antes era obligatorio y
- * solo se autorrellenaba al subir un archivo: quien pegaba una URL se topaba
- * con un error por un campo que no habia tenido motivo para mirar. */
-function nombrePorDefecto(file: File | null, sourceUrl: string | null): string {
-  if (file) return stripExtension(file.name)
-  if (sourceUrl) {
-    try {
-      const { hostname, pathname } = new URL(sourceUrl)
-      const ultimo = pathname.split('/').filter(Boolean).pop()
-      return ultimo ? `${hostname.replace(/^www\./, '')} · ${ultimo}` : hostname
-    } catch {
-      return 'Transcripción'
-    }
-  }
-  return 'Transcripción'
-}
 
 export function NewTranscriptionProjectPage() {
   const navigate = useNavigate()
@@ -77,7 +55,7 @@ export function NewTranscriptionProjectPage() {
     try {
       const project = await createTranscriptionProject(
         {
-          name: name.trim() || nombrePorDefecto(file, sourceUrl),
+          name: name.trim() || nombreDesdeOrigen(file, sourceUrl, 'Transcripción'),
           file: file ?? undefined,
           source_url: sourceUrl ?? undefined,
           source_lang: sourceLang,
@@ -175,7 +153,7 @@ export function NewTranscriptionProjectPage() {
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={hayOrigen ? nombrePorDefecto(file, sourceUrl) : 'Se toma del archivo'}
+                  placeholder={hayOrigen ? nombreDesdeOrigen(file, sourceUrl, 'Transcripción') : 'Se toma del archivo'}
                   className="h-11"
                 />
                 <p className="text-xs text-muted-foreground">
