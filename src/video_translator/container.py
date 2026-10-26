@@ -17,11 +17,15 @@ from typing import cast
 
 from video_translator.application.interfaces import (
     MediaProcessor,
+    NarrationAssistant,
     ScriptWriter,
     SpeechSynthesizer,
     Summarizer,
     Transcriber,
     Translator,
+)
+from video_translator.application.use_cases.assist_narration_text import (
+    AssistNarrationTextUseCase,
 )
 from video_translator.application.use_cases.generate_micro_video import GenerateMicroVideoUseCase
 from video_translator.application.use_cases.synthesize_text import SynthesizeTextUseCase
@@ -475,6 +479,18 @@ def _build_synthesizer(settings: Settings) -> tuple[SpeechSynthesizer, dict]:
         synthesizer_factory=factory, num_workers=num_workers, ffmpeg_binary=settings.ffmpeg_binary
     )
     return pool, notes
+
+
+def build_assist_narration_text_use_case(settings: Settings) -> AssistNarrationTextUseCase:
+    """Construye la ayuda de texto de la pagina de voz (ver RM-55).
+
+    Mismo patron que el ScriptWriter de RM-42 y el Summarizer de RM-18: los dos
+    backends de LLM ya saben hablar con el modelo, y lo unico que cambia es el
+    prompt, asi que se estrecha el traductor al puerto que toca.
+    """
+    return AssistNarrationTextUseCase(
+        assistant=cast(NarrationAssistant, _build_translator(settings)),
+    )
 
 
 def build_write_micro_video_script_use_case(settings: Settings) -> WriteMicroVideoScriptUseCase:

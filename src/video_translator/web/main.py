@@ -28,6 +28,7 @@ from video_translator.web.routers import (
     music_tracks,
     projects,
     samples,
+    tts,
     users,
 )
 
@@ -80,6 +81,7 @@ app.include_router(samples.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(music_tracks.router, prefix="/api")
 app.include_router(micro_video.router, prefix="/api")
+app.include_router(tts.router, prefix="/api")
 
 
 @app.get("/api/health")

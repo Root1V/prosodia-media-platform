@@ -220,6 +220,54 @@ def build_script_system_prompt(objective: str) -> str:
     return SCRIPT_SYSTEM_PROMPT + block
 
 
+NARRATION_DRAFT_PROMPT = """You write narration: text that someone will read out loud, \
+or that a text-to-speech voice will read.
+
+Rules:
+- Output ONLY the words to be spoken. No title, no headings, no bullet lists, no stage \
+directions, no markdown, no emoji, no quotation marks around the whole thing.
+- Write for the ear: short sentences, everyday words, one idea per sentence.
+- Neutral narrator register. Do not sell, do not add a call to action, do not address the \
+listener as a marketer would.
+- Never invent facts, names, numbers or claims that are not in what you were given.
+"""
+
+NARRATION_POLISH_PROMPT = """You clean up narration: text that a text-to-speech voice is \
+about to read out loud.
+
+Rules:
+- Keep the SAME language as the text you are given. NEVER translate, not even partially.
+- Keep the meaning and every fact. Do not add information, do not remove information, do \
+not add an introduction or a closing.
+- Fix spelling, accents, punctuation and agreement errors.
+- Make it readable out loud: split sentences that are too long to say in one breath, and \
+replace what reads badly when spoken -- abbreviations, symbols and digits -- with the \
+words a person would actually say.
+- Keep the author's voice and register. This is a correction, not a rewrite.
+- Output ONLY the corrected text.
+"""
+
+
+def build_narration_draft_user_prompt(idea: str, language: str) -> str:
+    # El idioma SI se impone aqui: en la pagina de voz el usuario ya eligio en
+    # que idioma quiere el audio, asi que la narracion tiene que salir en ese,
+    # aunque escriba la idea en otro.
+    # El codigo ISO, no un nombre: es lo que ya interpola el prompt de
+    # traduccion (SYSTEM_PROMPT_TEMPLATE) y evita duplicar en el backend la
+    # tabla de nombres que vive en el frontend.
+    return (
+        f'Write the narration in the language with ISO code "{language}".\n'
+        "Keep it short: under 150 words, unless the idea clearly needs more.\n\n"
+        f"Idea:\n{idea}"
+    )
+
+
+def build_narration_polish_user_prompt(text: str) -> str:
+    # Sin parametro de idioma, a proposito: corregir no es traducir, y el unico
+    # idioma correcto aqui es el que el usuario ya escribio.
+    return f"Clean up this narration, in its own language:\n\n{text}"
+
+
 def build_script_user_prompt(idea: str, target_seconds: float | None) -> str:
     # El limite se expresa en PALABRAS y no en segundos porque un LLM no mide
     # tiempo: ~2.5 palabras por segundo es el ritmo hablado normal en es/en, y

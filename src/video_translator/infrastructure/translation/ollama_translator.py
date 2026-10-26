@@ -18,6 +18,10 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 from video_translator.domain.exceptions import TranslationError
 from video_translator.domain.models import TranscriptSegment, TranslationContext
 from video_translator.infrastructure.translation.prompting import (
+    NARRATION_DRAFT_PROMPT,
+    NARRATION_POLISH_PROMPT,
+    build_narration_draft_user_prompt,
+    build_narration_polish_user_prompt,
     build_script_system_prompt,
     build_script_user_prompt,
     build_summary_system_prompt,
@@ -71,6 +75,18 @@ class OllamaTranslator:
         return self._call_llm(
             build_script_system_prompt(objective),
             build_script_user_prompt(idea, target_seconds),
+        ).strip()
+
+    def draft_narration(self, idea: str, language: str) -> str:
+        return self._call_llm(
+            NARRATION_DRAFT_PROMPT,
+            build_narration_draft_user_prompt(idea, language),
+        ).strip()
+
+    def polish_narration(self, text: str) -> str:
+        return self._call_llm(
+            NARRATION_POLISH_PROMPT,
+            build_narration_polish_user_prompt(text),
         ).strip()
 
     @retry(

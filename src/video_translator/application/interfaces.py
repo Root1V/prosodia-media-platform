@@ -243,6 +243,28 @@ class Summarizer(Protocol):
         ...
 
 
+class NarrationAssistant(Protocol):
+    """Ayuda con el TEXTO a narrar de un proyecto de voz (RM-55).
+
+    Puerto aparte de ``ScriptWriter`` aunque los dos "escriben con un LLM":
+    aquel produce un guion de redes -- gancho al inicio, llamada a la accion,
+    una duracion que cumplir -- y eso es exactamente lo que NO quiere quien
+    solo va a narrar un texto.
+
+    Son dos metodos y no uno con un ``mode`` porque sus invariantes difieren,
+    y la firma lo dice: ``polish`` no recibe idioma. Corregir no es traducir, y
+    el unico idioma correcto ahi es el que el usuario ya escribio.
+    """
+
+    def draft_narration(self, idea: str, language: str) -> str:
+        """Convierte una idea suelta en texto narrable, en ``language``."""
+        ...
+
+    def polish_narration(self, text: str) -> str:
+        """Corrige y afina un texto ya escrito, SIN cambiarle el idioma."""
+        ...
+
+
 class ScriptWriter(Protocol):
     """Convierte una idea suelta en un guion narrable, asistido por LLM (RM-42).
 
