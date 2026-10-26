@@ -87,6 +87,15 @@ def test_dashboard_stats_empty_for_new_user(
         "active_now": 0,
         "by_service": [],
         "activity": [],
+        # Sin ninguna corrida no hay de donde sacar un reparto de tiempo: el
+        # panel enseña el estado inicial, no un grafico vacio.
+        "stage_breakdown": None,
+        "quality": {
+            "runs_considered": 0,
+            "runs_tts_on_cpu": 0,
+            "runs_with_trimmed_segments": 0,
+            "runs_with_warnings": 0,
+        },
     }
 
 
@@ -236,3 +245,70 @@ def test_las_metricas_de_otro_usuario_no_se_mezclan(
     assert body["by_service"] == []
     assert body["active_now"] == 0
     assert bob.id != alice.id
+
+
+def test_reparto_de_tiempo_suma_las_listas_de_stats(
+    client: TestClient, make_user: Callable[..., User], db_session: Session
+) -> None:
+    """Una etapa que corre varias veces deja una entrada por invocacion.
+
+    Quedarse con la primera subestimaria la fase: una transcripcion partida en
+    tres tramos contaria solo el primero.
+    """
+    alice = make_user(email="alice@example.com", password="hunter2")
+    headers = _auth_headers(client, "alice@example.com", "hunter2")
+    proyecto = _make_project(db_session, alice)
+
+    _make_metrics(
+        db_session,
+        proyecto,
+        status="completed",
+        total_seconds=100.0,
+        stats={
+            "transcription.model_load_and_inference_seconds": [5.0, 5.0],
+            "tts.batch_wall_seconds": [80.0],
+        },
+    )
+    db_session.commit()
+
+    reparto = client.get("/api/dashboard/stats", headers=headers).json()["stage_breakdown"]
+    fases = {f["phase"]: f["avg_seconds"] for f in reparto["phases"]}
+
+    assert fases["transcription"] == 10.0
+    assert fases["text_to_speech"] == 80.0
+    # 100 - 90: lo que no cae en ninguna fase medida sigue contando, para que
+    # las barras sumen el total en vez de dejar un hueco sin explicar.
+    assert fases["other"] == 10.0
+
+
+def test_senales_de_calidad_cuentan_lo_que_un_completado_esconde(
+    client: TestClient, make_user: Callable[..., User], db_session: Session
+) -> None:
+    alice = make_user(email="alice@example.com", password="hunter2")
+    headers = _auth_headers(client, "alice@example.com", "hunter2")
+    proyecto = _make_project(db_session, alice)
+
+    _make_metrics(
+        db_session, proyecto, status="completed",
+        effective_config={"tts_device_forced_cpu": True},
+        stats={"counter.tts.overflow_trimmed_segments": 2},
+        warnings_count=1,
+    )
+    _make_metrics(
+        db_session, proyecto, status="completed",
+        effective_config={"tts_device_forced_cpu": False}, stats={},
+    )
+    # Una fallida no cuenta: no llego a sintetizar nada.
+    _make_metrics(
+        db_session, proyecto, status="failed",
+        effective_config={"tts_device_forced_cpu": True}, stats={},
+    )
+    db_session.commit()
+
+    calidad = client.get("/api/dashboard/stats", headers=headers).json()["quality"]
+    assert calidad == {
+        "runs_considered": 2,
+        "runs_tts_on_cpu": 1,
+        "runs_with_trimmed_segments": 1,
+        "runs_with_warnings": 1,
+    }

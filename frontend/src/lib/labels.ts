@@ -46,6 +46,10 @@ export const STAGE_LABELS: Record<string, string> = {
   caption_writing: 'Generación de captions',
   media_to_video: 'Renderizado del video (imágenes y clips)',
   caption_burn: 'Incrustando captions',
+  // No es una etapa del pipeline: es el tiempo que no cae en ninguna de las
+  // fases medidas (extraer audio, renderizar, mover archivos). Ver
+  // services/dashboard_metrics.py::reparto_de_tiempo.
+  other: 'Otras etapas',
 }
 
 /** Falls back to a humanized version of the raw stage name (e.g.

@@ -28,6 +28,29 @@ class ActivityPointOut(BaseModel):
     count: int
 
 
+class StagePhaseOut(BaseModel):
+    phase: str
+    avg_seconds: float
+
+
+class StageBreakdownOut(BaseModel):
+    """Donde se va el tiempo del servicio mas pesado (RM-61)."""
+
+    service_type: str
+    runs: int
+    avg_total_seconds: float
+    phases: list[StagePhaseOut]
+
+
+class QualityOut(BaseModel):
+    """Lo que salio bien a medias y un "completado" no cuenta (RM-61)."""
+
+    runs_considered: int
+    runs_tts_on_cpu: int
+    runs_with_trimmed_segments: int
+    runs_with_warnings: int
+
+
 class DashboardStatsOut(BaseModel):
     total_projects: int
     # Suma de la duracion de entrada de las corridas completadas/fallidas del
@@ -42,3 +65,6 @@ class DashboardStatsOut(BaseModel):
     # Un punto por dia con actividad en los ultimos 30 dias. Los dias vacios
     # no viajan: los rellena el frontend, que es quien sabe cuantos pintar.
     activity: list[ActivityPointOut]
+    # None cuando no hay ninguna corrida completada de la que sacarlo.
+    stage_breakdown: StageBreakdownOut | None
+    quality: QualityOut

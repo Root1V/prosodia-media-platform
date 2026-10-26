@@ -86,6 +86,37 @@ export function construirInsights(stats: DashboardStats | undefined): Insight[] 
     })
   }
 
+  const { quality } = stats
+
+  if (quality.runs_tts_on_cpu > 0) {
+    insights.push({
+      id: 'tts-en-cpu',
+      tone: 'warning',
+      title: `${quality.runs_tts_on_cpu} ${quality.runs_tts_on_cpu === 1 ? 'corrida sintetizó' : 'corridas sintetizaron'} la voz en CPU`,
+      detail:
+        'Sin GPU la síntesis tarda varias veces más, y es con diferencia la etapa más cara. Revisa la configuración del worker.',
+    })
+  }
+
+  if (quality.runs_with_trimmed_segments > 0) {
+    insights.push({
+      id: 'segmentos-recortados',
+      tone: 'warning',
+      title: `${quality.runs_with_trimmed_segments} ${quality.runs_with_trimmed_segments === 1 ? 'doblaje recortó' : 'doblajes recortaron'} frases para encajar`,
+      detail:
+        'La traducción no cabía en el hueco del original y hubo que cortarla: ese doblaje dice menos que el video de partida. Un contexto o un glosario más ajustado suele acortar la traducción.',
+    })
+  }
+
+  if (quality.runs_with_warnings > 0) {
+    insights.push({
+      id: 'avisos',
+      tone: 'info',
+      title: `${quality.runs_with_warnings} ${quality.runs_with_warnings === 1 ? 'corrida terminó' : 'corridas terminaron'} con avisos`,
+      detail: 'Terminaron bien, pero el pipeline dejó anotado algo. Están en el detalle de cada proyecto.',
+    })
+  }
+
   if (stats.total_projects > 0 && stats.activity.length === 0) {
     insights.push({
       id: 'sin-actividad',
@@ -125,4 +156,15 @@ export function tasaDeExito(servicio: ServiceStats): number | null {
   // tasa de exito: todavia no se sabe en que acabara.
   const terminadas = servicio.completed + servicio.failed
   return terminadas > 0 ? servicio.completed / terminadas : null
+}
+
+/** Corridas terminadas y cuántas salieron bien, sumando todos los servicios.
+ * Las que siguen vivas no cuentan: todavía no se sabe en qué acabarán. */
+export function totalesDeCorridas(stats: DashboardStats | undefined): {
+  terminadas: number
+  completadas: number
+} {
+  const terminadas = (stats?.by_service ?? []).reduce((n, s) => n + s.completed + s.failed, 0)
+  const completadas = (stats?.by_service ?? []).reduce((n, s) => n + s.completed, 0)
+  return { terminadas, completadas }
 }

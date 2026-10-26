@@ -19,7 +19,13 @@ from video_translator.web.deps import get_current_user, get_db_session
 from video_translator.web.schemas.dashboard import (
     ActivityPointOut,
     DashboardStatsOut,
+    QualityOut,
     ServiceStatsOut,
+    StageBreakdownOut,
+)
+from video_translator.web.services.dashboard_metrics import (
+    reparto_de_tiempo,
+    senales_de_calidad,
 )
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -105,6 +111,15 @@ def get_dashboard_stats(
         .order_by(dia)
     ).all()
 
+    # Las columnas JSON se agregan en Python: `stats` guarda listas y sumarlas
+    # en SQL seria ilegible (ver services/dashboard_metrics.py).
+    metricas = list(
+        db.execute(
+            select(ProjectMetrics).where(ProjectMetrics.user_id == current_user.id)
+        ).scalars()
+    )
+    reparto = reparto_de_tiempo(metricas)
+
     return DashboardStatsOut(
         total_projects=total_projects,
         total_seconds_processed=float(total_seconds_processed or 0.0),
@@ -114,4 +129,6 @@ def get_dashboard_stats(
         # `func.date` devuelve date en Postgres y str en SQLite: se normaliza
         # a ISO aqui para que el contrato no dependa del motor.
         activity=[ActivityPointOut(day=str(d), count=n) for d, n in actividad],
+        stage_breakdown=StageBreakdownOut(**reparto) if reparto else None,
+        quality=QualityOut(**senales_de_calidad(metricas)),
     )

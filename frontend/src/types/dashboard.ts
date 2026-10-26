@@ -15,6 +15,26 @@ export interface ActivityPoint {
   count: number
 }
 
+export interface StagePhase {
+  phase: string
+  avg_seconds: number
+}
+
+export interface StageBreakdown {
+  service_type: string
+  runs: number
+  avg_total_seconds: number
+  phases: StagePhase[]
+}
+
+/** Lo que salio bien a medias y un "completado" no cuenta. */
+export interface Quality {
+  runs_considered: number
+  runs_tts_on_cpu: number
+  runs_with_trimmed_segments: number
+  runs_with_warnings: number
+}
+
 export interface DashboardStats {
   total_projects: number
   total_seconds_processed: number
@@ -25,4 +45,7 @@ export interface DashboardStats {
   /** Solo los dias CON actividad de los ultimos 30; los huecos los rellena
    * quien pinta el grafico. */
   activity: ActivityPoint[]
+  /** null si no hay ninguna corrida completada de la que sacarlo. */
+  stage_breakdown: StageBreakdown | null
+  quality: Quality
 }

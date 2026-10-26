@@ -9,13 +9,13 @@ import {
   Clock,
   FileText,
   FolderKanban,
-  Globe,
+  Gauge,
   Info,
   Volume2,
 } from 'lucide-react'
 import { fetchProjects } from '../api/projects'
 import { fetchDashboardStats } from '../api/dashboard'
-import type { DashboardStats, ServiceStats } from '../types/dashboard'
+import type { DashboardStats, ServiceStats, StageBreakdown } from '../types/dashboard'
 import type { ServiceType } from '../types/project'
 import { Card, CardContent } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
@@ -33,9 +33,10 @@ import {
   construirInsights,
   serieDeActividad,
   tasaDeExito,
+  totalesDeCorridas,
 } from '../lib/dashboardInsights'
 import { PROJECT_STATUS_BADGE_VARIANT, PROJECT_STATUS_LABELS, isActiveStatus } from '../lib/status'
-import { SERVICE_TYPE_LABELS } from '../lib/labels'
+import { SERVICE_TYPE_LABELS, getStageLabel } from '../lib/labels'
 
 const services = [
   {
@@ -88,7 +89,7 @@ function Cifra({
           <p className="text-sm text-muted-foreground" title={title}>
             {label}
           </p>
-          <p className="mt-1 truncate text-2xl font-semibold">{value}</p>
+          <p className="mt-1 truncate text-xl font-semibold sm:text-2xl">{value}</p>
         </div>
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <Icon className="h-5 w-5" />
@@ -109,7 +110,7 @@ function GraficoActividad({ stats }: { stats: DashboardStats | undefined }) {
 
   return (
     <Card>
-      <CardContent className="flex flex-col gap-4 p-6">
+      <CardContent className="flex h-full flex-col gap-4 p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="text-base font-semibold">Actividad</h2>
           <p className="text-xs text-muted-foreground">
@@ -119,7 +120,7 @@ function GraficoActividad({ stats }: { stats: DashboardStats | undefined }) {
           </p>
         </div>
 
-        <div className="flex h-28 items-end gap-[3px]">
+        <div className="flex min-h-44 flex-1 items-end gap-[3px]">
           {serie.map((punto) => (
             <div
               key={punto.day}
@@ -145,6 +146,74 @@ function GraficoActividad({ stats }: { stats: DashboardStats | undefined }) {
           <span>hace 30 días</span>
           <span>hoy</span>
         </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+/** Los colores de las fases, en el orden en que se usan. Son de la paleta de
+ * la app (primary/accent) y no un arcoiris: las fases no son categorias
+ * independientes, son trozos de una misma barra. */
+const COLORES_FASE = [
+  'bg-primary',
+  'bg-accent',
+  'bg-primary/55',
+  'bg-accent/55',
+  'bg-muted-foreground/40',
+]
+
+/** En qué se va el tiempo del servicio más pesado.
+ *
+ * Es la respuesta a "por qué tarda tanto", que el total solo plantea. */
+function RepartoDelTiempo({ reparto }: { reparto: StageBreakdown }) {
+  const total = reparto.phases.reduce((suma, f) => suma + f.avg_seconds, 0)
+
+  return (
+    <Card>
+      <CardContent className="flex flex-col gap-4 p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-base font-semibold">En qué se va el tiempo</h2>
+          <p className="text-xs text-muted-foreground">
+            {SERVICE_TYPE_LABELS[reparto.service_type as ServiceType] ?? reparto.service_type} ·
+            media de {reparto.runs} {reparto.runs === 1 ? 'corrida' : 'corridas'}
+          </p>
+        </div>
+
+        <div className="flex h-3 w-full overflow-hidden rounded-full">
+          {reparto.phases.map((fase, i) => (
+            <div
+              key={fase.phase}
+              className={cn(COLORES_FASE[i % COLORES_FASE.length])}
+              style={{ width: `${(fase.avg_seconds / total) * 100}%` }}
+              title={`${getStageLabel(fase.phase)}: ${formatSecondsDuration(fase.avg_seconds)}`}
+            />
+          ))}
+        </div>
+
+        <ul className="flex flex-col gap-2.5">
+          {reparto.phases.map((fase, i) => (
+            <li key={fase.phase} className="flex items-center gap-3 text-sm">
+              <span
+                className={cn(
+                  'h-2.5 w-2.5 shrink-0 rounded-full',
+                  COLORES_FASE[i % COLORES_FASE.length],
+                )}
+              />
+              <span className="min-w-0 flex-1 truncate">{getStageLabel(fase.phase)}</span>
+              <span className="shrink-0 tabular-nums text-muted-foreground">
+                {formatSecondsDuration(fase.avg_seconds)}
+              </span>
+              <span className="w-12 shrink-0 text-right font-medium tabular-nums">
+                {Math.round((fase.avg_seconds / total) * 100)}%
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          Media total: {formatSecondsDuration(reparto.avg_total_seconds)} por corrida. Acortar la
+          etapa de arriba es lo único que mueve la aguja.
+        </p>
       </CardContent>
     </Card>
   )
@@ -233,6 +302,7 @@ export function DashboardHomePage() {
 
   const projects = data?.items ?? []
   const insights = construirInsights(stats)
+  const { terminadas, completadas } = totalesDeCorridas(stats)
   const sinNada = stats !== undefined && stats.total_projects === 0
 
   return (
@@ -252,11 +322,23 @@ export function DashboardHomePage() {
         </Card>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <Cifra
               label="Proyectos"
               value={stats ? String(stats.total_projects) : '—'}
               icon={FolderKanban}
+            />
+            <Cifra
+              label="Corridas"
+              value={terminadas > 0 ? String(terminadas) : '—'}
+              icon={Gauge}
+              title="Corridas terminadas, incluidas las de proyectos que ya borraste: las métricas sobreviven al borrado"
+            />
+            <Cifra
+              label="Salen bien"
+              value={terminadas > 0 ? `${Math.round((completadas / terminadas) * 100)}%` : '—'}
+              icon={Gauge}
+              title={`${completadas} completadas de ${terminadas} terminadas`}
             />
             <Cifra
               label="Material procesado"
@@ -264,54 +346,63 @@ export function DashboardHomePage() {
               icon={Clock}
               title="Duración del audio y video que has pasado por Prosodia. No incluye la voz generada a partir de texto, que no parte de un material con duración."
             />
-            <Cifra
-              label="Idiomas"
-              value={stats ? String(stats.distinct_languages) : '—'}
-              icon={Globe}
-              title="Idiomas distintos entre origen y destino de tus proyectos"
-            />
           </div>
 
-          {insights.length > 0 && (
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              {insights.map((insight) => (
-                <Card
-                  key={insight.id}
-                  className={cn(insight.tone === 'warning' && 'border-destructive/40')}
-                >
-                  <CardContent className="flex items-start gap-3 p-5">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            {/* Los insights en una sola tarjeta y en lista: antes eran tres
+                tarjetas enormes para tres frases, y la pantalla parecia vacia
+                teniendo datos de sobra. */}
+            {insights.length > 0 && (
+              <Card>
+                <CardContent className="flex flex-col gap-1 p-6">
+                  <h2 className="mb-2 text-base font-semibold">Qué conviene mirar</h2>
+                  {insights.map((insight, i) => (
                     <div
+                      key={insight.id}
                       className={cn(
-                        'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl',
-                        insight.tone === 'warning'
-                          ? 'bg-destructive/10 text-destructive'
-                          : 'bg-primary/10 text-primary',
+                        'flex items-start gap-3 py-3',
+                        i > 0 && 'border-t border-border',
                       )}
                     >
-                      {insight.tone === 'warning' ? (
-                        <AlertTriangle className="h-4 w-4" />
-                      ) : (
-                        <Info className="h-4 w-4" />
-                      )}
+                      <div
+                        className={cn(
+                          'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg',
+                          insight.tone === 'warning'
+                            ? 'bg-destructive/10 text-destructive'
+                            : 'bg-primary/10 text-primary',
+                        )}
+                      >
+                        {insight.tone === 'warning' ? (
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                        ) : (
+                          <Info className="h-3.5 w-3.5" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium">{insight.title}</p>
+                        <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+                          {insight.detail}
+                          {insight.to && (
+                            <>
+                              {' '}
+                              <Link
+                                to={insight.to}
+                                className="font-medium text-primary hover:underline"
+                              >
+                                {insight.linkLabel ?? 'Ver'} →
+                              </Link>
+                            </>
+                          )}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium">{insight.title}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">{insight.detail}</p>
-                      {insight.to && (
-                        <Link
-                          to={insight.to}
-                          className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-                        >
-                          {insight.linkLabel ?? 'Ver'}
-                          <ArrowRight className="h-3.5 w-3.5" />
-                        </Link>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {stats?.stage_breakdown && <RepartoDelTiempo reparto={stats.stage_breakdown} />}
+          </div>
 
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <GraficoActividad stats={stats} />

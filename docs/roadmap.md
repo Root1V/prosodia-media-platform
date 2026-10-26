@@ -289,5 +289,7 @@ Las reglas de los insights exigen la evidencia que las sostiene, que es lo que s
 
 El gráfico son divs: para una serie de 30 enteros, una librería de gráficos cuesta más de lo que resuelve. El estado inicial de un cliente nuevo no enseña ceros ni ejes vacíos, sino qué va a ver cuando haya datos.
 
+**Ampliado después (RM-61):** las columnas JSON de `ProjectMetrics` -- `stats`, `effective_config` -- no se usaban, y ahí estaba lo más revelador. Medido sobre corridas reales: **la síntesis de voz es el 88,6% del tiempo de un doblaje** (485 s de 548 de media), hubo corridas que sintetizaron en **CPU en vez de GPU**, y en varias se **recortaron frases** para que el doblaje encajara en el hueco del original -- es decir, el resultado dice menos que el video de partida, y un "completado" no lo cuenta. Esas señales son ahora insights, y el reparto de tiempo una barra apilada. Los insights pasan de tres tarjetas enormes a una lista: la pantalla parecía vacía teniendo datos de sobra. `stats` guarda **listas** (una entrada por invocación de la etapa), así que se suman antes de promediar; quedarse con la primera subestimaría la fase.
+
 ---
 **Descartado:** reemplazo/agregado de pista de audio en un video existente — evaluado, sin caso de uso claro con el negocio. Sin ID (nunca entró en desarrollo activo).
