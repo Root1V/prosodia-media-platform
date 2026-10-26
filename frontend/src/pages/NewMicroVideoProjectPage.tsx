@@ -303,7 +303,9 @@ export function NewMicroVideoProjectPage() {
       <div className="flex flex-1 overflow-hidden">
         <EditorLeftToolbar activeTool={activeTool} onSelect={handleSelectTool} />
 
-        <div className="flex flex-1 items-center justify-center overflow-y-auto p-6">
+        {/* container-type:size para que el lienzo pueda pedir "lo que quepa a
+            lo alto" (100cqh) y encajar sin deformarse -- ver TextOverlayCanvas. */}
+        <div className="flex flex-1 items-center justify-center overflow-y-auto p-6 [container-type:size]">
           {mediaUrl ? (
             <TextOverlayCanvas
               videoFormat={videoFormat}

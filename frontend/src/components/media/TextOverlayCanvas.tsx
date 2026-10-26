@@ -433,8 +433,25 @@ export function TextOverlayCanvas({
   return (
     <div
       ref={containerRef}
-      className="relative mx-auto h-full max-h-full max-w-full select-none overflow-hidden rounded-2xl border border-border bg-secondary/30 shadow-lg"
-      style={{ aspectRatio: `${videoWidth} / ${videoHeight}`, containerType: 'inline-size' }}
+      className="relative mx-auto max-h-full max-w-full select-none overflow-hidden rounded-2xl border border-border bg-secondary/30 shadow-lg"
+      style={{
+        aspectRatio: `${videoWidth} / ${videoHeight}`,
+        // El ancho es el menor entre "todo el contenedor" y "lo que cabe a lo
+        // alto con este aspecto", que es exactamente encajar sin deformar.
+        //
+        // Antes habia un `h-full`: fijaba la altura al contenedor y el ancho
+        // que pedia el aspecto chocaba con `max-w-full`, asi que un video
+        // cuadrado y uno vertical se dibujaban en la MISMA caja. El video
+        // salia bien, pero el editor ensenaba otra geometria -- y computeExcess
+        // (ver arriba) replica la del backend asumiendo que coinciden, asi que
+        // el encuadre de una imagen podia no corresponder con el resultado.
+        //
+        // cqh viene del contenedor de al lado (NewMicroVideoProjectPage marca
+        // su columna con container-type:size); containerType de aqui abajo es
+        // otro contenedor, el que da los cqw de las tipografias.
+        width: `min(100cqw, 100cqh * ${videoWidth / videoHeight})`,
+        containerType: 'inline-size',
+      }}
     >
       {mediaKind === 'video' ? (
         <>
