@@ -5,6 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    // Nombres de /etc/hosts (prosodia.lab) para que el llavero distinga cada proyecto
+    allowedHosts: ['.lab'],
     proxy: {
       '/api': {
         target: 'http://localhost:8001',
