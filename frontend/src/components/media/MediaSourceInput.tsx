@@ -26,6 +26,11 @@ interface MediaSourceInputProps {
   dropSubtitle: string
   uploadProgress?: number | null
   disabled?: boolean
+  /** Pestana con la que abre cuando no hay nada elegido todavia. Depende de
+   * la pagina: a doblar o subtitular se suele venir con un enlace, pero a
+   * transcribir se viene con un archivo propio -- una reunion, una entrevista
+   * -- y ahi abrir en el buscador de YouTube esconde lo que hace falta. */
+  defaultMode?: SourceMode
 }
 
 /**
@@ -47,11 +52,12 @@ export function MediaSourceInput({
   dropSubtitle,
   uploadProgress,
   disabled,
+  defaultMode = 'search',
 }: MediaSourceInputProps) {
   const [activeTab, setActiveTab] = useState<SourceMode>(() => {
     if (sourceUrl) return 'url'
     if (file) return 'upload'
-    return 'search'
+    return defaultMode
   })
   // Si la URL actual vino de elegir un resultado de busqueda, se ofrece un
   // "volver a los resultados" en la pestaña URL -- se apaga en cuanto el

@@ -25,6 +25,24 @@ function stripExtension(filename: string): string {
   return lastDot > 0 ? filename.slice(0, lastDot) : filename
 }
 
+/** El nombre solo sirve para reconocer el proyecto en la lista, asi que si el
+ * usuario no escribe uno se saca de lo que ya eligio. Antes era obligatorio y
+ * solo se autorrellenaba al subir un archivo: quien pegaba una URL se topaba
+ * con un error por un campo que no habia tenido motivo para mirar. */
+function nombrePorDefecto(file: File | null, sourceUrl: string | null): string {
+  if (file) return stripExtension(file.name)
+  if (sourceUrl) {
+    try {
+      const { hostname, pathname } = new URL(sourceUrl)
+      const ultimo = pathname.split('/').filter(Boolean).pop()
+      return ultimo ? `${hostname.replace(/^www\./, '')} · ${ultimo}` : hostname
+    } catch {
+      return 'Transcripción'
+    }
+  }
+  return 'Transcripción'
+}
+
 export function NewTranscriptionProjectPage() {
   const navigate = useNavigate()
 
@@ -39,25 +57,16 @@ export function NewTranscriptionProjectPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
 
-  function handleFileChange(selected: File | null) {
-    setFile(selected)
-    if (selected && !name) {
-      setName(stripExtension(selected.name))
-    }
-  }
+  const hayOrigen = Boolean(file || sourceUrl)
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    if (!file && !sourceUrl) {
+    if (!hayOrigen) {
       setError('Selecciona un archivo de audio/video o pega una URL para continuar.')
       return
     }
     if (sourceUrl && !sourceUrlValidated) {
       setError('Espera a que la URL se valide antes de continuar.')
-      return
-    }
-    if (!name.trim()) {
-      setError('Ingresa un nombre para el proyecto.')
       return
     }
 
@@ -68,7 +77,7 @@ export function NewTranscriptionProjectPage() {
     try {
       const project = await createTranscriptionProject(
         {
-          name: name.trim(),
+          name: name.trim() || nombrePorDefecto(file, sourceUrl),
           file: file ?? undefined,
           source_url: sourceUrl ?? undefined,
           source_lang: sourceLang,
@@ -85,91 +94,116 @@ export function NewTranscriptionProjectPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
+    <div className="mx-auto flex max-w-7xl flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold">Nueva transcripción</h1>
-        <p className="text-sm text-muted-foreground">
-          Sube un audio o video para obtener su transcripción en el idioma original.
+        <h1 className="text-2xl font-semibold tracking-tight">Nueva transcripción</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Sube un audio o video y obtén su texto en el idioma original.
         </p>
       </div>
 
-      {error && <Alert variant="error" onDismiss={() => setError(null)}>{error}</Alert>}
+      {error && (
+        <Alert variant="error" onDismiss={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        <MediaSourceInput
-          file={file}
-          onFileChange={handleFileChange}
-          sourceUrl={sourceUrl}
-          onSourceUrlChange={setSourceUrl}
-          onSourceUrlValidatedChange={setSourceUrlValidated}
-          accept={{ 'video/*': [], 'audio/*': [] }}
-          dropTitle="Arrastra tu archivo aquí o haz clic para seleccionarlo"
-          dropSubtitle="Video o audio (MP4, MOV, MKV, MP3, WAV, M4A, FLAC…)"
-          uploadProgress={uploadProgress}
-          disabled={isSubmitting}
-        />
+      {/* El origen ocupa el ancho y los ajustes se van al lado: elegir QUE se
+          transcribe es el paso grande, y los otros tres campos tienen buenos
+          valores por defecto. */}
+      <form onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="min-w-0">
+          <MediaSourceInput
+            file={file}
+            onFileChange={setFile}
+            sourceUrl={sourceUrl}
+            onSourceUrlChange={setSourceUrl}
+            onSourceUrlValidatedChange={setSourceUrlValidated}
+            accept={{ 'video/*': [], 'audio/*': [] }}
+            dropTitle="Arrastra tu archivo aquí o haz clic para seleccionarlo"
+            dropSubtitle="Video o audio (MP4, MOV, MKV, MP3, WAV, M4A, FLAC…)"
+            uploadProgress={uploadProgress}
+            disabled={isSubmitting}
+            // A transcribir se viene casi siempre con un archivo propio, no a
+            // buscar en YouTube; abrir en el buscador escondia el area de
+            // subida detras de una pestaña.
+            defaultMode="upload"
+          />
+        </div>
 
-        <Card>
-          <CardContent className="flex flex-col gap-5 p-6">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="name" className="text-sm font-medium">
-                Nombre del proyecto
-              </label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Mi transcripción"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="source-lang" className="text-sm font-medium">
-                Idioma del audio
-              </label>
-              <Select
-                id="source-lang"
-                value={sourceLang}
-                onChange={(e) => setSourceLang(e.target.value)}
-              >
-                {LANGUAGE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border border-border p-4">
-              <div>
-                <p className="text-sm font-medium">Incluir un resumen</p>
+        <aside className="flex min-w-0 flex-col gap-6">
+          <Card>
+            <CardContent className="flex flex-col gap-5 p-6">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="source-lang" className="text-sm font-medium">
+                  Idioma del audio
+                </label>
+                <Select
+                  id="source-lang"
+                  value={sourceLang}
+                  onChange={(e) => setSourceLang(e.target.value)}
+                  className="h-11"
+                >
+                  {LANGUAGE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
                 <p className="text-xs text-muted-foreground">
-                  Además de la transcripción completa, genera un resumen con los highlights
-                  más importantes del video.
+                  Decirlo acierta más que detectarlo, sobre todo si hay ruido o acentos
+                  marcados.
                 </p>
               </div>
-              <Switch checked={includeSummary} onCheckedChange={setIncludeSummary} />
-            </div>
-          </CardContent>
-        </Card>
 
-        <div className="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate('/')}
-            disabled={isSubmitting}
-          >
-            Cancelar
-          </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting || (Boolean(sourceUrl) && !sourceUrlValidated)}
-          >
-            {isSubmitting ? 'Creando proyecto…' : 'Transcribir'}
-          </Button>
-        </div>
+              <div className="flex items-start justify-between gap-3 rounded-xl border border-border p-4">
+                <div>
+                  <p className="text-sm font-medium">Incluir un resumen</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Además del texto completo, un resumen con lo más importante. Añade una
+                    etapa al final.
+                  </p>
+                </div>
+                <Switch checked={includeSummary} onCheckedChange={setIncludeSummary} />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label htmlFor="name" className="text-sm font-medium">
+                  Nombre del proyecto
+                </label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={hayOrigen ? nombrePorDefecto(file, sourceUrl) : 'Se toma del archivo'}
+                  className="h-11"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Opcional. Solo sirve para reconocerlo en tu lista.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex flex-col gap-2">
+            <Button
+              type="submit"
+              className="h-12 w-full text-base"
+              disabled={isSubmitting || !hayOrigen || (Boolean(sourceUrl) && !sourceUrlValidated)}
+            >
+              {isSubmitting ? 'Creando proyecto…' : 'Transcribir'}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => navigate('/')}
+              disabled={isSubmitting}
+            >
+              Cancelar
+            </Button>
+          </div>
+        </aside>
       </form>
     </div>
   )
